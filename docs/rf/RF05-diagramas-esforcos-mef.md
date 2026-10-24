@@ -324,6 +324,6 @@ flowchart LR
 | Card | [Trello mNjp8fP4](https://trello.com/c/mNjp8fP4) | ✅ |
 | Web | `apps/web/src/canvas/overlays/esforcos/` | ⏳ |
 | API | `estrutura/analise/AnaliseService.java`, `ExportadorModeloAnalitico.java` | ⏳ |
-| Banco | `V5__analise_estrutural.sql` | ⏳ |
+| Banco | `V11__analise_estrutural.sql` | ⏳ |
 | Geometria | `geometria/calculations/mef/` | ⏳ |
 | Testes | `test_mef_referencias.py`, `AnaliseIT` | ⏳ |

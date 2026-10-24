@@ -67,7 +67,7 @@ Status possíveis: `especificado` (doc e diagramas prontos, sem código) → `em
 | Camada | Raiz | Exemplo |
 |---|---|---|
 | API core (Java 21/25, Spring Boot 4.1) | `backend/src/main/java/br/com/civilconstructorai/<modulo>/` | `modelo/ComandoViService.java` |
-| Migrações Flyway | `backend/src/main/resources/db/migration/` | `V3__modelo_bim.sql` |
+| Migrações Flyway | `backend/src/main/resources/db/migration/` | `V7__modelo_bim.sql` |
 | Serviço de geometria e cálculo (Python 3.13) | `geometria/<pacote>/` | `geometria/auditor/caixa_cartesiana.py` |
 | Extensão Revit (IronPython) | `pyrevit_extension/` | `pyrevit_extension/CivilConstructor.extension/` |
 | Web (Next.js 16 + Three.js) | `apps/web/src/` | `apps/web/src/canvas/H9Scene3d.ts` |

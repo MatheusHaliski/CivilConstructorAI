@@ -361,6 +361,6 @@ flowchart LR
 | Mobile | `apps/mobile/app/(conta)/consentimentos.tsx` | ⏳ |
 | API | `lgpd/consentimento/ConsentimentoController.java`, `ConsentimentoService.java`, `PoliticaConsentimento.java` | ⏳ |
 | API | `lgpd/termos/LegalController.java`, `ReaceiteFilter.java` | ⏳ |
-| Banco | `V5__lgpd_consentimentos.sql` (consent_event, consentimento_atual, aceite_documento, texto_finalidade) | ⏳ |
+| Banco | `V4__lgpd_consentimentos.sql` (consent_event, consentimento_atual, aceite_documento, texto_finalidade) | ⏳ |
 | Legal | `docs/legal/TERMOS_DE_USO.md`, `docs/legal/POLITICA_DE_PRIVACIDADE.md` | ⏳ |
 | Testes | `ConsentimentoIT`, `ReaceiteIT`, `consentimentos.spec.ts` | ⏳ |

@@ -378,5 +378,5 @@ flowchart LR
 | API | `lgpd/eliminacao/DeletionController.java`, `EliminacaoJob.java`, `SagaEliminacao.java`, passos | ⏳ |
 | Domínio | `identidade/conta/Conta.java` (máquina de estados) | ⏳ |
 | Cripto | `identidade/chave/UserKeyService.java` (DEK por usuário) | ⏳ |
-| Banco | `V1__base.sql` (`user_key`), `V7__lgpd_eliminacao.sql` (saga, retencao_legal, recibo_eliminacao) | ⏳ |
+| Banco | `V1__contas_empresas_obras.sql` (`user_key`), `V6__lgpd_eliminacao.sql` (saga, retencao_legal, recibo_eliminacao) | ⏳ |
 | Testes | `ExclusaoContaIT`, `SagaEliminacaoIT`, `CryptoShreddingIT`, `excluir-conta.spec.ts` | ⏳ |

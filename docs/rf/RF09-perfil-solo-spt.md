@@ -329,6 +329,6 @@ flowchart LR
 | Web | `apps/web/src/app/(app)/obras/[obraId]/geotecnia/` | ⏳ |
 | API | `geotecnia/SondagemController.java`, `SondagemService.java` | ⏳ |
 | IA | `ia/rotas/ExtracaoBoletimSptRota.java` + schema JSON | ⏳ |
-| Banco | `V8__geotecnia.sql` (furo_sondagem, camada_solo, leitura_spt, extracao_boletim) | ⏳ |
+| Banco | `V13__geotecnia.sql` (furo_sondagem, camada_solo, leitura_spt, extracao_boletim) | ⏳ |
 | Cálculo | `geometria/calculations/fundacoes/perfil.py` | ⏳ |
 | Testes | `SondagemIT`, `ExtracaoBoletimSptRotaTest`, `test_perfil.py` | ⏳ |

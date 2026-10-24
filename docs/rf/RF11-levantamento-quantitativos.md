@@ -288,6 +288,6 @@ flowchart LR
 | Card | [Trello ty5wWDp9](https://trello.com/c/ty5wWDp9) | ✅ |
 | Web | `apps/web/src/app/(app)/obras/[obraId]/quantitativos/` | ⏳ |
 | API | `quantitativo/QuantitativoController.java`, `QuantitativoService.java` | ⏳ |
-| Banco | `V10__quantitativos.sql` (levantamento, linha_quantitativo, total_servico) | ⏳ |
+| Banco | `V15__quantitativos.sql` (levantamento, linha_quantitativo, total_servico) | ⏳ |
 | Geometria | `geometria/kernel/quantitativos.py` | ⏳ |
 | Testes | `test_quantitativos.py`, `QuantitativoIT` | ⏳ |

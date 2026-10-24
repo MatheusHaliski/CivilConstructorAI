@@ -316,6 +316,6 @@ flowchart LR
 | Card | [Trello C7Lgejlv](https://trello.com/c/C7Lgejlv) | ✅ |
 | Web | `apps/web/src/app/(app)/obras/[obraId]/fundacoes/` | ⏳ |
 | API | `geotecnia/fundacoes/FundacaoController.java`, `FundacaoService.java` | ⏳ |
-| Banco | `V9__fundacoes.sql` (dimensionamento_fundacao, solucao_pilar, fundacao, estaca) | ⏳ |
+| Banco | `V14__fundacoes.sql` (dimensionamento_fundacao, solucao_pilar, fundacao, estaca) | ⏳ |
 | Cálculo | `geometria/calculations/fundacoes/sapatas.py`, `estacas.py`, `radier.py` | ⏳ |
 | Testes | `test_estacas.py`, `test_sapatas.py`, `FundacaoIT` | ⏳ |

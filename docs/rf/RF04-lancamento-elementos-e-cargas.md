@@ -341,6 +341,6 @@ flowchart LR
 | Web | `apps/web/src/components/h/estrutura/` | ⏳ |
 | API | `estrutura/lancamento/LancamentoService.java`, `estrutura/carga/CargaService.java` | ⏳ |
 | IA | `resources/ia/prompts/lancamento-estrutural.md`, schema `lancamento-estrutural.schema.json` | ⏳ |
-| Banco | `V4__estrutura.sql` (caso_carga, carga, combinacao, parametros_vento) | ⏳ |
+| Banco | `V9__estrutura.sql` (caso_carga, carga, combinacao, parametros_vento) | ⏳ |
 | Geometria | `geometria/calculations/cargas/` | ⏳ |
 | Testes | `GeradorCombinacoesTest`, `LancamentoIT`, `test_vento.py` | ⏳ |

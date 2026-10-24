@@ -307,6 +307,6 @@ flowchart LR
 | Card | [Trello OGjcAg5E](https://trello.com/c/OGjcAg5E) | ✅ |
 | Geometria | `geometria/auditor/caixa_cartesiana.py`, `vaos.py`, `relatorio.py` | ⏳ |
 | API | `modelo/auditoria/RelatorioAuditoriaService.java` | ⏳ |
-| Banco | `V3__modelo_bim.sql` (relatorio_auditoria, correcao_auditoria) | ⏳ |
+| Banco | `V7__modelo_bim.sql` (relatorio_auditoria, correcao_auditoria) | ⏳ |
 | Web | painel de relatório em `apps/web/src/components/h/auditoria/` | ⏳ |
 | Testes | `test_caixa_cartesiana.py`, `test_fencepost.py`, `AuditoriaComandoIT` | ⏳ |

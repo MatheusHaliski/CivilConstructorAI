@@ -28,11 +28,11 @@ paths:
 
 | Rota | RF | Finalidade | `effort` | Saída |
 |---|---|---|---|---|
-| `comando-vi` | RF02 | traduzir texto natural em comando VI | `low` | structured outputs (JSON Schema do comando) |
+| `comando-vi` | RF02 | traduzir texto natural em comando VI | `medium` | structured outputs (JSON Schema do comando) |
 | `lancamento-estrutural` | RF04 | sugerir lançamento de pilares/vigas/lajes | `high` | structured outputs |
-| `extracao-boletim-spt` | RF09 | ler boletim de sondagem (PDF) | `high` | citações (resposta com fonte), depois extração estruturada em chamada separada |
+| `extracao-boletim-spt` | RF09 | ler boletim de sondagem (PDF) | `high` | extração estruturada, depois citações (página e trecho) em chamada separada |
 | `associacao-sinapi` | RF12 | sugerir composição SINAPI por quantitativo | `high` | tool use (`strict: true`) + structured outputs |
-| `correcao-auditoria` | RF16 | corrigir comando reprovado pelo auditor | `medium` | structured outputs |
+| `correcao-auditoria` | RF16 | corrigir comando reprovado pelo auditor | `high` | structured outputs |
 
 Modelo padrão `claude-opus-5-5` pelo SDK oficial `com.anthropic:anthropic-java`; troca de modelo ou `effort`
 por rota só com avaliação (conjunto de avaliação por rota). Pensamento adaptativo sempre ligado; sem

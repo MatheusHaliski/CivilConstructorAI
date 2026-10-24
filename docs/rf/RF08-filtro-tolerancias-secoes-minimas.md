@@ -293,5 +293,5 @@ flowchart LR
 | Geometria | `geometria/auditor/tolerancias.py`, `secoes_minimas.py` | ⏳ |
 | Dados | `geometria/data_model/restricoes/nbr6118.json` | ⏳ |
 | API | `modelo/restricoes/RestricoesController.java` | ⏳ |
-| Banco | `V4__restricoes_projeto.sql` (restricoes_projeto, excecao_normativa) | ⏳ |
+| Banco | `V10__restricoes_projeto.sql` (restricoes_projeto, excecao_normativa) | ⏳ |
 | Testes | `test_tolerancias.py`, `test_secoes_minimas.py`, `RestricoesIT` | ⏳ |

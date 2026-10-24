@@ -305,6 +305,6 @@ flowchart LR
 | Card | [Trello 5aEYPZHD](https://trello.com/c/5aEYPZHD) | ✅ |
 | Web | `apps/web/src/components/h/grid/GridForm.tsx`, `PavimentosForm.tsx` | ⏳ |
 | API | `modelo/grid/GridService.java`, `modelo/pavimento/PavimentoService.java` | ⏳ |
-| Banco | `V3__modelo_bim.sql` (eixo, pavimento, ancoragem) | ⏳ |
+| Banco | `V7__modelo_bim.sql` (eixo, pavimento, ancoragem) | ⏳ |
 | Geometria | `geometria/kernel/grids.py`, `geometria/auditor/bolhas.py` | ⏳ |
 | Testes | `test_grids.py`, `GridIT` | ⏳ |

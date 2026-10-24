@@ -350,5 +350,5 @@ flowchart LR
 | Web | `apps/web/src/app/(app)/obras/[obraId]/orcamento/` | ⏳ |
 | API | `orcamento/OrcamentoController.java`, `OrcamentoService.java`, `SinapiImportador.java` | ⏳ |
 | IA | `ia/rotas/AssociacaoSinapiRota.java`, `ia/ferramentas/ConsultaSinapiFerramenta.java` | ⏳ |
-| Banco | `V11__sinapi.sql`, `V12__orcamento.sql` | ⏳ |
+| Banco | `V16__sinapi.sql`, `V17__orcamento.sql` | ⏳ |
 | Testes | `OrcamentoIT`, `AssociacaoSinapiRotaTest`, avaliação `eval/sinapi/` | ⏳ |

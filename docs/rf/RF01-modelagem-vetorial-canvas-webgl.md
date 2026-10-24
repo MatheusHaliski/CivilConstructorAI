@@ -320,6 +320,6 @@ flowchart LR
 | Card | [Trello 3WgN7lzt](https://trello.com/c/3WgN7lzt) | ✅ |
 | Web | `apps/web/src/canvas/CanvasController.ts`, `SnapEngine.ts` | ⏳ |
 | API | `modelo/ModeloController.java`, `modelo/ComandoViService.java` | ⏳ |
-| Banco | `V3__modelo_bim.sql` (modelo, pavimento, elemento, comando_vi) | ⏳ |
+| Banco | `V7__modelo_bim.sql` (modelo, pavimento, elemento, comando_vi) | ⏳ |
 | Geometria | `geometria/auditor/` (via RF16) | ⏳ |
 | Testes | `ModeloComandoIT`, `canvas.spec.ts` | ⏳ |

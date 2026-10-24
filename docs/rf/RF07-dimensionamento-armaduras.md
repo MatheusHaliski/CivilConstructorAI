@@ -346,6 +346,6 @@ flowchart LR
 | Card | [Trello 0VapxWRZ](https://trello.com/c/0VapxWRZ) | ✅ |
 | Web | `apps/web/src/app/(app)/obras/[obraId]/estrutura/dimensionamento/` | ⏳ |
 | API | `estrutura/dimensionamento/DimensionamentoController.java`, `DimensionamentoService.java` | ⏳ |
-| Banco | `V7__dimensionamento.sql` (dimensionamento, resultado_elemento, armadura, aprovacao) | ⏳ |
+| Banco | `V12__dimensionamento.sql` (dimensionamento, resultado_elemento, armadura, aprovacao) | ⏳ |
 | Cálculo | `geometria/calculations/armaduras/concreto.py`, `aco.py` | ⏳ |
 | Testes | `test_concreto.py`, `DimensionamentoAprovacaoIT` | ⏳ |

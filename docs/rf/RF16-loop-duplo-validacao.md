@@ -92,7 +92,7 @@ conteúdo** do prompt (que não contém dado pessoal, mas pode conter dado de pr
   vez).
 - **RN-02** Correção determinística (Tabela C) não conta como iteração do LLM.
 - **RN-03** A IA nunca recebe dados pessoais: o contexto enviado contém só geometria, códigos e materiais.
-- **RN-04** Rota `ia.corrigir-comando-vi`: `claude-opus-5-5`, `effort: high`, structured outputs com o schema do
+- **RN-04** Rota `correcao-auditoria`: `claude-opus-5-5`, `effort: high`, structured outputs com o schema do
   comando, prompt de sistema fixo em cache (prompt caching), sem `temperature`; fallback do servidor ligado.
 - **RN-05** Comando aprovado vindo da IA continua `RascunhoIA` (`GERADO_POR_IA`) até o profissional confirmar
   (RF27); auditoria aprovada ≠ aprovação técnica.

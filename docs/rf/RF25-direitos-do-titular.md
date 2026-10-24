@@ -387,5 +387,5 @@ flowchart LR
 | API | `lgpd/titular/TitularController.java`, `lgpd/titular/PedidoTitularService.java` | ⏳ |
 | API | `lgpd/exportacao/ExportadorTitular.java`, `ExportacaoJob.java`, `lgpd/inventario/InventarioService.java` | ⏳ |
 | Schema | `backend/src/main/resources/schemas/cca-export-v1.json` | ⏳ |
-| Banco | `V6__lgpd_titular.sql` (pedido_titular, exportacao, retencao_empresa, categoria_dado) | ⏳ |
+| Banco | `V5__lgpd_titular.sql` (pedido_titular, exportacao, retencao_empresa, categoria_dado) | ⏳ |
 | Testes | `ExportacaoIT`, `PedidoTitularIT`, `InventarioAsoIT`, `seus-dados.spec.ts` | ⏳ |
