@@ -29,9 +29,9 @@ backend, testes `*IT`, front, rastreabilidade).
 
 | Card | Lista | Documentação | Entrega |
 |---|---|---|---|
-| [DOC · Visão, arquitetura e ADRs](https://trello.com/c/ariuFHjW) | 📌 | ✅ `PESQUISA_TECNOLOGIAS.md`, `README.md` | — |
-| [DOC · Diagramas transversais](https://trello.com/c/OH410Kxs) | 📌 | ✅ 6 arquivos `DIAGRAMA_*` / `MAQUINA_ESTADOS.md` | — |
-| [DOC · CI "Docs por RF"](https://trello.com/c/7kFA6Jlq) | 📌 | ✅ `scripts/check_rf_docs.py`, `.github/workflows/docs-rf.yml` | — |
+| [DOC · Visão, arquitetura e ADRs](https://trello.com/c/ariuFHjW) | ✅ Concluído | ✅ `PESQUISA_TECNOLOGIAS.md`, `README.md` | — |
+| [DOC · Diagramas transversais](https://trello.com/c/OH410Kxs) | ✅ Concluído | ✅ 6 arquivos `DIAGRAMA_*` / `MAQUINA_ESTADOS.md` | — |
+| [DOC · CI "Docs por RF"](https://trello.com/c/7kFA6Jlq) | ✅ Concluído | ✅ `scripts/check_rf_docs.py`, `.github/workflows/docs-rf.yml` | — |
 | [❓ Decisões de negócio pendentes](https://trello.com/c/Iwnugds9) | 📌 | aberto | — |
 | [RF01 · Modelagem vetorial 2D/3D no canvas WebGL](https://trello.com/c/3WgN7lzt) | M1 | ✅ | ⏳ |
 | [RF02 · Comandos via Notação VI e prompts JSON](https://trello.com/c/W4pJDtvv) | M1 | ✅ | ⏳ |
