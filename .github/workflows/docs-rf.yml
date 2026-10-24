@@ -1,0 +1,33 @@
+name: Docs por RF
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  docs-rf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Instalar mermaid-cli
+        run: npm install -g @mermaid-js/mermaid-cli@11.4.2
+      - name: Configurar Chromium sem sandbox
+        run: echo '{"args":["--no-sandbox"]}' > "$RUNNER_TEMP/puppeteer.json"
+      - name: Verificar docs (estrutura + Mermaid)
+        env:
+          PUPPETEER_CONFIG: ${{ runner.temp }}/puppeteer.json
+        run: python3 scripts/check_rf_docs.py --render
+      - name: Código de RF mudou sem atualizar o doc?
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/check_rf_docs.py --diff "origin/${{ github.base_ref }}"

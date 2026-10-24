@@ -1,0 +1,20 @@
+# Node / front
+node_modules/
+.next/
+.turbo/
+dist/
+# Java
+target/
+*.class
+# Python
+__pycache__/
+*.pyc
+.venv/
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+# IDE / SO
+.idea/
+.vscode/
+.DS_Store
