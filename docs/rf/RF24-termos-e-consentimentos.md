@@ -6,10 +6,11 @@ status: especificado
 cards:
   - https://trello.com/c/HbUcwgdJ
 paths:
-  - backend/src/main/java/br/com/civilconstructorai/lgpd/consentimento/**
-  - backend/src/main/java/br/com/civilconstructorai/lgpd/termos/**
-  - backend/src/main/resources/db/migration/*consent*
-  - backend/src/main/resources/db/migration/*termos*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/lgpd/{Finalidade,EstadoConsentimento,ConsentimentoAtual,ConsentEvent,DocumentoLegal,AceiteTermos,TipoDocumentoLegal,VersaoDocumento}.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/lgpd/{ConsentimentoService,DocumentosLegaisService,Repositorios,Portas}.java
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/lgpd/{VersoesLegaisProps,LgpdInfraConfig,HashProtegidoHmac}.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/lgpd/{LegalController,ConsentimentoController,ReaceiteFilter}.java
+  - backend/cca-infrastructure/src/main/resources/db/migration/V4__lgpd_consentimentos.sql
   - apps/web/src/app/(app)/conta/privacidade/consentimentos/**
   - apps/web/src/app/(auth)/cadastro/**
   - apps/mobile/app/(conta)/consentimentos.tsx
@@ -357,11 +358,13 @@ flowchart LR
 |---|---|---|
 | Documento | `docs/rf/RF24-termos-e-consentimentos.md` | ✅ |
 | Card | [Trello HbUcwgdJ](https://trello.com/c/HbUcwgdJ) | ✅ |
-| Web | `apps/web/src/app/(app)/conta/privacidade/consentimentos/page.tsx`, `ModalReaceite.tsx` | ⏳ |
-| Mobile | `apps/mobile/app/(conta)/consentimentos.tsx` | ⏳ |
-| API | `lgpd/consentimento/ConsentimentoController.java`, `ConsentimentoService.java`, `PoliticaConsentimento.java` | ⏳ |
-| API | `lgpd/termos/LegalController.java`, `ReaceiteFilter.java` | ⏳ |
-| Banco | `V4__lgpd_consentimentos.sql` (consent_event, consentimento_atual, aceite_documento, texto_finalidade) | ⏳ |
-| Legal | `docs/legal/TERMOS_DE_USO.md` (texto-fonte com marcadores `{{…}}` e versão em `app.legal.termos.versao`, conforme DN-01) | 🟡 |
+| Domínio | `lgpd/ConsentimentoAtual`, `ConsentEvent` (imutável), `EstadoConsentimento` (máquina), `AceiteTermos`, `DocumentoLegal`, `VersaoDocumento` | ✅ |
+| Serviço | `lgpd/ConsentimentoService` (toggle = conceder/revogar, A_CONFIRMAR quando o texto muda), `DocumentosLegaisService` (vigentes, pendências, reaceite) | ✅ |
+| API | `api/lgpd/LegalController` (`GET /legal/documentos`, `GET /legal/encarregado`, `GET /me/legal/pendencias`, `POST /me/legal/reaceite`), `ConsentimentoController` (`GET/PUT /me/consentimentos`, `GET …/historico`) | ✅ |
+| Filtro | `api/lgpd/ReaceiteFilter` — 403 `reaceite_pendente` fora de `/auth`, `/legal`, `/me/legal`, `/me/deletion` | ✅ |
+| Config | `app.legal.termos.versao`, `app.legal.politica.versao` (`VersoesLegaisProps`) | ✅ |
+| Banco | `V1` (`documento_legal`, `aceite_termos`, `consentimento_atual`, `consent_event`), `V4__lgpd_consentimentos.sql` (`finalidade_texto` versionado, seeds) | ✅ |
+| Testes | `MaquinasDeEstadoLgpdTest`, `ConsentimentoIT` (toggle, histórico, bloqueio e reaceite) | ✅ |
+| Web | `apps/web/src/app/(app)/conta/privacidade/consentimentos/page.tsx`, cadastro com caixas desmarcadas | ⏳ |
+| Legal | `docs/legal/TERMOS_DE_USO.md` (texto-fonte com marcadores `{{…}}`) | 🟡 |
 | Legal | `docs/legal/POLITICA_DE_PRIVACIDADE.md`, `docs/legal/CHANGELOG.md` | ⏳ |
-| Testes | `ConsentimentoIT`, `ReaceiteIT`, `consentimentos.spec.ts` | ⏳ |

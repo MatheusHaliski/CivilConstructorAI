@@ -10,7 +10,11 @@ paths:
   - geometria/auditor/tabela_c/continuidade_vertical.py
   - geometria/tests/estresse/**
   - pyrevit_extension/**/disciplina_z.py
-  - backend/src/main/java/br/com/civilconstructorai/auditoria/transicao/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/modelo/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/modelo/**
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/modelo/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/modelo/**
+  - backend/cca-infrastructure/src/main/resources/db/migration/V7__modelo_bim.sql
   - apps/web/src/app/(app)/obras/[obraId]/auditoria/**
 ---
 
@@ -298,9 +302,11 @@ flowchart LR
 |---|---|---|
 | Documento | `docs/rf/RF17-controle-elevacao-pilares.md` | ✅ |
 | Card | [Trello VVTtHXnO](https://trello.com/c/VVTtHXnO) | ✅ |
+| Domínio | `cca-domain · modelo/Auditor.java#disciplinaZ` (zera offsets, prende topo ao pavimento acima, transpasse só com `continuo`), `ServicoGeometriaLocal#temApoioInferior` (`Z-SEM_APOIO_INFERIOR`) | ✅ |
+| Aplicação | `cca-application · modelo/ModeloService.java#alertasTransicao/#decidirAlerta` (CONFIRMAR exige justificativa) | ✅ |
 | Geometria | `geometria/auditor/tabela_c/disciplina_z.py`, `continuidade_vertical.py` | ⏳ |
 | pyRevit | `pyrevit_extension/.../disciplina_z.py` | ⏳ |
-| API | `auditoria/transicao/AlertaTransicaoService.java` | ⏳ |
-| Banco | `Vn__auditoria.sql` (alerta_transicao) | ⏳ |
+| API | `cca-web · api/modelo/ModeloController.java` (`GET /modelo/alertas-transicao`, `POST /alertas-transicao/{id}/decidir`) | ✅ |
+| Banco | `V7__modelo_bim.sql` (alerta_transicao) | ✅ |
 | Web | painel de alertas em `obras/[obraId]/auditoria/` | ⏳ |
-| Testes | `test_disciplina_z.py`, `AlertaTransicaoIT` | ⏳ |
+| Testes | `EstresseAuditoriaTest` (Disciplina Z), `ModeloComandoIT#verificarConclusaoEAlertasDeTransicao`; `test_disciplina_z.py` | 🟡 |

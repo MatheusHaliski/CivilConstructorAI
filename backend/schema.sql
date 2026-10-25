@@ -257,3 +257,766 @@ create policy propria_empresa on empresa for select
 grant usage on schema public to cca_app;
 grant select, insert, update, delete on all tables in schema public to cca_app;
 alter default privileges in schema public grant select, insert, update, delete on tables to cca_app;
+-- V3__identidade_extras.sql
+
+-- V3 · Identidade (RF18/RF19): as entidades CodigoVerificacao e CodigoRecuperacaoMfa estendem EntidadeBase
+-- (criado_em, atualizado_em, versao); a V1 criou essas tabelas só com criado_em.
+alter table codigo_verificacao
+  add column atualizado_em timestamptz not null default now(),
+  add column versao        bigint      not null default 0;
+
+alter table codigo_recuperacao_mfa
+  add column atualizado_em timestamptz not null default now(),
+  add column versao        bigint      not null default 0;
+-- V4__lgpd_consentimentos.sql
+
+-- V4 · RF24: textos de finalidade versionados (toggle de consentimento), documentos legais vigentes.
+-- consentimento_atual, consent_event, aceite_termos e documento_legal já existem na V1.
+
+create table finalidade_texto (
+  finalidade   text primary key check (finalidade in ('LOCALIZACAO_CANTEIRO','FOTOS_TREINAMENTO','MARKETING')),
+  versao_texto text not null,
+  titulo       text not null,
+  descricao    text not null,
+  base_legal   text not null,
+  atualizado_em timestamptz not null default now()
+);
+
+insert into finalidade_texto (finalidade, versao_texto, titulo, descricao, base_legal) values
+  ('LOCALIZACAO_CANTEIRO', '1.0', 'Localização do aparelho no canteiro',
+   'Usar a localização do seu aparelho enquanto o app está aberto, para registrar presença e fotos no perímetro da obra.',
+   'Art. 7º, I'),
+  ('FOTOS_TREINAMENTO', '1.0', 'Uso de fotos para treinar classificadores internos',
+   'Usar fotos de canteiro que você enviar para treinar classificadores internos de segurança. Fotos com pessoas identificáveis são excluídas.',
+   'Art. 7º, I · Art. 11'),
+  ('MARKETING', '1.0', 'Comunicação de marketing',
+   'Receber novidades do produto por e-mail. Nunca compartilhamos seu contato com terceiros.',
+   'Art. 7º, I');
+
+insert into documento_legal (id, tipo, versao, vigente_desde, url) values
+  ('00000000-0000-7000-8000-000000000001', 'TERMOS',   '1.0', now(), 'https://civilconstructorai.com.br/legal/termos/1.0'),
+  ('00000000-0000-7000-8000-000000000002', 'POLITICA', '1.0', now(), 'https://civilconstructorai.com.br/legal/politica/1.0')
+on conflict (tipo, versao) do nothing;
+
+create index consent_event_finalidade_idx on consent_event (finalidade, ocorrido_em desc);
+-- V5__lgpd_titular.sql
+
+-- V5 · RF25: direitos do titular — pedidos, exportação (ZIP cifrado) e retenção configurada pela empresa.
+
+create table pedido_titular (
+  id            uuid primary key,
+  conta_id      uuid not null references conta(id) on delete cascade,
+  tenant_id     uuid references empresa(id) on delete cascade,   -- null = pedido sobre dados da conta (plataforma)
+  tipo          text not null check (tipo in ('ACESSO','CORRECAO','EXCLUSAO','PORTABILIDADE','INFORMACAO_COMPARTILHAMENTO','REVOGACAO','OPOSICAO')),
+  categoria     text not null,
+  descricao     text not null,
+  estado        text not null check (estado in ('ABERTO','EM_ANALISE','AGUARDANDO_TITULAR','ATENDIDO','NEGADO','ATRASADO')),
+  prazo_em      timestamptz not null,
+  resposta      text,
+  respondido_por uuid,
+  respondido_em timestamptz,
+  criado_em     timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  versao        bigint not null default 0
+);
+create index pedido_titular_conta_idx on pedido_titular (conta_id, criado_em desc);
+create index pedido_titular_tenant_idx on pedido_titular (tenant_id, estado, prazo_em);
+-- sem RLS: o titular lê os próprios pedidos em qualquer empresa; a aplicação filtra por conta_id / tenant_id.
+
+create table exportacao (
+  id                 uuid primary key,
+  titular_id         uuid not null references conta(id) on delete cascade,
+  estado             text not null check (estado in ('PENDENTE','EM_EXECUCAO','CONCLUIDO','FALHOU','OBSOLETO')),
+  chave_s3           text,
+  senha_cifrada_dek  bytea,                 -- senha do pacote, cifrada com a DEK do titular até a 1ª exibição
+  senha_exibida_em   timestamptz,
+  hash_senha         text,                  -- SHA-256 da senha (prova de que o servidor não a guarda)
+  tamanho_bytes      bigint,
+  expira_em          timestamptz,
+  erro               text,
+  criado_em          timestamptz not null default now(),
+  atualizado_em      timestamptz not null default now(),
+  versao             bigint not null default 0
+);
+create index exportacao_titular_idx on exportacao (titular_id, criado_em desc);
+create index exportacao_pendente_idx on exportacao (estado) where estado = 'PENDENTE';
+
+create table retencao_empresa (
+  id            uuid primary key,
+  tenant_id     uuid not null references empresa(id) on delete cascade,
+  categoria     text not null,
+  prazo_meses   int not null check (prazo_meses >= 0),
+  base_legal    text not null,
+  criado_em     timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  versao        bigint not null default 0,
+  unique (tenant_id, categoria)
+);
+call app_aplicar_rls('retencao_empresa');
+-- V6__lgpd_eliminacao.sql
+
+-- V6 · RF26: saga idempotente de eliminação, retenção legal, recibo e cofre de chaves local (KEK por usuário).
+-- Em produção o cofre é o KMS sa-east-1 + armazenamento separado com snapshots de 7 dias e tombstones;
+-- aqui as duas tabelas vivem no mesmo banco só para dev/it e ficam fora do backup lógico (ver ADR/RF26).
+
+create table saga_eliminacao (
+  id            uuid primary key,
+  conta_id      uuid not null,
+  conta_hash    text not null,
+  estado        text not null check (estado in ('INICIADA','EM_EXECUCAO','FALHOU_PASSO','CONCLUIDA')),
+  passo_atual   int not null default 1 check (passo_atual between 1 and 7),
+  tentativas    int not null default 0,
+  erro          text,
+  chaves_s3     text not null default '[]',
+  iniciada_em   timestamptz not null default now(),
+  concluida_em  timestamptz,
+  criado_em     timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  versao        bigint not null default 0,
+  unique (conta_id)
+);
+
+create table retencao_legal (
+  id            uuid primary key,
+  saga_id       uuid not null references saga_eliminacao(id) on delete cascade,
+  entidade      text not null,
+  registro_id   uuid not null,
+  base_legal    text not null,
+  prazo_ate     timestamptz,
+  dados         text,              -- só o mínimo que a lei obriga (ex.: nome + CREA do responsável técnico)
+  criado_em     timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  versao        bigint not null default 0
+);
+create index retencao_legal_saga_idx on retencao_legal (saga_id);
+
+create table recibo_eliminacao (
+  id            uuid primary key,
+  saga_id       uuid not null references saga_eliminacao(id) on delete cascade,
+  conta_hash    text not null,
+  passos        text not null,
+  bases_legais  text not null,
+  criado_em     timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  versao        bigint not null default 0
+);
+
+-- cofre de chaves (local): KEK por usuário cifrada pela chave-mestra (HKDF do segredo do app em dev/it; KMS em prod)
+create table cofre_kek (
+  id            uuid primary key,
+  usuario_id    uuid not null,
+  kek_cifrada   bytea not null,
+  criado_em     timestamptz not null default now()
+);
+create table kek_revogada (
+  kek_id        uuid primary key,
+  revogada_em   timestamptz not null default now()
+);
+-- V7__modelo_bim.sql
+
+-- V7 · modelo BIM (RF01, RF02, RF03, RF13, RF16, RF17), pranchas (RF14) e interoperabilidade (RF15).
+-- Geometria e propriedades dos elementos em jsonb; cada comando guarda o estado anterior para desfazer e diff.
+
+create table modelo_bim (
+  id               uuid primary key,
+  tenant_id        uuid not null references empresa(id) on delete cascade,
+  obra_id          uuid not null unique references obra(id) on delete cascade,
+  versao           bigint not null default 0,
+  liberada_cliente boolean not null default false,
+  versao_liberada  bigint,
+  criado_em        timestamptz not null default now(),
+  atualizado_em    timestamptz not null default now()
+);
+
+create table pavimento (
+  id        uuid primary key,
+  tenant_id uuid not null,
+  modelo_id uuid not null references modelo_bim(id) on delete cascade,
+  nome      text not null,
+  elevacao  numeric(8,3) not null,
+  tipo      text not null check (tipo in ('FUNDACAO','TERREO','TIPO','COBERTURA','CAIXA_DAGUA')),
+  unique (modelo_id, elevacao)
+);
+
+create table eixo (
+  id          uuid primary key,
+  tenant_id   uuid not null,
+  modelo_id   uuid not null references modelo_bim(id) on delete cascade,
+  nome        text not null,
+  direcao     char(1) not null check (direcao in ('X','Y')),
+  posicao     numeric(10,3) not null,
+  inicio      numeric(10,3) not null,
+  fim         numeric(10,3) not null,
+  recuo_bolha numeric(6,3) not null default 1.0,
+  unique (modelo_id, nome)
+);
+
+create table elemento (
+  id             uuid primary key,
+  tenant_id      uuid not null,
+  modelo_id      uuid not null references modelo_bim(id) on delete cascade,
+  pavimento_id   uuid not null,
+  tipo           text not null,
+  camada         text not null check (camada in ('arquitetura','estrutura','fundacao','desenho','anotacao','ia-rascunho')),
+  material_id    text,
+  origem         text not null check (origem in ('CANVAS','CONSOLE_VI','IA','SISTEMA')),
+  rascunho_ia_id uuid,
+  rotulo         text,
+  geometria      jsonb not null,
+  criado_em      timestamptz not null default now(),
+  atualizado_em  timestamptz not null default now()
+);
+create index elemento_modelo_pav_idx on elemento (modelo_id, pavimento_id);
+create index elemento_tipo_idx on elemento (modelo_id, tipo);
+
+create table comando_vi (
+  id              uuid primary key,
+  tenant_id       uuid not null,
+  modelo_id       uuid not null references modelo_bim(id) on delete cascade,
+  obra_id         uuid not null,
+  codigo          text not null,
+  vi              text not null,
+  args            jsonb not null,
+  origem          text not null,
+  versao_base     bigint not null,
+  versao_nova     bigint not null,
+  autor_id        uuid,
+  estado_anterior jsonb not null,
+  relatorio       jsonb not null,
+  criado_em       timestamptz not null default now(),
+  unique (modelo_id, versao_nova)
+);
+create index comando_vi_obra_versao_idx on comando_vi (obra_id, versao_base);
+
+create table ciclo_auditoria (
+  id          uuid primary key,
+  tenant_id   uuid not null,
+  obra_id     uuid not null,
+  comando_id  uuid not null,
+  estado      text not null check (estado in ('INICIADO','LACO_CODIGO','LACO_GEOMETRIA','CORRIGINDO_COM_LLM','APROVADO','REPROVADO')),
+  iteracoes   int not null default 0,
+  historico   jsonb not null default '[]'::jsonb,
+  iniciado_em timestamptz not null,
+  encerrado_em timestamptz
+);
+create index ciclo_auditoria_comando_idx on ciclo_auditoria (comando_id);
+
+create table alerta_transicao (
+  id            uuid primary key,
+  tenant_id     uuid not null,
+  obra_id       uuid not null,
+  elemento_id   uuid not null,
+  tipo          text not null,
+  estado        text not null check (estado in ('ABERTO','CONFIRMADO','REJEITADO','RESOLVIDO')),
+  mensagem      text not null,
+  justificativa text,
+  criado_em     timestamptz not null default now(),
+  unique (obra_id, elemento_id, tipo)
+);
+
+create table prancha (
+  id             uuid primary key,
+  tenant_id      uuid not null,
+  obra_id        uuid not null references obra(id) on delete cascade,
+  pavimento_id   uuid not null,
+  tipo           text not null check (tipo in ('PLANTA_BAIXA','PLANTA_FORMAS','CORTE','ELEVACAO')),
+  estado         text not null check (estado in ('EM_GERACAO','GERADA','EMITIDA','OBSOLETA','FALHOU')),
+  formato        text not null default 'A1',
+  escala         text not null default '1:50',
+  versao_modelo  bigint not null,
+  chave_svg      text,
+  chave_dxf      text,
+  erro           text,
+  solicitada_por uuid,
+  emitida_por    uuid,
+  art_rrt        text,
+  criada_em      timestamptz not null default now(),
+  emitida_em     timestamptz
+);
+create index prancha_obra_idx on prancha (obra_id, estado);
+
+create table exportacao_modelo (
+  id             uuid primary key,
+  tenant_id      uuid not null,
+  obra_id        uuid not null references obra(id) on delete cascade,
+  formato        text not null check (formato in ('IFC4X3','STEP_AP242')),
+  estado         text not null check (estado in ('PENDENTE','EM_EXECUCAO','CONCLUIDO','FALHOU','OBSOLETO')),
+  versao_modelo  bigint not null,
+  chave          text,
+  erro           text,
+  solicitada_por uuid,
+  criada_em      timestamptz not null default now(),
+  concluida_em   timestamptz
+);
+create index exportacao_modelo_obra_idx on exportacao_modelo (obra_id, estado);
+
+create table pareamento_revit (
+  id          uuid primary key,
+  tenant_id   uuid not null,
+  obra_id     uuid not null references obra(id) on delete cascade,
+  conta_id    uuid not null,
+  estado      text not null check (estado in ('AGUARDANDO_CODIGO','PAREADO','EXPIRADO','REVOGADO')),
+  codigo_hash text not null unique,
+  token_hash  text unique,
+  dispositivo text,
+  expira_em   timestamptz not null,
+  criado_em   timestamptz not null default now(),
+  pareado_em  timestamptz
+);
+
+call app_aplicar_rls('modelo_bim');
+call app_aplicar_rls('pavimento');
+call app_aplicar_rls('eixo');
+call app_aplicar_rls('elemento');
+call app_aplicar_rls('comando_vi');
+call app_aplicar_rls('ciclo_auditoria');
+call app_aplicar_rls('alerta_transicao');
+call app_aplicar_rls('prancha');
+call app_aplicar_rls('exportacao_modelo');
+call app_aplicar_rls('pareamento_revit');
+
+-- o pyRevit troca código por token sem sessão de usuário (sem tenant na conexão): leitura pelo hash
+create policy pareamento_por_codigo on pareamento_revit for select using (true);
+create policy pareamento_update_por_codigo on pareamento_revit for update using (true) with check (true);
+-- V8__rascunho_ia.sql
+
+-- V8 · RF27: rascunhos gerados por IA, pedidos de revisão humana (Art. 20) e registro de chamadas ao modelo.
+
+create table rascunho_ia (
+  id            uuid primary key,
+  tenant_id     uuid not null references empresa(id) on delete cascade,
+  obra_id       uuid not null references obra(id) on delete cascade,
+  tipo          text not null,                 -- COMANDO_VI, LANCAMENTO_ESTRUTURAL, ORCAMENTO, EXTRACAO_SPT, CORRECAO_AUDITORIA…
+  rota          text not null,
+  entidade_ref  text,
+  conteudo      text not null,                 -- JSON da saída estruturada
+  estado        text not null check (estado in ('GERADO_POR_IA','EM_REVISAO','APROVADO','REJEITADO','OBSOLETO','RECUSADO_PELO_MODELO')),
+  criado_por    uuid,
+  aprovado_por  uuid,
+  aprovado_em   timestamptz,
+  art_rrt       text,
+  motivo        text,
+  chamada_ia_id uuid,
+  criado_em     timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  versao        bigint not null default 0
+);
+create index rascunho_ia_obra_idx on rascunho_ia (obra_id, estado);
+call app_aplicar_rls('rascunho_ia');
+
+create table pedido_revisao_humana (
+  id            uuid primary key,
+  tenant_id     uuid not null references empresa(id) on delete cascade,
+  rascunho_id   uuid not null references rascunho_ia(id) on delete cascade,
+  solicitante_id uuid not null,
+  motivo        text not null,
+  estado        text not null check (estado in ('ABERTO','EM_ANALISE','RESPONDIDO')),
+  prazo_em      timestamptz not null,
+  resposta      text,
+  respondido_por uuid,
+  respondido_em timestamptz,
+  criado_em     timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  versao        bigint not null default 0
+);
+create index pedido_revisao_humana_rascunho_idx on pedido_revisao_humana (rascunho_id);
+call app_aplicar_rls('pedido_revisao_humana');
+
+-- registro por chamada ao modelo: nunca o conteúdo, só metadados (retenção de 2 anos por job)
+create table chamada_ia (
+  id              uuid primary key,
+  tenant_id       uuid not null,
+  obra_id         uuid,
+  usuario_id      uuid,
+  rota            text not null,
+  finalidade      text not null,
+  base_legal      text not null,
+  modelo          text not null,
+  effort          text not null,
+  input_tokens    bigint not null default 0,
+  output_tokens   bigint not null default 0,
+  cache_read_input_tokens bigint not null default 0,
+  cache_creation_input_tokens bigint not null default 0,
+  stop_reason     text,
+  recusa          boolean not null default false,
+  latencia_ms     bigint not null default 0,
+  ocorrido_em     timestamptz not null default now(),
+  criado_em       timestamptz not null default now(),
+  atualizado_em   timestamptz not null default now(),
+  versao          bigint not null default 0
+);
+create index chamada_ia_tenant_idx on chamada_ia (tenant_id, ocorrido_em desc);
+call app_aplicar_rls('chamada_ia');
+-- V9__estrutura.sql
+
+-- V9 · RF04 lançamento estrutural: cargas, combinações por pavimento e sugestões de lançamento por IA
+
+create table carga (
+  id               uuid primary key,
+  tenant_id        uuid not null references empresa(id) on delete cascade,
+  obra_id          uuid not null references obra(id) on delete cascade,
+  pavimento_id     text not null,
+  natureza         text not null check (natureza in ('PERMANENTE','ACIDENTAL','VENTO')),
+  tipo             text not null check (tipo in ('AREA','LINEAR','PONTUAL')),
+  valor            double precision not null check (valor > 0),
+  elemento_alvo_id text,
+  descricao        text not null,
+  caso_carga       text not null,
+  criado_em        timestamptz not null default now(),
+  atualizado_em    timestamptz not null default now(),
+  versao           bigint not null default 0
+);
+create index carga_obra_idx on carga (obra_id, pavimento_id);
+
+create table lancamento_estrutural (
+  id               uuid primary key,
+  tenant_id        uuid not null references empresa(id) on delete cascade,
+  obra_id          uuid not null references obra(id) on delete cascade,
+  pavimento_id     text not null,
+  estado           text not null check (estado in ('VAZIO','SUGESTAO_IA','EM_LANCAMENTO','CARREGADO','PRONTO_PARA_ANALISE')),
+  combinacoes_json text not null default '[]',
+  vento_json       text,
+  criado_em        timestamptz not null default now(),
+  atualizado_em    timestamptz not null default now(),
+  versao           bigint not null default 0,
+  unique (obra_id, pavimento_id)
+);
+
+create table rascunho_lancamento (
+  id              uuid primary key,
+  tenant_id       uuid not null references empresa(id) on delete cascade,
+  obra_id         uuid not null references obra(id) on delete cascade,
+  pavimento_id    text not null,
+  estado          text not null,
+  conteudo_json   text not null,
+  modelo_ia       text not null,
+  input_tokens    bigint not null default 0,
+  output_tokens   bigint not null default 0,
+  stop_reason     text not null,
+  aprovado_por    uuid references conta(id),
+  decidido_em     timestamptz,
+  motivo_rejeicao text,
+  criado_em       timestamptz not null default now(),
+  atualizado_em   timestamptz not null default now(),
+  versao          bigint not null default 0
+);
+create index rascunho_lancamento_obra_idx on rascunho_lancamento (obra_id, criado_em desc);
+
+call app_aplicar_rls('carga');
+call app_aplicar_rls('lancamento_estrutural');
+call app_aplicar_rls('rascunho_lancamento');
+-- V10__restricoes_projeto.sql
+
+-- V10 · RF08 tolerâncias geométricas, seções mínimas e exceções normativas por obra
+
+create table restricoes_projeto (
+  id                    uuid primary key,
+  tenant_id             uuid not null references empresa(id) on delete cascade,
+  obra_id               uuid not null unique references obra(id) on delete cascade,
+  short_curve_tolerance double precision not null default 0.05,
+  pilar_lado_min        double precision not null default 0.19,
+  pilar_area_min        double precision not null default 0.036,
+  viga_b_min            double precision not null default 0.12,
+  laje_h_min            double precision not null default 0.08,
+  parede_esp_min        double precision not null default 0.05,
+  criado_em             timestamptz not null default now(),
+  atualizado_em         timestamptz not null default now(),
+  versao                bigint not null default 0
+);
+
+create table excecao_normativa (
+  id               uuid primary key,
+  tenant_id        uuid not null references empresa(id) on delete cascade,
+  obra_id          uuid not null references obra(id) on delete cascade,
+  regra            text not null,
+  elemento_id      text,
+  valor_solicitado double precision not null,
+  justificativa    text not null,
+  estado           text not null check (estado in ('SOLICITADA','ATIVA','RECUSADA','REVOGADA','OBSOLETA')),
+  solicitada_por   uuid not null references conta(id),
+  decidida_por     uuid references conta(id),
+  decidida_em      timestamptz,
+  criado_em        timestamptz not null default now(),
+  atualizado_em    timestamptz not null default now(),
+  versao           bigint not null default 0
+);
+create index excecao_normativa_obra_idx on excecao_normativa (obra_id, estado);
+
+call app_aplicar_rls('restricoes_projeto');
+call app_aplicar_rls('excecao_normativa');
+-- V11__analise_estrutural.sql
+
+-- V11 · RF05 job de análise estrutural (MEF), versionado pela versão do modelo
+
+create table analise_estrutural (
+  id             uuid primary key,
+  tenant_id      uuid not null references empresa(id) on delete cascade,
+  obra_id        uuid not null references obra(id) on delete cascade,
+  versao_modelo  bigint not null,
+  estado         text not null check (estado in ('PENDENTE','EM_EXECUCAO','CONCLUIDO','FALHOU','OBSOLETO')),
+  solicitada_por uuid not null references conta(id),
+  resultado_json text,
+  resumo_json    text,
+  mensagem_erro  text,
+  iniciada_em    timestamptz,
+  concluida_em   timestamptz,
+  criado_em      timestamptz not null default now(),
+  atualizado_em  timestamptz not null default now(),
+  versao         bigint not null default 0
+);
+create index analise_estrutural_obra_idx on analise_estrutural (obra_id, criado_em desc);
+
+call app_aplicar_rls('analise_estrutural');
+-- V12__dimensionamento.sql
+
+-- V12 · RF07 dimensionamento de armaduras (NBR 6118): rascunho até aprovação com ART/RRT
+
+create table dimensionamento (
+  id                       uuid primary key,
+  tenant_id                uuid not null references empresa(id) on delete cascade,
+  obra_id                  uuid not null references obra(id) on delete cascade,
+  analise_id               uuid not null references analise_estrutural(id) on delete cascade,
+  versao_modelo            bigint not null,
+  estado                   text not null,
+  resultados_json          text,
+  aco_total_kg             double precision not null default 0,
+  elementos_nao_verificam  integer not null default 0,
+  mensagem_erro            text,
+  aprovado_por             uuid references conta(id),
+  decidido_em              timestamptz,
+  art_rrt                  text,
+  criado_em                timestamptz not null default now(),
+  atualizado_em            timestamptz not null default now(),
+  versao                   bigint not null default 0
+);
+create index dimensionamento_obra_idx on dimensionamento (obra_id, criado_em desc);
+
+call app_aplicar_rls('dimensionamento');
+-- V13__geotecnia.sql
+
+-- V13 · RF09 sondagens SPT: furos (camadas e leituras em JSON) e extrações de boletim por IA
+
+create table furo_sondagem (
+  id               uuid primary key,
+  tenant_id        uuid not null references empresa(id) on delete cascade,
+  obra_id          uuid not null references obra(id) on delete cascade,
+  codigo           text not null,
+  x                double precision not null,
+  y                double precision not null,
+  longitude        double precision,
+  latitude         double precision,
+  cota_boca        double precision not null,
+  nivel_agua       double precision,
+  camadas_json     text not null default '[]',
+  leituras_json    text not null default '[]',
+  estado           text not null check (estado in ('RASCUNHO','CONFIRMADO','CANCELADO')),
+  boletim_chave_s3 text,
+  origem_ia        boolean not null default false,
+  criado_em        timestamptz not null default now(),
+  atualizado_em    timestamptz not null default now(),
+  versao           bigint not null default 0,
+  unique (obra_id, codigo)
+);
+
+create table extracao_boletim (
+  id            uuid primary key,
+  tenant_id     uuid not null references empresa(id) on delete cascade,
+  obra_id       uuid not null references obra(id) on delete cascade,
+  chave_s3      text not null,
+  estado        text not null,
+  dados_json    text,
+  citacoes_json text,
+  modelo_ia     text,
+  input_tokens  bigint not null default 0,
+  output_tokens bigint not null default 0,
+  mensagem_erro text,
+  decidido_por  uuid references conta(id),
+  decidido_em   timestamptz,
+  criado_em     timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  versao        bigint not null default 0
+);
+create index extracao_boletim_obra_idx on extracao_boletim (obra_id, criado_em desc);
+
+call app_aplicar_rls('furo_sondagem');
+call app_aplicar_rls('extracao_boletim');
+-- V14__fundacoes.sql
+
+-- V14 · RF10 dimensionamento de fundações e propostas por pilar
+
+create table dimensionamento_fundacao (
+  id            uuid primary key,
+  tenant_id     uuid not null references empresa(id) on delete cascade,
+  obra_id       uuid not null references obra(id) on delete cascade,
+  analise_id    uuid not null references analise_estrutural(id) on delete cascade,
+  versao_modelo bigint not null,
+  estado        text not null,
+  solucao_geral text not null default 'INDEFINIDA',
+  mensagem_erro text,
+  aprovado_por  uuid references conta(id),
+  decidido_em   timestamptz,
+  criado_em     timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  versao        bigint not null default 0
+);
+create index dimensionamento_fundacao_obra_idx on dimensionamento_fundacao (obra_id, criado_em desc);
+
+create table fundacao_proposta (
+  id                  uuid primary key,
+  tenant_id           uuid not null references empresa(id) on delete cascade,
+  dimensionamento_id  uuid not null references dimensionamento_fundacao(id) on delete cascade,
+  obra_id             uuid not null references obra(id) on delete cascade,
+  pilar_id            text not null,
+  pilar_rotulo        text,
+  tipo                text not null check (tipo in ('SAPATA','BLOCO','RADIER')),
+  centro_x            double precision not null,
+  centro_y            double precision not null,
+  bx                  double precision not null,
+  by                  double precision not null,
+  h                   double precision not null,
+  carga_kn            double precision not null,
+  estacas             integer,
+  diametro_estaca     double precision,
+  comprimento_estaca  double precision,
+  memoria_json        text not null default '[]',
+  verifica            boolean not null default true,
+  criado_em           timestamptz not null default now(),
+  atualizado_em       timestamptz not null default now(),
+  versao              bigint not null default 0
+);
+create index fundacao_proposta_dim_idx on fundacao_proposta (dimensionamento_id);
+
+call app_aplicar_rls('dimensionamento_fundacao');
+call app_aplicar_rls('fundacao_proposta');
+-- V15__quantitativos.sql
+
+-- V15 · RF11 levantamento quantitativo determinístico (hash) com liberação ao cliente
+
+create table levantamento_quantitativo (
+  id               uuid primary key,
+  tenant_id        uuid not null references empresa(id) on delete cascade,
+  obra_id          uuid not null references obra(id) on delete cascade,
+  versao_modelo    bigint not null,
+  hash             text not null,
+  estado           text not null check (estado in ('PENDENTE','EM_EXECUCAO','CONCLUIDO','FALHOU','OBSOLETO')),
+  linhas_json      text not null,
+  totais_json      text not null,
+  liberado_cliente boolean not null default false,
+  criado_em        timestamptz not null default now(),
+  atualizado_em    timestamptz not null default now(),
+  versao           bigint not null default 0
+);
+create index levantamento_quantitativo_obra_idx on levantamento_quantitativo (obra_id, criado_em desc);
+
+call app_aplicar_rls('levantamento_quantitativo');
+-- V16__sinapi.sql
+
+-- V16 · RF12 tabelas SINAPI versionadas (globais, sem tenant) com semente mínima
+
+create table tabela_sinapi (
+  id             uuid primary key,
+  uf             varchar(2) not null,
+  mes_referencia date not null,
+  desonerado     boolean not null,
+  composicoes    integer not null default 0,
+  criado_em      timestamptz not null default now(),
+  atualizado_em  timestamptz not null default now(),
+  versao         bigint not null default 0,
+  unique (uf, mes_referencia, desonerado)
+);
+
+create table composicao_sinapi (
+  id             uuid primary key,
+  tabela_id      uuid not null references tabela_sinapi(id) on delete cascade,
+  codigo         text not null,
+  descricao      text not null,
+  unidade        text not null,
+  custo_unitario numeric(14,2) not null,
+  grupo          text not null default '',
+  criado_em      timestamptz not null default now(),
+  atualizado_em  timestamptz not null default now(),
+  versao         bigint not null default 0,
+  unique (tabela_id, codigo)
+);
+create index composicao_sinapi_descricao_idx on composicao_sinapi (tabela_id, lower(descricao));
+
+insert into tabela_sinapi (id, uf, mes_referencia, desonerado, composicoes)
+values ('019a0000-0000-7000-8000-000000000001', 'PR', date '2026-09-01', false, 10);
+
+insert into composicao_sinapi (id, tabela_id, codigo, descricao, unidade, custo_unitario, grupo) values
+ (gen_random_uuid(), '019a0000-0000-7000-8000-000000000001', '94965', 'Concreto fck = 30 MPa, usinado, bombeado, lançado e adensado', 'm3', 450.00, 'ESTRUTURA'),
+ (gen_random_uuid(), '019a0000-0000-7000-8000-000000000001', '94964', 'Concreto fck = 25 MPa, usinado, bombeado, lançado e adensado', 'm3', 410.00, 'ESTRUTURA'),
+ (gen_random_uuid(), '019a0000-0000-7000-8000-000000000001', '92779', 'Armação de aço CA-50, corte, dobra e montagem', 'kg', 9.80, 'ESTRUTURA'),
+ (gen_random_uuid(), '019a0000-0000-7000-8000-000000000001', '92267', 'Fôrma de madeira para vigas e pilares, 4 reaproveitamentos', 'm2', 68.50, 'ESTRUTURA'),
+ (gen_random_uuid(), '019a0000-0000-7000-8000-000000000001', '92480', 'Fôrma de madeira para lajes, 4 reaproveitamentos', 'm2', 54.20, 'ESTRUTURA'),
+ (gen_random_uuid(), '019a0000-0000-7000-8000-000000000001', '103323', 'Alvenaria de vedação de blocos cerâmicos 14x19x39 cm', 'm2', 98.00, 'VEDACOES'),
+ (gen_random_uuid(), '019a0000-0000-7000-8000-000000000001', '103355', 'Alvenaria estrutural de blocos de concreto 19x19x39 cm', 'm2', 125.00, 'VEDACOES'),
+ (gen_random_uuid(), '019a0000-0000-7000-8000-000000000001', '100777', 'Estrutura metálica em perfis laminados W', 'kg', 14.20, 'ESTRUTURA'),
+ (gen_random_uuid(), '019a0000-0000-7000-8000-000000000001', '102180', 'Vidro temperado incolor 8 mm, instalado', 'm2', 420.00, 'ESQUADRIAS'),
+ (gen_random_uuid(), '019a0000-0000-7000-8000-000000000001', '90843', 'Porta de madeira semi-oca 80x210 cm, completa', 'un', 650.00, 'ESQUADRIAS');
+-- V17__orcamento.sql
+
+-- V17 · RF12 orçamento, itens vinculados a composições SINAPI e aditivos aprovados pelo cliente
+
+create table orcamento (
+  id                        uuid primary key,
+  tenant_id                 uuid not null references empresa(id) on delete cascade,
+  obra_id                   uuid not null references obra(id) on delete cascade,
+  levantamento_id           uuid references levantamento_quantitativo(id) on delete set null,
+  versao_modelo             bigint not null,
+  tabela_sinapi_id          uuid not null references tabela_sinapi(id),
+  data_base                 text not null,
+  estado                    text not null,
+  total                     numeric(16,2) not null default 0,
+  bdi_pct                   double precision not null default 25,
+  itens_gerados_por_ia      integer not null default 0,
+  liberado_cliente          boolean not null default false,
+  detalhe_liberado_cliente  boolean not null default false,
+  aprovado_por              uuid references conta(id),
+  decidido_em               timestamptz,
+  criado_em                 timestamptz not null default now(),
+  atualizado_em             timestamptz not null default now(),
+  versao                    bigint not null default 0
+);
+create index orcamento_obra_idx on orcamento (obra_id, criado_em desc);
+
+create table item_orcamento (
+  id               uuid primary key,
+  tenant_id        uuid not null references empresa(id) on delete cascade,
+  orcamento_id     uuid not null references orcamento(id) on delete cascade,
+  etapa            text not null,
+  servico          text not null,
+  elemento_tipo    text,
+  codigo_sinapi    text not null,
+  descricao        text not null,
+  unidade          text not null,
+  quantidade       numeric(14,3) not null,
+  custo_unitario   numeric(14,2) not null,
+  total            numeric(16,2) not null,
+  gerado_por_ia    boolean not null default false,
+  confirmado_por   uuid references conta(id),
+  justificativa_ia text,
+  criado_em        timestamptz not null default now(),
+  atualizado_em    timestamptz not null default now(),
+  versao           bigint not null default 0
+);
+create index item_orcamento_orc_idx on item_orcamento (orcamento_id);
+
+create table aditivo (
+  id            uuid primary key,
+  tenant_id     uuid not null references empresa(id) on delete cascade,
+  orcamento_id  uuid not null references orcamento(id) on delete cascade,
+  descricao     text not null,
+  valor         numeric(16,2) not null,
+  estado        text not null check (estado in ('PROPOSTO','APROVADO_CLIENTE','RECUSADO_CLIENTE','CANCELADO')),
+  proposto_por  uuid not null references conta(id),
+  decidido_por  uuid references conta(id),
+  decidido_em   timestamptz,
+  criado_em     timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  versao        bigint not null default 0
+);
+
+call app_aplicar_rls('orcamento');
+call app_aplicar_rls('item_orcamento');
+call app_aplicar_rls('aditivo');

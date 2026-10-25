@@ -7,8 +7,11 @@ cards:
   - https://trello.com/c/5aEYPZHD
 paths:
   - apps/web/src/components/h/grid/**
-  - backend/src/main/java/br/com/civilconstructorai/modelo/grid/**
-  - backend/src/main/java/br/com/civilconstructorai/modelo/pavimento/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/modelo/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/modelo/**
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/modelo/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/modelo/**
+  - backend/cca-infrastructure/src/main/resources/db/migration/V7__modelo_bim.sql
   - geometria/kernel/grids.py
   - geometria/auditor/bolhas.py
 ---
@@ -308,7 +311,8 @@ flowchart LR
 | Documento | `docs/rf/RF03-grids-e-pavimentos.md` | ✅ |
 | Card | [Trello 5aEYPZHD](https://trello.com/c/5aEYPZHD) | ✅ |
 | Web | `apps/web/src/components/h/grid/GridForm.tsx`, `PavimentosForm.tsx` | ⏳ |
-| API | `modelo/grid/GridService.java`, `modelo/pavimento/PavimentoService.java` | ⏳ |
-| Banco | `V7__modelo_bim.sql` (eixo, pavimento, ancoragem) | ⏳ |
-| Geometria | `geometria/kernel/grids.py`, `geometria/auditor/bolhas.py` | ⏳ |
-| Testes | `test_grids.py`, `GridIT` | ⏳ |
+| Domínio | `cca-domain · modelo/ModeloBim.java` (EIXO, MALHA, PAVIMENTO, `moverEixo` com arrasto de elementos ancorados, `intersecoesDeEixos`, `caixaDosEixos`, rótulos A…/1…), `Eixo.java`, `Pavimento.java` | ✅ |
+| API | `cca-web · api/modelo/ModeloController.java` (`POST /modelo/eixos`, `POST /modelo/malha`, `PATCH /modelo/eixos/{id}`, `POST /modelo/pavimentos`) | ✅ |
+| Banco | `V7__modelo_bim.sql` (eixo, pavimento; ancoragem = coordenadas dos elementos atualizadas no `MOVER_EIXO`) | ✅ |
+| Geometria | bolhas recuadas sem sobreposição em `cca-application · prancha/GeradorPrancha.java`; `geometria/kernel/grids.py` | 🟡 |
+| Testes | `ModeloBimTest` (malha, mover eixo arrasta pilar), `ModeloComandoIT#fluxoCompletoMalhaPilarVigaDiffDesfazer`; `test_grids.py` | 🟡 |

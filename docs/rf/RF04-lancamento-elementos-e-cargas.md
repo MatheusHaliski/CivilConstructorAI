@@ -2,15 +2,21 @@
 rf: RF04
 titulo: Lançamento de pilares, vigas, lajes e cargas (permanentes/vento)
 modulo: M2 Análise Estrutural & Esforços
-status: especificado
+status: em-andamento
 cards:
   - https://trello.com/c/WOIUHFDD
 paths:
   - apps/web/src/components/h/estrutura/**
-  - backend/src/main/java/br/com/civilconstructorai/estrutura/lancamento/**
-  - backend/src/main/java/br/com/civilconstructorai/estrutura/carga/**
-  - backend/src/main/resources/ia/prompts/lancamento-estrutural*
   - geometria/calculations/cargas/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/estrutura/carga/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/estrutura/lancamento/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/estrutura/modelo/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/estrutura/CargasService.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/estrutura/LancadorAutomatico.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/estrutura/ModeloEstruturalFonte.java
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/estrutura/ModeloEstruturalJdbc.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/estrutura/EstruturaController.java
+  - backend/cca-infrastructure/src/main/resources/db/migration/V9__estrutura.sql
 ---
 
 # RF04 · Lançamento de pilares, vigas, lajes e cargas (permanentes/vento)
@@ -339,8 +345,8 @@ flowchart LR
 | Documento | `docs/rf/RF04-lancamento-elementos-e-cargas.md` | ✅ |
 | Card | [Trello WOIUHFDD](https://trello.com/c/WOIUHFDD) | ✅ |
 | Web | `apps/web/src/components/h/estrutura/` | ⏳ |
-| API | `estrutura/lancamento/LancamentoService.java`, `estrutura/carga/CargaService.java` | ⏳ |
-| IA | `resources/ia/prompts/lancamento-estrutural.md`, schema `lancamento-estrutural.schema.json` | ⏳ |
-| Banco | `V9__estrutura.sql` (caso_carga, carga, combinacao, parametros_vento) | ⏳ |
+| API | `cca-web/api/estrutura/EstruturaController.java` (`/estrutura/cargas`, `/vento/{pav}`, `/combinacoes`, `/lancamentos`, `/lancamento/sugerir|rascunhos`), `cca-application/estrutura/CargasService.java`, `LancadorAutomatico.java` (rota `LANCAMENTO_ESTRUTURAL`, rascunho gated por `podeAprovar`) | ✅ |
+| IA | prompt e JSON Schema fixos em `LancadorAutomatico.SYSTEM`/`SCHEMA`; validação determinística das seções mínimas antes de virar `RascunhoLancamento` | ✅ |
+| Banco | `V9__estrutura.sql` (carga, lancamento_estrutural, rascunho_lancamento; RLS via `app_aplicar_rls`) | ✅ |
 | Geometria | `geometria/calculations/cargas/` | ⏳ |
-| Testes | `GeradorCombinacoesTest`, `LancamentoIT`, `test_vento.py` | ⏳ |
+| Testes | `GeradorCombinacoesTest` (NBR 8681/6123), `AnaliseIT` (lançamento de carga, combinações, 422 em carga inválida), `test_vento.py` | ✅ backend · ⏳ python |

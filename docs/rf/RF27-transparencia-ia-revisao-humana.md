@@ -6,11 +6,12 @@ status: especificado
 cards:
   - https://trello.com/c/7dTIZbIs
 paths:
-  - backend/src/main/java/br/com/civilconstructorai/ia/**
-  - backend/src/main/java/br/com/civilconstructorai/lgpd/ia/**
-  - backend/src/main/java/br/com/civilconstructorai/registro/**
-  - backend/src/main/resources/db/migration/*rascunho_ia*
-  - backend/src/main/resources/ia/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/ia/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/ia/**
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/ia/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/ia/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/registro/**
+  - backend/cca-infrastructure/src/main/resources/db/migration/V8__rascunho_ia.sql
   - apps/web/src/app/(app)/conta/privacidade/uso-de-ia/**
   - apps/web/src/components/ia/**
 ---
@@ -394,10 +395,13 @@ flowchart LR
 |---|---|---|
 | Documento | `docs/rf/RF27-transparencia-ia-revisao-humana.md` | ✅ |
 | Card | [Trello 7dTIZbIs](https://trello.com/c/7dTIZbIs) | ✅ |
+| Domínio | `ia/RascunhoIa` (GERADO_POR_IA → EM_REVISAO → APROVADO/REJEITADO, OBSOLETO, RECUSADO_PELO_MODELO; aprovar exige ART/RRT), `PedidoRevisaoHumana` (Art. 20, 15 dias), `ChamadaIa` (só metadados) | ✅ |
+| Porta | `ia/ModeloLinguagem` + `RotaIa` (as 5 rotas da DN-04 com finalidade, base legal, `effort`, dados permitidos) | ✅ |
+| Serviço | `ia/ServicoIa` (fachada: registra chamada, checa `stop_reason`/recusa, valida campos obrigatórios), `RascunhoIaService` (aprovação = papel aprovador + selo VERIFIED + 2FA + ART; obsoleta anteriores da mesma entidade), `UsoIaService` (catálogo da tela "Uso de IA", consumo por rota/mês) | ✅ |
+| Infra | `ia/ClaudeModeloLinguagem` (SDK oficial `anthropic-java` 3.3.0: `claude-opus-5-5`, `output_config.effort` + `format` JSON Schema, streaming com `MessageAccumulator`, `cache_control` na parte fixa, fallback do servidor via beta `server-side-fallback-2026-07-01`, exceções tipadas), `FakeModeloLinguagem` (dev/it) | ✅ (real) · 🟡 teste contra a API real fora do CI |
+| API | `api/ia/RascunhoIaController` (`GET/POST /obras/{obraId}/rascunhos-ia/**`: revisão, aprovar, rejeitar, revisão-humana), `IaController` (`GET /ia/uso`, `GET /empresas/{id}/ia/consumo`) | ✅ |
+| Config | catálogo das rotas em `RotaIa` (código); `rotas.yml` substituído pelo enum para validar na compilação | ✅ |
+| Banco | `V8__rascunho_ia.sql` (`rascunho_ia`, `pedido_revisao_humana`, `chamada_ia` — RLS por tenant) | ✅ |
+| Cassandra | `chamada_ia` com TTL de 2 anos | 🟡 (PostgreSQL por enquanto; job de expurgo pendente) |
+| Testes | `ServicoIaTest` (registro sem conteúdo, recusa, truncamento, campos obrigatórios), `MaquinasDeEstadoLgpdTest`, `RascunhoIaIT` (sem selo → 403 com motivo, ART vazia → 422, aprovação, revisão humana 201, `GET /ia/uso`, consumo) | ✅ |
 | Web | `apps/web/src/app/(app)/conta/privacidade/uso-de-ia/page.tsx`, `apps/web/src/components/ia/AiDraftBadge.tsx` | ⏳ |
-| API | `ia/ServicoIa.java`, `ia/ClaudeServicoIa.java`, `ia/SanitizadorContextoIa.java`, `ia/RascunhoIaController.java` | ⏳ |
-| API | `lgpd/ia/UsoIaController.java`, `ia/AprovacaoPolicy.java` | ⏳ |
-| Config | `backend/src/main/resources/ia/rotas.yml` | ⏳ |
-| Banco | `V8__rascunho_ia.sql` (rascunho_ia, aprovacao) | ⏳ |
-| Cassandra | tabela `chamada_ia` (TTL 2 anos) | ⏳ |
-| Testes | `RascunhoIaIT`, `SanitizadorContratoTest`, `ChamadaIaRegistroIT`, `uso-de-ia.spec.ts` | ⏳ |

@@ -21,6 +21,9 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+    # citext (e-mail case-insensitive) precisa existir antes da V1; idempotente
+    init-sqls:
+      - create extension if not exists citext;
     user: ${CCA_DB_MIGRATION_USER:cca_migracao}
     password: ${CCA_DB_MIGRATION_PASSWORD:cca_migracao}
   data:

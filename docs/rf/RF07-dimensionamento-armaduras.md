@@ -2,14 +2,16 @@
 rf: RF07
 titulo: Dimensionamento de armaduras (ELU/ELS) em concreto/aço
 modulo: M3 Dimensionamento Normativo
-status: especificado
+status: em-andamento
 cards:
   - https://trello.com/c/0VapxWRZ
 paths:
   - geometria/calculations/armaduras/**
-  - backend/src/main/java/br/com/civilconstructorai/estrutura/dimensionamento/**
   - apps/web/src/app/(app)/obras/[obraId]/estrutura/dimensionamento/**
-  - backend/src/main/resources/db/migration/*dimensionamento*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/estrutura/dimensionamento/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/estrutura/DimensionamentoService.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/estrutura/AnaliseController.java
+  - backend/cca-infrastructure/src/main/resources/db/migration/V12__dimensionamento.sql
 ---
 
 # RF07 · Dimensionamento de armaduras (ELU/ELS) em concreto/aço
@@ -345,7 +347,7 @@ flowchart LR
 | Documento | `docs/rf/RF07-dimensionamento-armaduras.md` | ✅ |
 | Card | [Trello 0VapxWRZ](https://trello.com/c/0VapxWRZ) | ✅ |
 | Web | `apps/web/src/app/(app)/obras/[obraId]/estrutura/dimensionamento/` | ⏳ |
-| API | `estrutura/dimensionamento/DimensionamentoController.java`, `DimensionamentoService.java` | ⏳ |
-| Banco | `V12__dimensionamento.sql` (dimensionamento, resultado_elemento, armadura, aprovacao) | ⏳ |
-| Cálculo | `geometria/calculations/armaduras/concreto.py`, `aco.py` | ⏳ |
-| Testes | `test_concreto.py`, `DimensionamentoAprovacaoIT` | ⏳ |
+| API | `cca-web/api/estrutura/AnaliseController.java` (`POST /dimensionamentos` → 202, `/resultados`, `/aprovar` com ART/RRT, `/rejeitar`), `cca-application/estrutura/DimensionamentoService.java` (envoltória ELU das combinações) | ✅ |
+| Banco | `V12__dimensionamento.sql` (dimensionamento com resultados JSON por elemento, aço total, aprovação) | ✅ |
+| Cálculo | `cca-domain/estrutura/dimensionamento/Nbr6118.java` (flexão, cisalhamento modelo I, pilar simplificado, flecha Branson, fissuração), `Bitolas.java` | ✅ |
+| Testes | `Nbr6118Test`, `DimensionamentoIT` (memória por elemento; aprovar sem selo/2FA → 403; sem ART → 422) | ✅ |

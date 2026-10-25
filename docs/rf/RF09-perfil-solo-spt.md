@@ -2,15 +2,19 @@
 rf: RF09
 titulo: Cadastro de perfil estratigráfico de solo e ensaio SPT
 modulo: M4 Geotecnia & Fundações
-status: especificado
+status: em-andamento
 cards:
   - https://trello.com/c/LzHFBr6H
 paths:
-  - backend/src/main/java/br/com/civilconstructorai/geotecnia/**
-  - backend/src/main/java/br/com/civilconstructorai/ia/rotas/ExtracaoBoletimSpt*.java
   - geometria/calculations/fundacoes/perfil.py
   - apps/web/src/app/(app)/obras/[obraId]/geotecnia/**
-  - backend/src/main/resources/db/migration/*geotecnia*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/geotecnia/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/geotecnia/SondagemService.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/geotecnia/ExtracaoBoletimService.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/geotecnia/PerimetroObra.java
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/geotecnia/PerimetroObraJdbc.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/geotecnia/GeotecniaController.java
+  - backend/cca-infrastructure/src/main/resources/db/migration/V13__geotecnia.sql
 ---
 
 # RF09 · Cadastro de perfil estratigráfico de solo e ensaio SPT
@@ -327,8 +331,8 @@ flowchart LR
 | Documento | `docs/rf/RF09-perfil-solo-spt.md` | ✅ |
 | Card | [Trello LzHFBr6H](https://trello.com/c/LzHFBr6H) | ✅ |
 | Web | `apps/web/src/app/(app)/obras/[obraId]/geotecnia/` | ⏳ |
-| API | `geotecnia/SondagemController.java`, `SondagemService.java` | ⏳ |
-| IA | `ia/rotas/ExtracaoBoletimSptRota.java` + schema JSON | ⏳ |
-| Banco | `V13__geotecnia.sql` (furo_sondagem, camada_solo, leitura_spt, extracao_boletim) | ⏳ |
+| API | `cca-web/api/geotecnia/GeotecniaController.java` (`/sondagens`, `/{id}/confirmar`, `/{id}/boletim/presign`, `/perfil?x&y`, `/extracoes`), `cca-application/geotecnia/SondagemService.java`, `ExtracaoBoletimService.java` | ✅ |
+| IA | rota `EXTRACAO_BOLETIM_SPT` em `ExtracaoBoletimService` — duas chamadas (structured outputs + citações), nada gravado sem `confirmar` | ✅ |
+| Banco | `V13__geotecnia.sql` (furo_sondagem com camadas/leituras JSON, extracao_boletim); perímetro via `ST_Contains` em `PerimetroObraJdbc` | ✅ |
 | Cálculo | `geometria/calculations/fundacoes/perfil.py` | ⏳ |
-| Testes | `SondagemIT`, `ExtracaoBoletimSptRotaTest`, `test_perfil.py` | ⏳ |
+| Testes | `CalculoFundacoesTest`, `SondagemIT` (furo fora do perímetro → 422; confirmação; perfil interpolado; presign), `test_perfil.py` | ✅ backend · ⏳ python |

@@ -2,14 +2,18 @@
 rf: RF10
 titulo: Dimensionamento de sapatas, blocos sobre estacas e radier
 modulo: M4 Geotecnia & Fundações
-status: especificado
+status: em-andamento
 cards:
   - https://trello.com/c/C7Lgejlv
 paths:
   - geometria/calculations/fundacoes/**
-  - backend/src/main/java/br/com/civilconstructorai/geotecnia/fundacoes/**
   - apps/web/src/app/(app)/obras/[obraId]/fundacoes/**
-  - backend/src/main/resources/db/migration/*fundac*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/geotecnia/CalculoFundacoes.java
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/geotecnia/DimensionamentoFundacao.java
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/geotecnia/FundacaoProposta.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/geotecnia/FundacaoService.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/geotecnia/GeotecniaController.java
+  - backend/cca-infrastructure/src/main/resources/db/migration/V14__fundacoes.sql
 ---
 
 # RF10 · Dimensionamento de sapatas, blocos sobre estacas e radier
@@ -315,7 +319,7 @@ flowchart LR
 | Documento | `docs/rf/RF10-dimensionamento-fundacoes.md` | ✅ |
 | Card | [Trello C7Lgejlv](https://trello.com/c/C7Lgejlv) | ✅ |
 | Web | `apps/web/src/app/(app)/obras/[obraId]/fundacoes/` | ⏳ |
-| API | `geotecnia/fundacoes/FundacaoController.java`, `FundacaoService.java` | ⏳ |
-| Banco | `V14__fundacoes.sql` (dimensionamento_fundacao, solucao_pilar, fundacao, estaca) | ⏳ |
-| Cálculo | `geometria/calculations/fundacoes/sapatas.py`, `estacas.py`, `radier.py` | ⏳ |
-| Testes | `test_estacas.py`, `test_sapatas.py`, `FundacaoIT` | ⏳ |
+| API | `GeotecniaController` (`POST /fundacoes {analiseId, cotaAssentamento, diametroEstaca}`, `/propostas`, `/aprovar|rejeitar|aplicado`), `cca-application/geotecnia/FundacaoService.java` (SAPATAS / MISTA / RADIER) | ✅ |
+| Banco | `V14__fundacoes.sql` (dimensionamento_fundacao, fundacao_proposta) | ✅ |
+| Cálculo | `cca-domain/geotecnia/CalculoFundacoes.java` (σadm = 20·Nspt ≤ 400 kPa, Aoki-Velloso, Décourt-Quaresma, FS = 2, sobreposição de sapatas) | ✅ |
+| Testes | `CalculoFundacoesTest`; `FundacaoIT` ⏳ | ✅ domínio · ⏳ IT |

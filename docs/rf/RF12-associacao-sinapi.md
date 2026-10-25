@@ -2,16 +2,17 @@
 rf: RF12
 titulo: Associação automática a tabelas orçamentárias (SINAPI / Tabela A)
 modulo: M5 Extração Quantitativa (5D)
-status: especificado
+status: em-andamento
 cards:
   - https://trello.com/c/64v8Sq35
 paths:
-  - backend/src/main/java/br/com/civilconstructorai/orcamento/**
-  - backend/src/main/java/br/com/civilconstructorai/ia/rotas/AssociacaoSinapi*.java
-  - backend/src/main/java/br/com/civilconstructorai/ia/ferramentas/ConsultaSinapi*.java
   - apps/web/src/app/(app)/obras/[obraId]/orcamento/**
-  - backend/src/main/resources/db/migration/*orcamento*
-  - backend/src/main/resources/db/migration/*sinapi*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/orcamento/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/orcamento/OrcamentoService.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/orcamento/SinapiService.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/orcamento/OrcamentoController.java
+  - backend/cca-infrastructure/src/main/resources/db/migration/V16__sinapi.sql
+  - backend/cca-infrastructure/src/main/resources/db/migration/V17__orcamento.sql
 ---
 
 # RF12 · Associação automática a tabelas orçamentárias (SINAPI / Tabela A)
@@ -348,7 +349,7 @@ flowchart LR
 | Documento | `docs/rf/RF12-associacao-sinapi.md` | ✅ |
 | Card | [Trello 64v8Sq35](https://trello.com/c/64v8Sq35) | ✅ |
 | Web | `apps/web/src/app/(app)/obras/[obraId]/orcamento/` | ⏳ |
-| API | `orcamento/OrcamentoController.java`, `OrcamentoService.java`, `SinapiImportador.java` | ⏳ |
-| IA | `ia/rotas/AssociacaoSinapiRota.java`, `ia/ferramentas/ConsultaSinapiFerramenta.java` | ⏳ |
-| Banco | `V16__sinapi.sql`, `V17__orcamento.sql` | ⏳ |
-| Testes | `OrcamentoIT`, `AssociacaoSinapiRotaTest`, avaliação `eval/sinapi/` | ⏳ |
+| API | `cca-web/api/orcamento/OrcamentoController.java` (`/orcamentos`, itens, `confirmar`, `aprovar`, `liberar-cliente`, aditivos; `/sinapi/tabelas|composicoes|importar`), `cca-application/orcamento/OrcamentoService.java`, `SinapiService.java` | ✅ |
+| IA | rota `ASSOCIACAO_SINAPI` em `OrcamentoService.sugerirComIa` — candidatos de `consultar_sinapi` resolvidos localmente, sugestão validada (código existe, unidade compatível) e marcada `geradoPorIa` até confirmação | ✅ |
+| Banco | `V16__sinapi.sql` (tabela_sinapi, composicao_sinapi + seed PR 2026-09), `V17__orcamento.sql` (orcamento, item_orcamento, aditivo) | ✅ |
+| Testes | `OrcamentoIT` (sugestão inválida descartada, aprovação bloqueada com item IA pendente, CLIENTE só vê totais liberados, aditivo), avaliação `eval/sinapi/` ⏳ | ✅ backend · ⏳ eval |

@@ -37,7 +37,9 @@ public class SegurancaConfig {
                         .sessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy()))
                 .authorizeHttpRequests(a -> a
                         .requestMatchers("/api/v1/auth/**", "/api/v1/legal/**", "/api/v1/convites/*/publico", "/api/v1/catalogo/**").permitAll()
-                        .requestMatchers("/actuator/health/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                        // ponte pyRevit (RF15, fase 2): autenticada por código de pareamento de uso único e token de dispositivo, não por sessão
+                        .requestMatchers("/api/v1/revit/parear", "/api/v1/revit/comandos").permitAll()
+                        .requestMatchers("/error", "/actuator/health/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) -> problem.escrever(res, HttpStatus.UNAUTHORIZED, "nao_autenticado", "Entre para continuar."))

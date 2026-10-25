@@ -6,10 +6,13 @@ status: especificado
 cards:
   - https://trello.com/c/u9tL8Fqy
 paths:
-  - backend/src/main/java/br/com/civilconstructorai/identidade/perfil/**
-  - backend/src/main/java/br/com/civilconstructorai/identidade/mfa/**
-  - backend/src/main/java/br/com/civilconstructorai/identidade/sudo/**
-  - backend/src/main/java/br/com/civilconstructorai/identidade/sessao/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/identidade/PerfilService.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/identidade/MfaService.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/identidade/SudoService.java
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/identidade/AdaptadoresIdentidade.java
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/sessao/RepositorioSessoesRedis.java
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/seguranca/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/identidade/MeController.java
   - apps/web/src/app/(app)/conta/**
 ---
 
@@ -321,7 +324,10 @@ flowchart LR
 | Documento | `docs/rf/RF23-perfil-sessoes-modo-sudo.md` | ✅ |
 | Card | [Trello u9tL8Fqy](https://trello.com/c/u9tL8Fqy) | ✅ |
 | Web | `apps/web/src/app/(app)/conta/{perfil,seguranca,preferencias}/` | ⏳ |
-| API | `identidade/perfil/`, `identidade/mfa/MfaService.java`, `identidade/sudo/SudoService.java`, `identidade/sessao/SessoesService.java` | ⏳ |
-| Cripto | `seguranca/CifraAesGcm.java`, `seguranca/DerivadorChaves.java` | ⏳ |
-| Banco | `V1__contas_empresas_obras.sql` (preferencias, fator_totp, codigo_recuperacao) | ⏳ |
-| Testes | `SudoIT`, `SessoesIT`, `MfaIT`, `FotoPerfilIT`, `CifraAesGcmTest` | ⏳ |
+| Aplicação | `identidade/PerfilService.java` (perfil, foto por URL pré-assinada, preferências, troca de senha em sudo derrubando as outras sessões, sessões por apelido HMAC), `MfaService.java` (TOTP + 10 códigos de recuperação), `SudoService.java` (10 min) | ✅ |
+| Cripto | `seguranca/CifraAesGcm.java`, `seguranca/DerivacaoChaves.java` (HKDF), `identidade/AdaptadoresIdentidade.CifradorTotpAesGcm` (segredo TOTP cifrado, AAD = id da conta) | ✅ |
+| Infra | `sessao/RepositorioSessoesRedis.java` (FindByIndexNameSessionRepository), `AdaptadoresIdentidade.TotpSamstevens` (RFC 6238) | ✅ |
+| API | `api/identidade/MeController.java` (`/me/profile`, `/me/photo/*`, `/me/preferences`, `/me/sudo`, `/me/password`, `/me/sessions`, `/me/mfa/**`) | ✅ |
+| Banco | `V1__contas_empresas_obras.sql` (preferencia, conta.mfa_segredo_cifrado, codigo_recuperacao_mfa) | ✅ |
+| Testes | `LoginIT` (setup/confirm TOTP, códigos de recuperação, sudo_required, troca de senha encerra outras sessões) | ✅ |
+| Pendente | processamento da foto (recorte 512 px, sem EXIF) na confirmação; alerta de login | 🟡 |

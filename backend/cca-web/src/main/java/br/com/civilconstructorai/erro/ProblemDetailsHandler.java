@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +22,8 @@ import java.util.Map;
 /** Converte exceções em Problem Details (RFC 9457) com título e detalhe em pt-BR; 422 traz {@code errors[]}. */
 @RestControllerAdvice
 public class ProblemDetailsHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(ProblemDetailsHandler.class);
 
     static String titulo(HttpStatus s) {
         return switch (s) {
@@ -111,5 +116,12 @@ public class ProblemDetailsHandler {
     ProblemDetail status(ResponseStatusException e) {
         var s = HttpStatus.valueOf(e.getStatusCode().value());
         return problema(s, s.name().toLowerCase(), e.getReason() == null ? titulo(s) : e.getReason());
+    }
+
+    /** Última linha de defesa: nunca vaza stack trace nem cai no /error anônimo (que viraria 401). */
+    @ExceptionHandler(Exception.class)
+    ProblemDetail inesperado(Exception e) {
+        log.error("Erro não tratado", e);
+        return problema(HttpStatus.INTERNAL_SERVER_ERROR, "erro_interno", "Ocorreu um erro inesperado. Tente novamente em instantes.");
     }
 }

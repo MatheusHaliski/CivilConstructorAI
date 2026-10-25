@@ -9,8 +9,14 @@ paths:
   - apps/web/src/canvas/**
   - apps/web/src/components/h/**
   - apps/web/src/app/(app)/obras/[obraId]/modelo/**
-  - backend/src/main/java/br/com/civilconstructorai/modelo/**
-  - backend/src/main/resources/db/migration/*modelo*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/modelo/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/modelo/**
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/modelo/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/notacao/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/notacao/**
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/notacao/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/modelo/**
+  - backend/cca-infrastructure/src/main/resources/db/migration/V7__modelo_bim.sql
 ---
 
 # RF01 · Modelagem vetorial 2D/3D interativa no canvas WebGL
@@ -324,7 +330,9 @@ flowchart LR
 | Documento | `docs/rf/RF01-modelagem-vetorial-canvas-webgl.md` | ✅ |
 | Card | [Trello 3WgN7lzt](https://trello.com/c/3WgN7lzt) | ✅ |
 | Web | `apps/web/src/canvas/CanvasController.ts`, `SnapEngine.ts` | ⏳ |
-| API | `modelo/ModeloController.java`, `modelo/ComandoViService.java` | ⏳ |
-| Banco | `V7__modelo_bim.sql` (modelo, pavimento, elemento, comando_vi) | ⏳ |
-| Geometria | `geometria/auditor/` (via RF16) | ⏳ |
-| Testes | `ModeloComandoIT`, `canvas.spec.ts` | ⏳ |
+| Domínio | `cca-domain · modelo/ModeloBim.java` (todas as funções VI do núcleo: PAREDE, PILAR, VIGA, LAJE, PORTA/JANELA, MOVER, COPIAR, ROTACIONAR, APAGAR…, desfazer/refazer), `Elemento.java`, `DiffModelo.java`, `notacao/Geo.java` (snap/osnap, interseções) | ✅ |
+| Aplicação | `cca-application · modelo/ModeloService.java` (aplicarComando com trava de versão → 409, lote, desfazer, diff), `AuditorService.java` | ✅ |
+| API | `cca-web · api/modelo/ModeloController.java` (`GET /modelo`, `GET /modelo/diff?desde`, `POST /modelo/comandos`, `/comandos/lote`, `/comandos/{id}/desfazer`, `GET /comandos`), `ModeloExceptionHandler.java` (422 `auditoria_reprovada`) | ✅ |
+| Banco | `V7__modelo_bim.sql` (modelo_bim, pavimento, elemento, comando_vi) com RLS | ✅ |
+| Geometria | laço 2 local em `cca-domain · modelo/ServicoGeometriaLocal.java` (JTS); kernel Python via `ServicoGeometriaHttp` quando `app.geometria.remota=true` | ✅ |
+| Testes | `ModeloBimTest` (porte de `modelo.test.ts`), `ModeloComandoIT` (fluxo malha→pilar→viga→diff→desfazer, 409, 422, 403/404); `canvas.spec.ts` | 🟡 |

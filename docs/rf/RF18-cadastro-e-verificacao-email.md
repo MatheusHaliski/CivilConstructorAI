@@ -6,10 +6,11 @@ status: especificado
 cards:
   - https://trello.com/c/v3Z3WzgD
 paths:
-  - backend/src/main/java/br/com/civilconstructorai/identidade/**
-  - backend/src/main/java/br/com/civilconstructorai/registro/**
-  - backend/src/main/resources/db/migration/*conta*
-  - backend/src/main/resources/db/migration/*termos*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/identidade/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/identidade/**
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/identidade/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/identidade/**
+  - backend/cca-infrastructure/src/main/resources/db/migration/V1__contas_empresas_obras.sql
   - apps/web/src/app/(auth)/cadastro/**
   - apps/web/src/app/(auth)/verificar-email/**
 ---
@@ -333,6 +334,10 @@ flowchart LR
 | Documento | `docs/rf/RF18-cadastro-e-verificacao-email.md` | ✅ |
 | Card | [Trello v3Z3WzgD](https://trello.com/c/v3Z3WzgD) | ✅ |
 | Web | `apps/web/src/app/(auth)/cadastro/page.tsx`, `verificar-email/page.tsx` | ⏳ |
-| API | `identidade/AuthController.java`, `identidade/CadastroService.java`, `identidade/PoliticaSenha.java` | ⏳ |
-| Banco | `V1__contas_empresas_obras.sql` (conta, perfil, termo_aceite, codigo_verificacao) | ⏳ |
-| Testes | `CadastroIT`, `VerificacaoEmailIT`, `PoliticaSenhaTest` | ⏳ |
+| Domínio | `cca-domain · identidade/Conta.java` (máquina de estados, idade mínima, selo), `PoliticaSenha.java`, `CodigoVerificacao.java`, `UserKey.java`, `Preferencia.java` | ✅ |
+| Aplicação | `cca-application · identidade/CadastroService.java` (422 com todos os erros, resposta neutra, código 30 min/5 tentativas/reenvio 1 min), `Portas.java`, `Repositorios.java` | ✅ |
+| Infra | `cca-infrastructure · identidade/AdaptadoresIdentidade.java` (HMAC HKDF, Valkey, aceite em `aceite_termos`, DEK por usuário), `seguranca/SenhaConfig.java` (Argon2id) | ✅ |
+| API | `cca-web · api/identidade/AuthController.java` (`/auth/csrf`, `/auth/register`, `/auth/legal/versoes`), `MeController.java` (`/me/verify-email`, `/resend`) | ✅ |
+| Banco | `V1__contas_empresas_obras.sql` (conta, codigo_verificacao, user_key, aceite_termos, preferencia) | ✅ |
+| Testes | `CadastroIT` (422 completo, menor de 18, senha comum, verificação, duplicado neutro, 429 no reenvio), `DominioIdentidadeTest` | ✅ |
+| Pendente | foto de perfil: recorte 512 px e remoção de EXIF (`javax.imageio`) no confirm da foto | 🟡 |

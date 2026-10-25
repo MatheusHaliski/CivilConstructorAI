@@ -7,8 +7,11 @@ cards:
   - https://trello.com/c/W4pJDtvv
 paths:
   - apps/web/src/components/console-vi/**
-  - backend/src/main/java/br/com/civilconstructorai/notacao/**
-  - backend/src/main/java/br/com/civilconstructorai/ia/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/notacao/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/notacao/**
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/notacao/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/notacao/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/modelo/**
   - backend/src/main/resources/ia/prompts/comando-vi*
   - backend/src/main/resources/ia/schemas/comando-vi*.json
   - geometria/api/sanitizacao.py
@@ -364,7 +367,9 @@ flowchart LR
 | Documento | `docs/rf/RF02-comandos-notacao-vi.md` | ✅ |
 | Card | [Trello W4pJDtvv](https://trello.com/c/W4pJDtvv) | ✅ |
 | Web | `apps/web/src/components/console-vi/ConsoleVi.tsx` | ⏳ |
-| API | `notacao/ParserVi.java`, `notacao/ViController.java`, `ia/TradutorIntencao.java` | ⏳ |
-| IA | `ia/ClaudeModeloLinguagem.java`, `resources/ia/schemas/comando-vi.schema.json` | ⏳ |
+| Domínio | `cca-domain · notacao/ParserVi.java` (VI-000/VI-003 com linha/coluna, `@dx,dy`, `@d<ang`, `$ref`), `FormatadorVi.java` (serialização canônica), `Sanitizador.java` (ASCII, º→o), `CatalogoComandos.java` | ✅ |
+| Aplicação | `cca-application · modelo/ModeloService.java#textoNatural` (rota `COMANDO_VI` → lote de comandos origem IA, camada `ia-rascunho`), `AuditorService.java` (correção LLM até 3 iterações, só origem IA) | ✅ |
+| API | `cca-web · api/notacao/CatalogoController.java` (`GET /vi/catalogo`, `POST /vi/validar`), `api/modelo/ModeloController.java` (`POST /modelo/comandos` com `vi` textual, `POST /modelo/texto-natural`) | ✅ |
+| IA | `ia/ModeloLinguagem.java`/`RotaIa.COMANDO_VI` (porta do fork de IA), `AuditorService.SCHEMA_COMANDO` | ✅ |
 | Geometria | `geometria/api/sanitizacao.py` | ⏳ |
-| Testes | `ParserViTest`, `TradutorIntencaoIT`, `evals/comando-vi/` | ⏳ |
+| Testes | `ParserViTest`, `CatalogoComandosTest`, `ModeloComandoIT#textoNaturalCriaRascunhoGeradoPorIa`; `evals/comando-vi/` | 🟡 |

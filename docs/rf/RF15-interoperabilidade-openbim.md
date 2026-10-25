@@ -8,8 +8,11 @@ cards:
 paths:
   - geometria/interop/**
   - pyrevit_extension/**
-  - backend/src/main/java/br/com/civilconstructorai/interop/**
-  - backend/src/main/resources/db/migration/*interop*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/interop/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/interop/**
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/interop/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/interop/**
+  - backend/cca-infrastructure/src/main/resources/db/migration/V7__modelo_bim.sql
   - apps/web/src/app/(app)/obras/[obraId]/interoperabilidade/**
 ---
 
@@ -314,8 +317,10 @@ flowchart LR
 |---|---|---|
 | Documento | `docs/rf/RF15-interoperabilidade-openbim.md` | ✅ |
 | Card | [Trello aLnGEB4O](https://trello.com/c/aLnGEB4O) | ✅ |
-| Geometria | `geometria/interop/ifc_export.py`, `ifc_import.py`, `step_export.py` | ⏳ |
-| pyRevit | `pyrevit_extension/CivilConstructor.extension/` | ⏳ |
-| API | `interop/InteropController.java`, `interop/RevitPareamentoService.java` | ⏳ |
-| Banco | `Vn__interop.sql` (job_exportacao, modelo_referencia_ifc, pareamento_revit) | ⏳ |
-| Testes | `test_ifc_export.py`, `test_roundtrip.py`, `InteropIT` | ⏳ |
+| Geometria | `cca-application · interop/EscritorIfc.java` (IFC4X3_ADD2 STEP: Project→Site→Building→Storey→Wall/Column/Beam/Slab/Door/Window/Footing + Pset Tabela A), `LeitorIfc.java` (leitura/validação de referência); `geometria/interop/*.py` | 🟡 |
+| pyRevit | `pyrevit_extension/CivilConstructor.extension/`; backend: pareamento por código de uso único (6 dígitos, 10 min) → token de dispositivo (hash SHA-256), `GET /revit/comandos?desde` | 🟡 |
+| Aplicação | `cca-application · interop/InteropService.java` (exportação exige conclusão por pavimento, job como sistema, download pré-assinado, importação ≤ 32 MB, pareamento/revogação) | ✅ |
+| API | `cca-web · api/interop/InteropController.java` (`POST /obras/{id}/exportacoes` 202, `GET`, `/download`, `POST /importacoes/ifc`, `POST /revit/pareamentos`, `/revogar`, `POST /api/v1/revit/parear`, `GET /api/v1/revit/comandos`) | ✅ |
+| Banco | `V7__modelo_bim.sql` (exportacao_modelo, pareamento_revit) | ✅ |
+| Pendente | STEP AP242 é esboço (mesmo gerador, cabeçalho AP242); `/api/v1/revit/**` precisa de `permitAll` em `SegurancaConfig` (hoje atrás da sessão) | 🟡 |
+| Testes | `EscritorIfcTest`, `ExportacaoIfcIT` (exporta, lê de volta, importa referência, pareia Revit e rejeita reuso do código); `test_ifc_export.py`, `test_roundtrip.py` | 🟡 |

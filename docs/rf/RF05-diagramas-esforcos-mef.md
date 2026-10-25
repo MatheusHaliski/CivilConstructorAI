@@ -2,13 +2,17 @@
 rf: RF05
 titulo: Cálculo de diagramas de momentos, cortantes, normais e torção (MEF)
 modulo: M2 Análise Estrutural & Esforços
-status: especificado
+status: em-andamento
 cards:
   - https://trello.com/c/mNjp8fP4
 paths:
-  - backend/src/main/java/br/com/civilconstructorai/estrutura/analise/**
   - geometria/calculations/mef/**
   - apps/web/src/canvas/overlays/esforcos/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/estrutura/analise/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/estrutura/mef/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/estrutura/AnaliseService.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/estrutura/AnaliseController.java
+  - backend/cca-infrastructure/src/main/resources/db/migration/V11__analise_estrutural.sql
 ---
 
 # RF05 · Cálculo de diagramas de momentos, cortantes, normais e torção (MEF)
@@ -323,7 +327,7 @@ flowchart LR
 | Documento | `docs/rf/RF05-diagramas-esforcos-mef.md` | ✅ |
 | Card | [Trello mNjp8fP4](https://trello.com/c/mNjp8fP4) | ✅ |
 | Web | `apps/web/src/canvas/overlays/esforcos/` | ⏳ |
-| API | `estrutura/analise/AnaliseService.java`, `ExportadorModeloAnalitico.java` | ⏳ |
-| Banco | `V11__analise_estrutural.sql` | ⏳ |
-| Geometria | `geometria/calculations/mef/` | ⏳ |
-| Testes | `test_mef_referencias.py`, `AnaliseIT` | ⏳ |
+| API | `cca-web/api/estrutura/AnaliseController.java` (`POST /analises` → 202, `GET /analises/{id}`, `/diagramas`), `cca-application/estrutura/AnaliseService.java` | ✅ |
+| Banco | `V11__analise_estrutural.sql` (analise_estrutural com resultado/resumo JSON, estado `EstadoJob`) | ✅ |
+| Geometria | solver em Java: `cca-domain/estrutura/mef/SolverMef.java` (pórtico espacial 12×12, Gauss com pivotamento, singular → `EstruturaHipostaticaException`), `MontadorModeloAnalitico.java`; `geometria/calculations/mef/` fica como alternativa futura | ✅ Java · ⏳ python |
+| Testes | `SolverMefTest` (viga biapoiada qL²/8 e 5qL⁴/384EI, pórtico plano, hipostática), `AnaliseIT` (job → CONCLUIDO; viga solta → FALHOU) | ✅ |

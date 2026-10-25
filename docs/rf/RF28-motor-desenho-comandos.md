@@ -9,7 +9,11 @@ paths:
   - apps/web/src/motor/**
   - apps/web/src/canvas/**
   - packages/notacao-vi/**
-  - backend/src/main/java/br/com/civilconstructorai/notacao/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/notacao/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/notacao/**
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/notacao/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/notacao/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/modelo/**
   - docs/CATALOGO_COMANDOS.md
 ---
 
@@ -419,6 +423,7 @@ flowchart LR
 | Documento | `docs/rf/RF28-motor-desenho-comandos.md`, `docs/CATALOGO_COMANDOS.md` | ✅ |
 | Card | [Trello 7lSEtX9P](https://trello.com/c/7lSEtX9P) | ✅ |
 | Pacote | `packages/notacao-vi/catalogo/comandos.json`, `funcoes-tabela-b.json` | ⏳ |
+| Domínio | `cca-domain · notacao/CatalogoComandos.java` (catálogo completo do `docs/CATALOGO_COMANDOS.md`: categorias, perfis, passos, osnap EIX>EXT>…>PRX>NIV, teclas reservadas, conflitos, `resolver(texto, perfil)`), `modelo/ModeloBim.java` (funções da Tabela B) | ✅ |
 | Web | `apps/web/src/motor/{MotorDesenho,LinhaComando,RegistroComandos,ModosCursor,Osnap,Selecao}.ts` | ⏳ |
-| API | `me/PreferenciasController.java`, `modelo/ComandoLoteController.java` | ⏳ |
-| Testes | `motor.spec.ts`, `linha-comando.test.ts`, `ComandoLoteIT` | ⏳ |
+| API | `cca-web · api/notacao/CatalogoController.java` (`GET /catalogo/comandos?perfil&q`, `GET /catalogo/comandos/resolver`), `api/modelo/ModeloController.java` (`POST /modelo/comandos/lote`); `me/PreferenciasController.java` | 🟡 |
+| Testes | `CatalogoComandosTest`, `ModeloComandoIT`; `motor.spec.ts`, `linha-comando.test.ts` | 🟡 |
