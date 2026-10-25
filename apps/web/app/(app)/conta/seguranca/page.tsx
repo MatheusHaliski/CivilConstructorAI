@@ -8,7 +8,7 @@ import { useSessao } from "@/lib/sessao";
 import type { SessaoResumo } from "@/lib/tipos";
 import { data } from "@/lib/formatos";
 import { Aviso, Botao, CabecalhoPagina, Cartao, Carregando, Entrada, Etiqueta, Tabela } from "@/components/ui";
-import { NavConta, useSudoPrompt } from "@/components/conta/NavConta";
+import { useSudoPrompt } from "@/components/conta/NavConta";
 
 type Perfil = { mfaAtivo: boolean; mfaObrigatorio: boolean };
 
@@ -38,7 +38,6 @@ function Seguranca() {
   return (
     <>
       <CabecalhoPagina titulo="Segurança" descricao="Sessão opaca no servidor (cookie HttpOnly), 2FA por aplicativo autenticador e modo seguro para ações sensíveis." />
-      <NavConta />
       {params.get("configurar-mfa") && !p?.mfaAtivo && <Aviso tom="aviso" titulo="Configure o segundo fator" className="mb-4">Seu papel exige 2FA (dono/admin ou quem aprova orçamento e medição). Ative abaixo para liberar as aprovações.</Aviso>}
       <div className="grid gap-4 lg:grid-cols-2">
         <Cartao titulo="Verificação em duas etapas (TOTP)" acoes={p && <Etiqueta tom={p.mfaAtivo ? "sucesso" : p.mfaObrigatorio ? "aviso" : "neutro"} icone={<ShieldCheck className="size-3.5" aria-hidden />}>{p.mfaAtivo ? "ativa" : p.mfaObrigatorio ? "obrigatória · inativa" : "inativa"}</Etiqueta>}>

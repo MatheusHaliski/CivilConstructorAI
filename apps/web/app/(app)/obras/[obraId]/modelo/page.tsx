@@ -1,6 +1,7 @@
 "use client";
 import { use } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { get } from "@/lib/api";
 import { editaModelo, usePapeis } from "@/lib/sessao";
@@ -12,15 +13,16 @@ import { Etiqueta } from "@/components/ui";
 export default function PaginaModelo({ params }: { params: Promise<{ obraId: string }> }) {
   const { obraId } = use(params);
   const papeis = usePapeis(obraId);
+  const cmd = useSearchParams().get("cmd");
   const obra = useQuery({ queryKey: ["obra", obraId], queryFn: () => get<ObraResumo>(`/obras/${obraId}`) });
   const pode = editaModelo(papeis) && obra.data?.estado !== "ARQUIVADA";
   return (
     <div className="flex flex-col gap-3">
       <header className="flex items-center justify-between gap-3 flex-wrap">
-        <div><nav className="text-xs text-text-3"><Link href="/obras" className="underline">Obras</Link> › <Link href={`/obras/${obraId}`} className="underline">{obra.data?.nome ?? "…"}</Link> › Modelo</nav><h1 className="text-xl font-semibold">Modelo BIM</h1></div>
+        <div><nav aria-label="Trilha" className="text-xs text-text-3"><Link href="/obras" className="underline">Obras</Link> › <Link href={`/obras/${obraId}`} className="underline">{obra.data?.nome ?? "…"}</Link> › Projeto › Modelo BIM</nav><h1 className="text-xl font-semibold">Modelo BIM</h1></div>
         <div className="flex gap-2">{!pode && <Etiqueta tom="aviso">somente leitura</Etiqueta>}<Etiqueta tom="marca">Notação VI</Etiqueta></div>
       </header>
-      <Motor obraId={obraId} podeEditar={pode} />
+      <Motor obraId={obraId} podeEditar={pode} comandoInicial={cmd} />
     </div>
   );
 }

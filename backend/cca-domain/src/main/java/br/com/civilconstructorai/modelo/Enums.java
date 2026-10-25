@@ -31,7 +31,7 @@ public final class Enums {
         }
     }
 
-    public enum OrigemComando { CANVAS, CONSOLE_VI, IA, SISTEMA }
+    public enum OrigemComando { CANVAS, CONSOLE_VI, FORMULARIO, IA, SISTEMA }
 
     public enum Severidade { AVISO, VIOLACAO }
 

@@ -6,7 +6,6 @@ import { useAcao, useDados } from "@/lib/dados";
 import { useSessao } from "@/lib/sessao";
 import type { Preferencias, TipoSelo } from "@/lib/tipos";
 import { Aviso, Botao, CabecalhoPagina, Cartao, Carregando, Entrada, Etiqueta, Selecao } from "@/components/ui";
-import { NavConta } from "@/components/conta/NavConta";
 
 type Perfil = { id: string; nome: string; email: string; tipo: string; estado: string; cnpj?: string; registroProfissional?: string; registroUf?: string; seloTipo?: TipoSelo; seloEstado: string; mfaAtivo: boolean; mfaObrigatorio: boolean; fotoUrl?: string };
 type Selo = { tipo: string; estado: "NONE" | "PENDING" | "VERIFIED" | "REJECTED"; registro: string; uf: string };
@@ -46,7 +45,6 @@ export default function PaginaConta() {
   return (
     <>
       <CabecalhoPagina titulo="Conta" descricao="Seus dados de perfil, preferências e o selo profissional que habilita aprovações." />
-      <NavConta />
       <div className="grid gap-4 lg:grid-cols-3">
         <Cartao titulo="Perfil" className="lg:col-span-2">
           <div className="flex items-center gap-4">

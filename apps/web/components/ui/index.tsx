@@ -148,10 +148,10 @@ export function Esqueleto({ linhas = 3 }: { linhas?: number }) {
 }
 
 /* ---------------------------------------------------------------- Tabela */
-export function Tabela<T>({ colunas, linhas, chave, vazio, className }: { colunas: { titulo: string; celula: (l: T) => ReactNode; numerica?: boolean; largura?: string }[]; linhas: T[]; chave: (l: T) => string; vazio?: ReactNode; className?: string }) {
+export function Tabela<T>({ colunas, linhas, chave, vazio, className, rotulo }: { colunas: { titulo: string; celula: (l: T) => ReactNode; numerica?: boolean; largura?: string }[]; linhas: T[]; chave: (l: T) => string; vazio?: ReactNode; className?: string; rotulo?: string }) {
   if (!linhas.length && vazio) return <>{vazio}</>;
   return (
-    <div className={cx("overflow-x-auto rounded-[var(--radius-sm)] border border-line-soft", className)}>
+    <div tabIndex={0} role="region" aria-label={rotulo ?? `Tabela: ${colunas.map((c) => c.titulo).filter(Boolean).slice(0, 3).join(", ")}`} className={cx("overflow-x-auto focus-visible:outline-2 focus-visible:outline-brand rounded-[var(--radius-sm)] border border-line-soft", className)}>
       <table className="w-full text-sm">
         <thead className="bg-surface text-left text-xs uppercase tracking-wide text-text-3">
           <tr>{colunas.map((c) => <th key={c.titulo} scope="col" style={{ width: c.largura }} className={cx("px-3 py-2 font-semibold", c.numerica && "text-right")}>{c.titulo}</th>)}</tr>

@@ -459,7 +459,7 @@ create table elemento (
   tipo           text not null,
   camada         text not null check (camada in ('arquitetura','estrutura','fundacao','desenho','anotacao','ia-rascunho')),
   material_id    text,
-  origem         text not null check (origem in ('CANVAS','CONSOLE_VI','IA','SISTEMA')),
+  origem         text not null check (origem in ('CANVAS','CONSOLE_VI','FORMULARIO','IA','SISTEMA')),
   rascunho_ia_id uuid,
   rotulo         text,
   geometria      jsonb not null,

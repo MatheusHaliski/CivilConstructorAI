@@ -23,7 +23,7 @@ export default function PaginaObras() {
     <>
       <CabecalhoPagina titulo="Obras" descricao="Cada obra tem modelo BIM, estrutura, fundações, quantitativos, orçamento e pranchas próprios." acoes={!semEmpresa && <Link href="/obras/nova"><Botao icone={<Plus className="size-4" aria-hidden />}>Nova obra</Botao></Link>} />
       {semEmpresa ? (
-        <Aviso tom="info" titulo="Você ainda não tem uma empresa ativa">Crie a sua empresa (ou aceite um convite) para começar. <Link href="/empresa" className="underline font-medium">Ir para Empresa</Link></Aviso>
+        <Aviso tom="info" titulo="Você ainda não tem uma empresa ativa">Crie a sua empresa (ou aceite um convite) para começar. <Link href="/empresa/dados" className="underline font-medium">Ir para Empresa</Link></Aviso>
       ) : q.isLoading ? <Carregando /> : !q.data?.length ? (
         <Vazio icone={<IconeObras tamanho={40} />} titulo="Nenhuma obra ainda" descricao="Crie a primeira obra da empresa para abrir o motor de desenho." acao={<Link href="/obras/nova"><Botao>Criar obra</Botao></Link>} />
       ) : (

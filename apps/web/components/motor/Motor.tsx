@@ -18,10 +18,10 @@ const ABAS: { id: Aba; rotulo: string; Icone: typeof Layers }[] = [
   { id: "auditoria", rotulo: "Auditoria", Icone: ClipboardCheck }, { id: "atalhos", rotulo: "Atalhos", Icone: Keyboard }, { id: "ajuda", rotulo: "Ajuda", Icone: BookOpen },
 ];
 
-export function Motor({ obraId, podeEditar = true, altura = "calc(100dvh - 7rem)" }: { obraId: string | null; podeEditar?: boolean; altura?: string }) {
+export function Motor({ obraId, podeEditar = true, altura = "calc(100dvh - 7rem)", comandoInicial }: { obraId: string | null; podeEditar?: boolean; altura?: string; comandoInicial?: string | null }) {
   const s = useMotor();
   const [aba, setAba] = useState<Aba | null>("propriedades");
-  useEffect(() => { void s.carregar(obraId, podeEditar); // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { void s.carregar(obraId, podeEditar).then(() => { if (comandoInicial && podeEditar) useMotor.getState().iniciar(comandoInicial); }); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [obraId, podeEditar]);
   useEffect(() => { if (s.painel !== "nenhum" && s.painel !== "historico") { setAba(s.painel); s.setPainel("nenhum"); } }, [s.painel, s]);
 

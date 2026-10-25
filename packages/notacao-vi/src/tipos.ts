@@ -72,7 +72,7 @@ export type Elemento =
   | Parede | Pilar | Viga | Laje | Abertura | Ambiente | Linha | Polilinha | Circulo | Retangulo | Arco | PontoRef
   | Contraventamento | Fundacao | Cota | Texto | Hachura;
 
-export type OrigemComando = "CANVAS" | "CONSOLE_VI" | "IA" | "SISTEMA";
+export type OrigemComando = "CANVAS" | "CONSOLE_VI" | "FORMULARIO" | "IA" | "SISTEMA";
 
 /** Um comando da Notação VI: `VI(COD, arg=valor, …)` */
 export type ComandoVI = {

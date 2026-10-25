@@ -34,16 +34,19 @@ test.describe("autenticado", () => {
     await ctx.close();
   });
   const comSessao = async (browser: import("@playwright/test").Browser) => (await browser.newContext({ storageState: sessao })).newPage();
-  for (const rota of ["/obras", "/obras/nova", "/empresa", "/conta", "/conta/seguranca", "/conta/privacidade", "/ia", "/motor"]) {
+  for (const rota of ["/obras", "/obras/nova", "/empresa/dados", "/empresa/membros", "/empresa/privacidade", "/empresa/consumo-ia", "/conta", "/conta/seguranca",
+    "/conta/privacidade/consentimentos", "/conta/privacidade/meus-dados", "/conta/privacidade/exportar", "/conta/privacidade/pedidos", "/conta/privacidade/excluir-conta", "/ia", "/motor"]) {
     test(`interno ${rota}`, async ({ browser }) => auditar(await comSessao(browser), rota));
   }
   test("telas da obra", async ({ browser }) => {
+    test.setTimeout(240_000);
     const page = await comSessao(browser);
     await page.goto("/obras");
     await page.waitForLoadState("networkidle");
     const primeira = page.locator('a[href^="/obras/0"]').first();
     test.skip(!(await primeira.count()), "conta sem obra");
     const href = await primeira.getAttribute("href");
-    for (const seg of ["", "/modelo", "/estrutura", "/analises", "/geotecnia", "/quantitativos", "/orcamento", "/pranchas", "/interop", "/ia", "/membros"]) await auditar(page, `${href}${seg}`);
+    for (const seg of ["", "/modelo", "/copilot", "/autopilot", "/acoes", "/codigos", "/estrutura/cargas", "/estrutura/lancamento-ia", "/estrutura/vaos", "/estrutura/restricoes", "/analises/mef", "/analises/dimensionamento",
+      "/geotecnia/furos", "/geotecnia/boletim", "/geotecnia/perfil", "/geotecnia/fundacoes", "/quantitativos", "/orcamento", "/pranchas", "/interop", "/ia", "/membros"]) await auditar(page, `${href}${seg}`);
   });
 });
