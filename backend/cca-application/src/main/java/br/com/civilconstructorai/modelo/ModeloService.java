@@ -335,7 +335,7 @@ public class ModeloService {
     }
 
     private ModeloCarregado carregarOuCriarSomenteLeitura(UUID obraId) {
-        return repositorio.carregar(obraId).orElseGet(() -> new ModeloCarregado(null, obraId, 0, false, null, new ModeloBim().estado()));
+        return repositorio.carregar(obraId).orElseGet(() -> new ModeloCarregado(null, obraId, 0, false, null, ModeloBim.estadoInicial(obraId)));
     }
 
     private ComandoVi montarComando(PedidoComando p, UsuarioAtual u, long base) {

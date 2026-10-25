@@ -94,6 +94,19 @@ class ModeloComandoIT extends AbstractIT {
     }
 
     @Test
+    void pavimentoLidoAntesDaPrimeiraEscritaContinuaValido() throws Exception {
+        // obra nova: o modelo ainda não existe no banco; o Térreo lido precisa ser o mesmo que a primeira escrita grava
+        var lido = mvc.perform(get(base()).with(ComoUsuario.como(engenheiro))).andExpect(status().isOk()).andReturn();
+        var relido = mvc.perform(get(base()).with(ComoUsuario.como(engenheiro))).andExpect(status().isOk()).andReturn();
+        var terreo = json(lido).get("pavimentos").get(0).get("id").asString();
+        assertThat(json(relido).get("pavimentos").get(0).get("id").asString()).isEqualTo(terreo);
+        var linha = postJson(engenheiro, "/comandos", "{\"pavimentoId\":\"" + terreo + "\",\"codigo\":\"LINHA\",\"args\":{\"p1\":{\"x\":0,\"y\":0},\"p2\":{\"x\":2,\"y\":0}},\"versaoBase\":0}");
+        assertThat(linha.getResponse().getStatus()).as(linha.getResponse().getContentAsString()).isEqualTo(201);
+        var depois = mvc.perform(get(base()).with(ComoUsuario.como(engenheiro))).andReturn();
+        assertThat(json(depois).get("pavimentos").get(0).get("id").asString()).isEqualTo(terreo);
+    }
+
+    @Test
     void reprovacaoDevolve422ComRelatorioCompleto() throws Exception {
         var r = postJson(engenheiro, "/comandos", "{\"codigo\":\"PILAR\",\"args\":{\"centro\":{\"x\":0,\"y\":0},\"b\":0.15,\"h\":0.15}}");
         assertThat(r.getResponse().getStatus()).isEqualTo(422);

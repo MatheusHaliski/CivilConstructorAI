@@ -66,7 +66,7 @@ public class ModeloRepositorioJdbc implements ModeloRepositorio {
         var id = Ids.novo();
         var t = tenant();
         jdbc.update("insert into modelo_bim (id, tenant_id, obra_id, versao) values (?, ?, ?, 0)", id, t, obraId);
-        var terreo = new Pavimento(Ids.novo(), "Térreo", 0, Enums.TipoPavimento.TERREO);
+        var terreo = ModeloBim.terreoInicial(obraId);
         jdbc.update("insert into pavimento (id, tenant_id, modelo_id, nome, elevacao, tipo) values (?, ?, ?, ?, ?, ?)", terreo.id(), t, id, terreo.nome(), terreo.elevacao(), terreo.tipo().name());
         return new ModeloCarregado(id, obraId, 0, false, null, new ModeloBim.Estado(0, List.of(terreo), List.of(), List.of()));
     }

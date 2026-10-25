@@ -42,6 +42,19 @@ public class ModeloBim {
         pavimentos.add(new Pavimento(Ids.novo(), "Térreo", 0, Enums.TipoPavimento.TERREO));
     }
 
+    /**
+     * Térreo inicial da obra com id determinístico: a leitura de um modelo ainda não gravado e a criação do modelo na
+     * primeira escrita devolvem o mesmo pavimento, então o id lido pelo cliente continua válido no primeiro comando.
+     */
+    public static Pavimento terreoInicial(UUID obraId) {
+        var id = UUID.nameUUIDFromBytes(("cca:terreo:" + obraId).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        return new Pavimento(id, "Térreo", 0, Enums.TipoPavimento.TERREO);
+    }
+
+    public static Estado estadoInicial(UUID obraId) {
+        return new Estado(0, List.of(terreoInicial(obraId)), List.of(), List.of());
+    }
+
     public ModeloBim(Estado estado) {
         restaurar(estado);
         if (pavimentos.isEmpty()) {

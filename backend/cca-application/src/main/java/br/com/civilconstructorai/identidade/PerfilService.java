@@ -25,6 +25,8 @@ import java.util.UUID;
 @Transactional
 public class PerfilService {
 
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PerfilService.class);
+
     public record Perfil(UUID id, String nome, String email, TipoConta tipo, EstadoConta estado, String cnpj, String registroProfissional,
                          String registroUf, TipoSelo seloTipo, EstadoSelo seloEstado, boolean mfaAtivo, boolean mfaObrigatorio, String fotoUrl) {
     }
@@ -62,9 +64,18 @@ public class PerfilService {
     public Perfil perfil() {
         var c = contaAtual();
         var chaveFoto = "perfil/" + c.getId() + "/foto.jpg";
-        var foto = arquivos.existe(chaveFoto) ? arquivos.presignDownload(chaveFoto, Duration.ofMinutes(15), "foto.jpg").toString() : null;
         return new Perfil(c.getId(), c.getNome(), c.getEmail(), c.getTipo(), c.getEstado(), c.getCnpj(), c.getRegistroProfissional(), c.getRegistroUf(),
-                c.getSeloTipo(), c.getSeloEstado(), c.isMfaAtivo(), c.isMfaObrigatorio(), foto);
+                c.getSeloTipo(), c.getSeloEstado(), c.isMfaAtivo(), c.isMfaObrigatorio(), urlFoto(chaveFoto));
+    }
+
+    /** a foto é opcional: armazenamento indisponível não derruba o perfil (nem a verificação de e-mail que o lê) */
+    private String urlFoto(String chave) {
+        try {
+            return arquivos.existe(chave) ? arquivos.presignDownload(chave, Duration.ofMinutes(15), "foto.jpg").toString() : null;
+        } catch (RuntimeException e) {
+            LOG.warn("armazenamento indisponível ao montar o perfil: {}", e.getClass().getSimpleName());
+            return null;
+        }
     }
 
     public Perfil atualizar(String nome, String registroProfissional, String registroUf, String cnpj) {

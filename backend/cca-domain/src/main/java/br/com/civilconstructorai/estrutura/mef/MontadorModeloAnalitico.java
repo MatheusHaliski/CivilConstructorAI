@@ -35,7 +35,8 @@ public final class MontadorModeloAnalitico {
     public static ModeloAnalitico montar(Entrada in) {
         var m = in.modelo();
         var ma = new ModeloAnalitico();
-        var barraPorElemento = new HashMap<String, Integer>();
+        // uma viga contínua vira várias barras (uma por trecho entre apoios); pilar continua sendo uma barra
+        var barrasPorElemento = new HashMap<String, List<Integer>>();
         var pavs = m.pavimentosOrdenados();
         var elevacaoMinima = pavs.isEmpty() ? 0 : pavs.get(0).elevacao();
 
@@ -49,7 +50,7 @@ public final class MontadorModeloAnalitico {
             int nj = ma.noEm(p.centro().x(), p.centro().y(), zTopo, TOL_LIGACAO);
             var sec = ModeloAnalitico.Secao.retangular(p.b(), p.h(), modulo(in, p.materialId()));
             int id = ma.adicionarBarra(p.id(), rotulo(p, "P"), ni, nj, sec);
-            barraPorElemento.put(p.id(), id);
+            barrasPorElemento.put(p.id(), List.of(id));
             if (Math.abs(base.elevacao() - elevacaoMinima) < 1e-6) {
                 ma.adicionarApoio(ModeloAnalitico.Apoio.engaste(ni));
             }
@@ -57,20 +58,32 @@ public final class MontadorModeloAnalitico {
             ma.caso(NaturezaAcao.PERMANENTE).nodais().add(new ModeloAnalitico.CargaNodal(nj, 0, 0, -p.b() * p.h() * (zTopo - base.elevacao()) * PESO_CONCRETO, 0, 0, 0));
         }
 
-        for (var v : m.doTipo(TipoElementoEstrutural.VIGA)) {
-            if (v.rascunhoIa()) {
-                continue;
-            }
+        // nós das extremidades de todas as vigas antes de discretizar: assim uma viga que nasce no meio de outra
+        // também quebra a viga apoio (ligação viga-viga)
+        var vigas = m.doTipo(TipoElementoEstrutural.VIGA).stream().filter(v -> !v.rascunhoIa()).toList();
+        for (var v : vigas) {
+            double z = m.pavimento(v.pavimentoId()).map(x -> x.elevacao()).orElse(0.0);
+            ma.noEm(v.p1().x(), v.p1().y(), z, TOL_LIGACAO);
+            ma.noEm(v.p2().x(), v.p2().y(), z, TOL_LIGACAO);
+        }
+        for (var v : vigas) {
             double z = m.pavimento(v.pavimentoId()).map(x -> x.elevacao()).orElse(0.0);
             int ni = ma.noEm(v.p1().x(), v.p1().y(), z, TOL_LIGACAO);
             int nj = ma.noEm(v.p2().x(), v.p2().y(), z, TOL_LIGACAO);
             if (ni == nj) {
                 continue;
             }
+            // nós intermediários (pilares, outras vigas) sobre o eixo da viga: viga contínua com apoios internos
+            var trecho = nosSobreViga(ma, v, z, ni, nj);
             var sec = ModeloAnalitico.Secao.retangular(v.b(), v.h(), modulo(in, v.materialId()));
-            int id = ma.adicionarBarra(v.id(), rotulo(v, "V"), ni, nj, sec);
-            barraPorElemento.put(v.id(), id);
-            ma.caso(NaturezaAcao.PERMANENTE).distribuidas().add(new ModeloAnalitico.CargaDistribuida(id, 0, 0, -v.b() * v.h() * PESO_CONCRETO));
+            var ids = new ArrayList<Integer>();
+            for (int k = 0; k + 1 < trecho.size(); k++) {
+                var rot = trecho.size() > 2 ? rotulo(v, "V") + "." + (k + 1) : rotulo(v, "V");
+                int id = ma.adicionarBarra(v.id(), rot, trecho.get(k), trecho.get(k + 1), sec);
+                ids.add(id);
+                ma.caso(NaturezaAcao.PERMANENTE).distribuidas().add(new ModeloAnalitico.CargaDistribuida(id, 0, 0, -v.b() * v.h() * PESO_CONCRETO));
+            }
+            barrasPorElemento.put(v.id(), List.copyOf(ids));
         }
 
         // lajes: peso próprio + cargas de área, repartidos pelas vigas do contorno
@@ -81,7 +94,7 @@ public final class MontadorModeloAnalitico {
             double area = ElementoEstrutural.areaPoligono(l.contorno());
             var vigasContorno = new ArrayList<ElementoEstrutural>();
             for (var v : m.doPavimento(l.pavimentoId())) {
-                if (v.tipo() == TipoElementoEstrutural.VIGA && barraPorElemento.containsKey(v.id()) && noContorno(v.p1(), l.contorno()) && noContorno(v.p2(), l.contorno())) {
+                if (v.tipo() == TipoElementoEstrutural.VIGA && barrasPorElemento.containsKey(v.id()) && noContorno(v.p1(), l.contorno()) && noContorno(v.p2(), l.contorno())) {
                     vigasContorno.add(v);
                 }
             }
@@ -101,13 +114,15 @@ public final class MontadorModeloAnalitico {
                 if (somaL > 0) {
                     for (var v : vigasContorno) {
                         double porMetro = total * (v.comprimento() / somaL) / v.comprimento();
-                        ma.caso(nat).distribuidas().add(new ModeloAnalitico.CargaDistribuida(barraPorElemento.get(v.id()), 0, 0, -porMetro));
+                        for (int idBarra : barrasPorElemento.get(v.id())) {
+                            ma.caso(nat).distribuidas().add(new ModeloAnalitico.CargaDistribuida(idBarra, 0, 0, -porMetro));
+                        }
                     }
                 } else {
                     // sem vigas de contorno: carga nos pilares dentro da laje
-                    var pilares = m.doPavimento(l.pavimentoId()).stream().filter(e -> e.tipo() == TipoElementoEstrutural.PILAR && barraPorElemento.containsKey(e.id())).toList();
+                    var pilares = m.doPavimento(l.pavimentoId()).stream().filter(e -> e.tipo() == TipoElementoEstrutural.PILAR && barrasPorElemento.containsKey(e.id())).toList();
                     for (var p : pilares) {
-                        int nj = ma.barras().get(barraPorElemento.get(p.id())).noJ();
+                        int nj = ma.barras().get(barrasPorElemento.get(p.id()).getFirst()).noJ();
                         ma.caso(nat).nodais().add(new ModeloAnalitico.CargaNodal(nj, 0, 0, -total / Math.max(1, pilares.size()), 0, 0, 0));
                     }
                 }
@@ -119,14 +134,16 @@ public final class MontadorModeloAnalitico {
             if (c.getTipo() == TipoCarga.AREA || c.getElementoAlvoId() == null) {
                 continue;
             }
-            var idBarra = barraPorElemento.get(c.getElementoAlvoId());
-            if (idBarra == null) {
+            var idsBarras = barrasPorElemento.get(c.getElementoAlvoId());
+            if (idsBarras == null || idsBarras.isEmpty()) {
                 continue;
             }
             if (c.getTipo() == TipoCarga.LINEAR) {
-                ma.caso(c.getNatureza()).distribuidas().add(new ModeloAnalitico.CargaDistribuida(idBarra, 0, 0, -c.getValor()));
+                for (int idBarra : idsBarras) {
+                    ma.caso(c.getNatureza()).distribuidas().add(new ModeloAnalitico.CargaDistribuida(idBarra, 0, 0, -c.getValor()));
+                }
             } else {
-                int no = ma.barras().get(idBarra).noJ();
+                int no = ma.barras().get(idsBarras.getLast()).noJ();
                 ma.caso(c.getNatureza()).nodais().add(new ModeloAnalitico.CargaNodal(no, 0, 0, -c.getValor(), 0, 0, 0));
             }
         }
@@ -165,6 +182,31 @@ public final class MontadorModeloAnalitico {
 
     private static String rotulo(ElementoEstrutural e, String prefixo) {
         return e.rotulo() != null ? e.rotulo() : prefixo + "-" + e.id().substring(0, Math.min(6, e.id().length()));
+    }
+
+    /** nós do nível z sobre o eixo da viga (inclusive as extremidades), ordenados de p1 para p2 */
+    static List<Integer> nosSobreViga(ModeloAnalitico ma, ElementoEstrutural v, double z, int ni, int nj) {
+        double dx = v.p2().x() - v.p1().x(), dy = v.p2().y() - v.p1().y();
+        double l2 = dx * dx + dy * dy;
+        var internos = new java.util.TreeMap<Double, Integer>();
+        for (var n : ma.nos()) {
+            if (n.id() == ni || n.id() == nj || Math.abs(n.z() - z) > TOL_LIGACAO) {
+                continue;
+            }
+            double t = ((n.x() - v.p1().x()) * dx + (n.y() - v.p1().y()) * dy) / l2;
+            if (t <= 1e-6 || t >= 1 - 1e-6) {
+                continue;
+            }
+            double px = v.p1().x() + t * dx, py = v.p1().y() + t * dy;
+            if (Math.hypot(n.x() - px, n.y() - py) <= TOL_LIGACAO) {
+                internos.putIfAbsent(t, n.id());
+            }
+        }
+        var out = new ArrayList<Integer>();
+        out.add(ni);
+        out.addAll(internos.values());
+        out.add(nj);
+        return out;
     }
 
     private static boolean noContorno(Ponto p, List<Ponto> contorno) {
