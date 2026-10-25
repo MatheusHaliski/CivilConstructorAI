@@ -10,6 +10,8 @@ Origem dos RFs:
 - **RF01–RF17**: matriz de requisitos das *Diretrizes de Arquitetura e Desenvolvimento do Repositório* v1.0
   (CAD/BIM generativo com Notação VI e auditoria paramétrica), mantida com a mesma numeração.
 - **RF18–RF27**: base de identidade, controle de acesso e LGPD definida no prompt do CivilConstructorAI.
+- **RF28**: motor de desenho 2D/3D estruturado sobre o *Guia completo de comandos e atalhos* (AutoCAD, Revit,
+  Civil 3D); catálogo em [`docs/CATALOGO_COMANDOS.md`](../CATALOGO_COMANDOS.md).
 
 ## Catálogo
 
@@ -42,6 +44,7 @@ Origem dos RFs:
 | RF25 | M8 Privacidade LGPD & IA responsável | Direitos do titular: ver, corrigir, exportar, compartilhamentos | [doc](RF25-direitos-do-titular.md) | [card](https://trello.com/c/BQtSoryZ) | especificado |
 | RF26 | M8 Privacidade LGPD & IA responsável | Exclusão de conta com carência, reativação e saga de eliminação | [doc](RF26-exclusao-conta-carencia.md) | [card](https://trello.com/c/9s245tLM) | especificado |
 | RF27 | M8 Privacidade LGPD & IA responsável | Transparência do uso de IA, rascunho "gerado por IA" e revisão humana | [doc](RF27-transparencia-ia-revisao-humana.md) | [card](https://trello.com/c/7dTIZbIs) | especificado |
+| RF28 | M1 Concepção Arquitetônica | Motor de desenho 2D/3D: linha de comando, atalhos e modos de cursor (AutoCAD/Revit/Civil 3D) | [doc](RF28-motor-desenho-comandos.md) | [card](https://trello.com/c/7lSEtX9P) | especificado |
 
 Status possíveis: `especificado` (doc e diagramas prontos, sem código) → `em-andamento` → `implementado`
 (código + testes passando) → `homologado`.
@@ -67,7 +70,7 @@ Status possíveis: `especificado` (doc e diagramas prontos, sem código) → `em
 | Camada | Raiz | Exemplo |
 |---|---|---|
 | API core (Java 21/25, Spring Boot 4.1) | `backend/src/main/java/br/com/civilconstructorai/<modulo>/` | `modelo/ComandoViService.java` |
-| Migrações Flyway | `backend/src/main/resources/db/migration/` | `V3__modelo_bim.sql` |
+| Migrações Flyway | `backend/src/main/resources/db/migration/` | `V7__modelo_bim.sql` |
 | Serviço de geometria e cálculo (Python 3.13) | `geometria/<pacote>/` | `geometria/auditor/caixa_cartesiana.py` |
 | Extensão Revit (IronPython) | `pyrevit_extension/` | `pyrevit_extension/CivilConstructor.extension/` |
 | Web (Next.js 16 + Three.js) | `apps/web/src/` | `apps/web/src/canvas/H9Scene3d.ts` |

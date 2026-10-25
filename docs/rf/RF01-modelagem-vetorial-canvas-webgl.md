@@ -57,6 +57,11 @@ ordem: interseção de eixos (RF03), extremidade de elemento, ponto médio, eixo
 - [ ] **CA-07** Só `ARQUITETO` e `ENGENHEIRO` da obra editam; os demais recebem `403` (papel insuficiente) ou
   `404` (não membro), conforme RF21. Obra `ARQUIVADA` é somente leitura.
 - [ ] **CA-08** Teclado: todas as ferramentas têm atalho; foco visível; alvo de toque ≥ 48 px no painel.
+- [ ] **CA-09** A entrada por teclado segue o motor de desenho do **RF28**: linha de comando com os aliases do
+  [catálogo de comandos](../CATALOGO_COMANDOS.md) (`WA`/`ML` parede, `CL` pilar, `BM` viga, `SB` laje, `DR`/`WN`
+  aberturas, `M`, `CO`, `RO`, `TR`, `EX`, `O`, `MI`…), entrada dinâmica junto ao cursor e modos Osnap/Ortho/Polar
+  (F3/F8/F10). A `SnapEngine` deste RF é o `Osnap` do RF28 com os modos `EIX`, `EXT`, `INT`, `MED`, `CEN`,
+  `PER`, `PRX` e `NIV`.
 
 ## 4. Regras de negócio
 
@@ -320,6 +325,6 @@ flowchart LR
 | Card | [Trello 3WgN7lzt](https://trello.com/c/3WgN7lzt) | ✅ |
 | Web | `apps/web/src/canvas/CanvasController.ts`, `SnapEngine.ts` | ⏳ |
 | API | `modelo/ModeloController.java`, `modelo/ComandoViService.java` | ⏳ |
-| Banco | `V3__modelo_bim.sql` (modelo, pavimento, elemento, comando_vi) | ⏳ |
+| Banco | `V7__modelo_bim.sql` (modelo, pavimento, elemento, comando_vi) | ⏳ |
 | Geometria | `geometria/auditor/` (via RF16) | ⏳ |
 | Testes | `ModeloComandoIT`, `canvas.spec.ts` | ⏳ |

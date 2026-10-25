@@ -54,8 +54,9 @@ aprovação de um profissional habilitado.
 |---|---|---|---|---|---|
 | `comando-vi` | RF02 | texto natural → comandos VI | `medium` | structured outputs | streaming; até 3 correções no loop duplo (RF16) |
 | `lancamento-estrutural` | RF04 | sugerir pilares/vigas/lajes a partir da arquitetura | `high` | structured outputs | rascunho para o engenheiro |
-| `boletim-spt` | RF09 | ler boletim de sondagem em PDF | `high` | 1ª chamada com **citações**; 2ª com structured outputs | citações e structured outputs nunca na mesma chamada |
+| `extracao-boletim-spt` | RF09 | ler boletim de sondagem em PDF | `high` | 1ª chamada com structured outputs; 2ª com **citações** (página e trecho) | citações e structured outputs nunca na mesma chamada |
 | `associacao-sinapi` | RF12 | vincular quantitativo a composição | `high` | structured outputs + tool use (`consultar_sinapi`, `strict: true`) | prompt caching da parte fixa; Batch API para reprocessar à noite |
+| `correcao-auditoria` | RF16 | corrigir comando reprovado pelo auditor | `high` | structured outputs | recebe só as violações estruturadas; máx. 3 iterações |
 | `classificar-foto` | (futuro) | classificar foto de canteiro | `low` | structured outputs | só com consentimento (RF24) |
 
 Mudar modelo, prompt ou `effort` de uma rota exige rodar o **conjunto de avaliação** da rota antes.
@@ -111,11 +112,50 @@ PostgreSQL 17 + PostGIS 3.5 (fonte da verdade; perímetro da obra e furos de son
 empresa. Cassandra 5 para registro de atividades e notificações com TTL. S3 (`sa-east-1`) / Garage em dev, com
 URL pré-assinada de 15 min. Modelo BIM versionado: cada `ComandoVI` aplicado incrementa `versao`.
 
+Plano de migrações Flyway (segue a ordem de entrega do backlog; os docs de RF usam estes nomes):
+
+| Migração | RFs |
+|---|---|
+| `V1__contas_empresas_obras.sql` | RF18, RF19, RF21, RF22, RF23, RF26 |
+| `V2__rls.sql` | RF21 |
+| `V3__convites.sql` | RF20 |
+| `V4__lgpd_consentimentos.sql` | RF24 |
+| `V5__lgpd_titular.sql` | RF25 |
+| `V6__lgpd_eliminacao.sql` | RF26 |
+| `V7__modelo_bim.sql` | RF01, RF03, RF06 |
+| `V8__rascunho_ia.sql` | RF27 |
+| `V9__estrutura.sql` | RF04 |
+| `V10__restricoes_projeto.sql` | RF08 |
+| `V11__analise_estrutural.sql` | RF05 |
+| `V12__dimensionamento.sql` | RF07 |
+| `V13__geotecnia.sql` | RF09 |
+| `V14__fundacoes.sql` | RF10 |
+| `V15__quantitativos.sql` | RF11 |
+| `V16__sinapi.sql` | RF12 |
+| `V17__orcamento.sql` | RF12 |
+
 ### ADR-010 · Documentação como código
 
 Cada RF tem `docs/rf/RFnn-slug.md` com seis diagramas Mermaid. `scripts/check_rf_docs.py` verifica a estrutura,
 exige doc atualizado quando o código de um RF muda e renderiza todo Mermaid com `@mermaid-js/mermaid-cli`
 (job "Docs por RF" em `.github/workflows/docs-rf.yml`). O Trello é espelhado em `docs/TRELLO_BACKLOG.md`.
+
+### ADR-011 · Motor de desenho no modelo AutoCAD/Revit
+
+- **Contexto.** O guia de comandos e atalhos (AutoCAD, Revit, Civil 3D) define o vocabulário que os
+  projetistas já dominam. Reinventar a interação do canvas custaria adoção.
+- **Decisão.** O canvas adota linha de comando, aliases por perfil, entrada dinâmica, modos de cursor e
+  seleção substantivo-verbo (RF28). Cada comando de desenho/modificação é uma função da Tabela B, a **mesma**
+  que o console de texto natural (RF02) produz; comandos de vista/visibilidade agem só na cena (RF13) e os de
+  anotação na prancha (RF14). Catálogo em `docs/CATALOGO_COMANDOS.md`; pacote `packages/notacao-vi` é a fonte
+  única das funções e aliases, consumida pelo front e pelo backend.
+- **Consequências.** Motor determinístico (sem IA); teclas reservadas pelo navegador (F1, F5, F11, F12) ganham
+  aliases alternativos; o mesmo `ComandoVI` chega ao auditor por três caminhos (mouse, linha de comando, IA).
+
+### ADR-012 · Decisões de negócio
+
+As decisões que dependiam do negócio (controladora/DPO, visão do cliente, retenção, rotas de IA, camadas D/E/F,
+pyRevit, tipografia e marca) estão em [`docs/DECISOES_DE_NEGOCIO.md`](DECISOES_DE_NEGOCIO.md) (DN-01 a DN-07).
 
 ## 3. Levantamento de mercado (planilha)
 
