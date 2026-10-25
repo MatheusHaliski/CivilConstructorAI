@@ -47,6 +47,23 @@ Java 21/25 + Spring Boot 4.1 (core-api) · Python 3.13 (geometria: auditor, MEF,
 IfcOpenShell) · PostgreSQL 17 + PostGIS 3.5 com RLS · Valkey 9 · Cassandra 5 · S3 · Claude API
 (`claude-opus-5-5`, SDK Java oficial) · Next.js 16 + Three.js · Expo SDK 58 · Turborepo. Justificativas nos ADRs.
 
+## Rodar localmente
+
+```bash
+docker compose up -d                        # PostGIS, Valkey, Garage (+init), Mailpit; `--profile full` liga o Cassandra
+cd backend && mvn -q spring-boot:run -pl cca-web -Dspring-boot.run.profiles=dev
+# API em http://localhost:8080/api/v1 · OpenAPI em /swagger-ui · saúde em /actuator/health
+```
+
+```bash
+cd backend && mvn verify                    # unitários + *IT com Testcontainers (precisa de Docker)
+python3 scripts/gerar_schema.py             # regenera backend/schema.sql após criar uma migração
+```
+
+Layout do backend: `backend/cca-domain` · `cca-application` · `cca-infrastructure` · `cca-web`
+(ADR-001). Pacotes TypeScript compartilhados: `packages/notacao-vi` (Tabela A/B, parser VI, modelo BIM, auditor)
+e `packages/tokens`.
+
 ## Verificar a documentação
 
 ```bash

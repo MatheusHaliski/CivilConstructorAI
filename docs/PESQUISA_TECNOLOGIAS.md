@@ -25,7 +25,11 @@ aprovação de um profissional habilitado.
   MEF, dimensionamento e kernel geométrico (CadQuery/OpenCASCADE) e IronPython para o Revit.
 - **Decisão.** Dois serviços de backend no mesmo repositório:
   - `backend/` (**core-api**, Spring Boot 4.1): identidade, acesso, empresas/obras, modelo BIM como fonte da
-    verdade, comandos VI, camada de IA, orçamento, LGPD, arquivos e registro de operações.
+    verdade, comandos VI, camada de IA, orçamento, LGPD, arquivos e registro de operações. Maven multi-módulo em
+    camadas: `cca-domain` (entidades com anotações JPA, sem Spring/Hibernate; máquinas de estado), `cca-application`
+    (serviços, repositórios Spring Data como portas, DTOs), `cca-infrastructure` (RLS, Flyway, Valkey, S3, Claude,
+    e-mail) e `cca-web` (controladores `/api/v1`, segurança, sessão, Problem Details, aplicação executável).
+    Mesmo pacote `br.com.civilconstructorai.<modulo>` em todos.
   - `geometria/` (Python 3.13, FastAPI **interna**, sem acesso público): `auditor/`, `data_model/`,
     `calculations/{mef,armaduras,fundacoes}/`, `kernel/`, `pranchas/`, `interop/`.
   - `pyrevit_extension/` (IronPython) para a ponte opcional com o Revit.
