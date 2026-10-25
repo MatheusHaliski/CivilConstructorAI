@@ -395,3 +395,12 @@ Outros: `CicloAuditoriaIT` verifica que nenhum `comando_vi` existe sem ciclo `AP
 | API | `cca-web · api/modelo/ModeloExceptionHandler.java` (422 `auditoria_reprovada` com relatório completo + `errors`), `ModeloController` (`POST /modelo/verificar-conclusao`) | ✅ |
 | Banco | `V7__modelo_bim.sql` (ciclo_auditoria com iterações em jsonb) | ✅ |
 | Testes | `EstresseAuditoriaTest` (E01–E18 em Java), `ModeloBimTest`, `ModeloComandoIT#reprovacaoDevolve422ComRelatorioCompleto`; `geometria/tests/estresse/` (Python) | 🟡 |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **6,2 → 7,1**.
+
+- **Corrigido:** Texto natural passa pelo laço como rascunho; aprovar promove à camada da disciplina, descartar remove (comandos versionados `APROVAR`/`DESCARTAR_RASCUNHO_IA`).
+- **Evidência:** EstresseAuditoriaTest e13/e15; j3 CA-04 (simulação).
+- **Pendente:** Laço com LLM real não verificado.

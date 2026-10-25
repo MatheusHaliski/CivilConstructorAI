@@ -331,3 +331,12 @@ flowchart LR
 | Banco | `V1__contas_empresas_obras.sql` (preferencia, conta.mfa_segredo_cifrado, codigo_recuperacao_mfa) | ✅ |
 | Testes | `LoginIT` (setup/confirm TOTP, códigos de recuperação, sudo_required, troca de senha encerra outras sessões) | ✅ |
 | Pendente | processamento da foto (recorte 512 px, sem EXIF) na confirmação; alerta de login | 🟡 |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **7,5 → 8,7**.
+
+- **Corrigido:** Desativar 2FA obrigatório → 409; confirmar o 2FA atualiza a sessão sem novo login.
+- **Evidência:** j1 CA-02/03/05/07; j3 sudo-email.
+- **Pendente:** —

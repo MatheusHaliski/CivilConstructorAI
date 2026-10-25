@@ -6,7 +6,8 @@ import { del, post } from "@/lib/api";
 import { useAcao, useDados } from "@/lib/dados";
 import { useSessao } from "@/lib/sessao";
 import type { SessaoResumo } from "@/lib/tipos";
-import { data } from "@/lib/formatos";
+import Link from "next/link";
+import { data, destinoSeguro } from "@/lib/formatos";
 import { Aviso, Botao, CabecalhoPagina, Cartao, Carregando, Entrada, Etiqueta, Tabela } from "@/components/ui";
 import { useSudoPrompt } from "@/components/conta/NavConta";
 
@@ -17,6 +18,7 @@ export default function PaginaSeguranca() { return <Suspense><Seguranca /></Susp
 /** RF23 · Senha (sudo, derruba outras sessões), sessões ativas, 2FA TOTP com 10 códigos de recuperação, modo sudo. */
 function Seguranca() {
   const params = useSearchParams();
+  const voltar = params.get("voltar") ? destinoSeguro(params.get("voltar")) : null;
   const { sessao, recarregar } = useSessao();
   const perfil = useDados<Perfil>(["perfil"], "/me/profile");
   const sessoes = useDados<SessaoResumo[]>(["sessoes"], "/me/sessions");
@@ -52,6 +54,7 @@ function Seguranca() {
             <Botao pequeno disabled={codigo.length < 6} carregando={confirmarTotp.isPending} onClick={() => confirmarTotp.mutate(codigo.trim(), { onSuccess: (r) => { setCodigos(r.codigosRecuperacao); setSetup(null); void recarregar(); } })}>Confirmar</Botao>
           </>}
           {codigos && <Aviso tom="aviso" titulo="Guarde estes códigos de recuperação"><p>Cada um vale uma vez e não serão mostrados de novo.</p><ul className="mono grid grid-cols-2 gap-x-4 mt-2">{codigos.map((c) => <li key={c}>{c}</li>)}</ul></Aviso>}
+          {codigos && voltar && <Link href={voltar} className="tap inline-flex items-center gap-2 self-start rounded-full bg-marca-grafite px-4 text-sm font-medium text-white">Guardei os códigos · voltar para onde eu estava</Link>}
         </Cartao>
         <Cartao titulo="Trocar senha" descricao="Exige o modo seguro e encerra as outras sessões.">
           <Entrada rotulo="Senha atual" type="password" autoComplete="current-password" value={senha.senhaAtual} onChange={(e) => setSenha((v) => ({ ...v, senhaAtual: e.target.value }))} />

@@ -104,7 +104,7 @@
     "ok": true,
     "evidencia": {
       "s": 200,
-      "j": "{\"valido\":true,\"erros\":[],\"comandos\":[{\"conhecido\":true,\"linha\":1,\"codigo\":\"PAREDE\"}]}"
+      "j": "{\"valido\":true,\"comandos\":[{\"conhecido\":true,\"codigo\":\"PAREDE\",\"linha\":1}],\"erros\":[]}"
     }
   },
   {
@@ -131,7 +131,7 @@
     "ok": true,
     "evidencia": {
       "s": 200,
-      "j": "{\"valido\":false,\"erros\":[{\"coluna\":4,\"mensagem\":\"Função desconhecida VIGAA.\",\"linha\":2,\"codigo\":\"VI-001\"},{\"codigo\":\"VI-000\",\"mensagem\":\"Esperado VI(CODIGO, arg=valor, …)\",\"linha\":3,\"coluna\":1}],\"comandos\":[{\"conhecido\":true,\"linha\":1,\"codigo\":\"PAREDE\"},{\"conhecido\":false,\"linha\":2,\"codigo\":\"VIGAA\"}]}"
+      "j": "{\"valido\":false,\"comandos\":[{\"conhecido\":true,\"codigo\":\"PAREDE\",\"linha\":1},{\"conhecido\":false,\"codigo\":\"VIGAA\",\"linha\":2}],\"erros\":[{\"coluna\":4,\"codigo\":\"VI-001\",\"linha\":2,\"mensagem\":\"Função desconhecida VIGAA.\"},{\"codigo\":\"VI-000\",\"mensagem\":\"Esperado VI(CODIGO, arg=valor, …)\",\"linha\":3,\"coluna\":1}]}"
     }
   },
   {
@@ -142,12 +142,12 @@
     "evidencia": {
       "vi": {
         "p1": {
-          "y": 0,
-          "x": 0
+          "x": 0,
+          "y": 0
         },
         "p2": {
-          "y": 0,
-          "x": 5
+          "x": 5,
+          "y": 0
         },
         "espessura": 0.15,
         "altura": 2.8,
@@ -156,12 +156,12 @@
       },
       "json": {
         "p1": {
-          "y": 6,
-          "x": 0
+          "x": 0,
+          "y": 6
         },
         "p2": {
-          "y": 6,
-          "x": 5
+          "x": 5,
+          "y": 6
         },
         "espessura": 0.15,
         "altura": 2.8,
@@ -219,14 +219,14 @@
     "evidencia": {
       "n": 7,
       "ex": {
-        "id": "01a1743d-1401-720c-895e-165c5e98c89e",
+        "id": "01a17450-176f-7705-9e76-b525bb87c54c",
         "codigo": "DESFAZER",
-        "vi": "VI(DESFAZER, comando=\"01a1743d-13a5-776e-8ef7-65fcb113951a\")",
+        "vi": "VI(DESFAZER, comando=\"01a17450-1715-7c42-8431-58ef9108c197\")",
         "origem": "CANVAS",
-        "autorId": "01a1743d-0de2-71e6-a439-bc7976c319ba",
+        "autorId": "01a17450-11bd-7355-940c-fc1bda2a1bb4",
         "versaoBase": 6,
         "versaoNova": 7,
-        "criadoEm": "2026-10-25T18:05:22.305145Z",
+        "criadoEm": "2026-10-25T18:26:08.367461Z",
         "correcoesAuditor": 0
       }
     }
@@ -479,7 +479,7 @@
     "ok": true,
     "evidencia": {
       "s": 200,
-      "j": "{\"roteiro\":[{\"nome\":\"p1\",\"mensagem\":\"Ponto inicial:\",\"tipo\":\"PONTO\",\"opcional\":false,\"opcoes\":[\"Desfazer\"],\"repetir\":fal"
+      "j": "{\"nomePtBr\":\"LINHA\",\"roteiro\":[{\"nome\":\"p1\",\"mensagem\":\"Ponto inicial:\",\"tipo\":\"PONTO\",\"opcional\":false,\"opcoes\":[\"Desfa"
     }
   }
 ]

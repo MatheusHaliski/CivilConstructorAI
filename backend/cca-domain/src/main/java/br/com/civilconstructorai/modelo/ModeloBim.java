@@ -9,6 +9,7 @@ import br.com.civilconstructorai.modelo.Enums.TipoElemento;
 import br.com.civilconstructorai.notacao.Geo;
 import br.com.civilconstructorai.notacao.ParserVi;
 import br.com.civilconstructorai.notacao.Ponto2D;
+import br.com.civilconstructorai.notacao.TabelaA;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -341,10 +342,20 @@ public class ModeloBim {
     }
 
     /** Executa a função no estado atual (sem auditar nem versionar). */
+    /** {@code mat=MAT.ESTRUTURAL.CONC_FCK30} (código do catálogo) vale o mesmo que {@code mat=MAT_CONC_FCK30}. */
+    private static Map<String, Object> comMaterialNormalizado(Map<String, Object> args) {
+        if (!(args.get("mat") instanceof String mat)) {
+            return args;
+        }
+        var copia = new java.util.LinkedHashMap<>(args);
+        copia.put("mat", TabelaA.normalizarId(mat));
+        return copia;
+    }
+
     public DiffModelo executar(ComandoVi cmd, UUID pavimentoId) {
         var diff = new DiffModelo();
         diff.versaoNova = versao + 1;
-        var a = cmd.args();
+        var a = comMaterialNormalizado(cmd.args());
         var pav = pavimentoId != null ? pavimentoId : a.get("pav") != null ? UUID.fromString(String.valueOf(a.get("pav"))) : pavimentoBase().id();
         if (pavimento(pav).isEmpty()) {
             throw erro("VI-003", "Pavimento inexistente.");
@@ -708,7 +719,7 @@ public class ModeloBim {
                         if (chave.equals("rotulo")) {
                             e.setRotulo(String.valueOf(v));
                         } else if (chave.equals("materialId") || chave.equals("mat")) {
-                            e.setMaterialId(String.valueOf(v));
+                            e.setMaterialId(TabelaA.normalizarId(String.valueOf(v)));
                         } else if (!chave.equals("id") && !chave.equals("tipo")) {
                             e.getProps().put(chave, v);
                         }

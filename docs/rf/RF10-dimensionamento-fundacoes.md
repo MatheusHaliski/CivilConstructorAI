@@ -323,3 +323,12 @@ flowchart LR
 | Banco | `V14__fundacoes.sql` (dimensionamento_fundacao, fundacao_proposta) | ✅ |
 | Cálculo | `cca-domain/geotecnia/CalculoFundacoes.java` (σadm = 20·Nspt ≤ 400 kPa, Aoki-Velloso, Décourt-Quaresma, FS = 2, sobreposição de sapatas) | ✅ |
 | Testes | `CalculoFundacoesTest`; `FundacaoIT` ⏳ | ✅ domínio · ⏳ IT |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **6,3 → 8,0**.
+
+- **Corrigido:** Fundações recusam análise obsoleta (409) e ficam obsoletas quando o modelo muda.
+- **Evidência:** j3 dimensionar, CA-02/04/05; CalculoFundacoesTest.
+- **Pendente:** Capacidade de carga não conferida contra caso de referência.

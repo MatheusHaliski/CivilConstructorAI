@@ -310,3 +310,12 @@ flowchart LR
 | Banco | `V7__modelo_bim.sql` (alerta_transicao) | ✅ |
 | Web | painel de alertas em `obras/[obraId]/auditoria/` | ⏳ |
 | Testes | `EstresseAuditoriaTest` (Disciplina Z), `ModeloComandoIT#verificarConclusaoEAlertasDeTransicao`; `test_disciplina_z.py` | 🟡 |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **7,7 → 7,7**.
+
+- **Corrigido:** Sem mudança de regra (pacote do modelo alterado por RF01). Disciplina Z coberta por `EstresseAuditoriaTest` e05/e06.
+- **Evidência:** EstresseAuditoriaTest e05/e06, ModeloBimTest disciplinaZ.
+- **Pendente:** Não exercitado em jornada.

@@ -405,3 +405,12 @@ flowchart LR
 | Cassandra | `chamada_ia` com TTL de 2 anos | 🟡 (PostgreSQL por enquanto; job de expurgo pendente) |
 | Testes | `ServicoIaTest` (registro sem conteúdo, recusa, truncamento, campos obrigatórios), `MaquinasDeEstadoLgpdTest`, `RascunhoIaIT` (sem selo → 403 com motivo, ART vazia → 422, aprovação, revisão humana 201, `GET /ia/uso`, consumo) | ✅ |
 | Web | `apps/web/src/app/(app)/conta/privacidade/uso-de-ia/page.tsx`, `apps/web/src/components/ia/AiDraftBadge.tsx` | ⏳ |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **6,4 → 8,0**.
+
+- **Corrigido:** Aprovar rascunho de IA tem efeito no modelo; rascunhos ocultos para cliente e fornecedor; aprovação expõe quem aprovou.
+- **Evidência:** j3 CA-01/03/04/06/08/10, promoção; RascunhoIaIT.
+- **Pendente:** IA real não verificada em dev.

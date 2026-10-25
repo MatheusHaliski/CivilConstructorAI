@@ -343,3 +343,12 @@ flowchart LR
 | API | `cca-web · api/modelo/ModeloController.java` (`GET /modelo/snapshot?versao`, `GET /modelo/diff?desde`, `PATCH /modelo/liberar-cliente`); publicador SSE | 🟡 |
 | Geometria | `geometria/kernel/triangulacao.py` (glTF) | ⏳ |
 | Testes | `SnapshotClienteIT` (CA-08: 404 antes da liberação, FORNECEDOR 403, cliente sem `ia-rascunho`); `scene.perf.spec.ts`, `scene.a11y.spec.ts` | 🟡 |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **7,0 → 7,5**.
+
+- **Corrigido:** Cliente e fornecedor veem só a versão liberada, sem rascunhos de IA (antes viam a atual).
+- **Evidência:** j3 CA-08, liberado; SnapshotClienteIT.
+- **Pendente:** 3D só inspeciona e seleciona; sem corte interativo.

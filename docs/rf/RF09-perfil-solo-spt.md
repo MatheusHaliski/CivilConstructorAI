@@ -336,3 +336,12 @@ flowchart LR
 | Banco | `V13__geotecnia.sql` (furo_sondagem com camadas/leituras JSON, extracao_boletim); perímetro via `ST_Contains` em `PerimetroObraJdbc` | ✅ |
 | Cálculo | `geometria/calculations/fundacoes/perfil.py` | ⏳ |
 | Testes | `CalculoFundacoesTest`, `SondagemIT` (furo fora do perímetro → 422; confirmação; perfil interpolado; presign), `test_perfil.py` | ✅ backend · ⏳ python |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **5,8 → 8,6**.
+
+- **Corrigido:** Leituras e camadas inválidas → um único 422 com todos os erros (antes, Nspt negativo dava 500); upload do boletim por URL pré-assinada funcionando no S3 local.
+- **Evidência:** j3 CA-02/03, perfil, upload S3; SondagemIT.
+- **Pendente:** Extração do boletim por IA só simulada.

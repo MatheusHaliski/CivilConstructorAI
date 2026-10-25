@@ -345,3 +345,12 @@ flowchart LR
 | Banco | `V1__contas_empresas_obras.sql` (conta.mfa_*, codigo_recuperacao_mfa) | ✅ |
 | Testes | `LoginIT` (neutra, 429 + Retry-After, CONFIGURAR_MFA para dono, TOTP + código de recuperação de uso único, logout invalida) | ✅ |
 | Pendente | alerta de login por e-mail usa o e-mail transacional; canal push do mobile | 🟡 |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **6,5 → 8,8**.
+
+- **Corrigido:** Credenciais erradas e 2FA errado → 401; Argon2 roda também para e-mail inexistente; TOTP de uso único (replay → 401); 2FA obrigatório imposto por `MfaPendenteFilter` (403 `mfa_obrigatorio`) com volta ao destino após configurar; troca de empresa não dispara e-mail de novo acesso; ARQUITETO (aprovador) passa a exigir 2FA.
+- **Evidência:** j1 CA-01..06c, replay; j4 UX-mfa/voltar; LoginIT.
+- **Pendente:** Sem QR do TOTP na tela.

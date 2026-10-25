@@ -88,6 +88,10 @@ class DominioIdentidadeTest {
         assertThat(PapelObra.MESTRE_OBRAS.podeConvidar(PapelObra.TRABALHADOR)).isFalse();
         assertThat(PapelObra.ENGENHEIRO.exigeMfa()).isTrue();
         assertThat(PapelObra.CLIENTE.exigeMfa()).isFalse();
+        // RF19 CA-06: todo papel aprovador exige 2FA (a auditoria 2026-10 achou ARQUITETO aprovador sem 2FA)
+        for (var p : PapelObra.values()) {
+            assertThat(!p.aprovador() || p.exigeMfa()).as(p.name()).isTrue();
+        }
     }
 
     @Test

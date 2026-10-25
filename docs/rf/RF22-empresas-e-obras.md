@@ -310,3 +310,12 @@ flowchart LR
 | Banco | `V1__contas_empresas_obras.sql` (empresa, membro_empresa, obra, membro_obra) | ✅ |
 | Testes | `ConviteEAcessoIT` (sem engenheiro não inicia, transição inválida 409, arquivada 409, isolamento) | ✅ |
 | Pendente | dados pessoais do trabalhador sem login (CPF, contato) ficam no módulo LGPD/empresa; aqui só o vínculo | 🟡 |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **6,9 → 8,7**.
+
+- **Corrigido:** Criar empresa a torna a ativa; troca de empresa por lista (`GET /me/empresas`); o menu esconde de quem não é DONO/ADMIN as telas que só a gestão usa.
+- **Evidência:** j1 CA-01/02/04/05; j4 UX-contexto.
+- **Pendente:** —

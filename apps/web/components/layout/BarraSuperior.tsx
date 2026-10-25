@@ -52,7 +52,7 @@ function BuscaGlobal() {
   const [sel, setSel] = useState(0);
   const id = useId();
   const caixa = useRef<HTMLInputElement>(null);
-  const grupos = useMemo(() => [...(obraId ? gruposObra(obraId) : []), ...gruposGlobais({ suportePlataforma: (sessao as { suportePlataforma?: boolean } | null)?.suportePlataforma === true })], [obraId, sessao]);
+  const grupos = useMemo(() => [...(obraId ? gruposObra(obraId) : []), ...gruposGlobais({ suportePlataforma: (sessao as { suportePlataforma?: boolean } | null)?.suportePlataforma === true, gestorEmpresa: sessao ? !!sessao.papelEmpresa : undefined })], [obraId, sessao]);
   const resultados = useMemo(() => buscarNavegacao(grupos, termo), [grupos, termo]);
   const ir = (href: string) => { setTermo(""); setAberta(false); caixa.current?.blur(); router.push(href); };
   const mostrar = aberta && termo.trim().length > 0;

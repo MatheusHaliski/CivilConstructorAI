@@ -6,7 +6,9 @@ import { useMotor } from "@/lib/motor/estado";
 import { cx } from "@/components/ui";
 
 export function LinhaComando() {
-  const { comando, log, entradaTexto, opcao, cancelar, maquina, sincronizando } = useMotor();
+  const { comando, log, entradaTexto, opcao, cancelar, maquina, sincronizando, painel } = useMotor();
+  // F2 / HISTORICO expande o histórico (como a janela de texto do AutoCAD); repetir fecha
+  const expandido = painel === "historico";
   const [texto, setTexto] = useState("");
   const [hist, setHist] = useState<string[]>([]);
   const [idx, setIdx] = useState(-1);
@@ -14,7 +16,7 @@ export function LinhaComando() {
   const logRef = useRef<HTMLDivElement>(null);
   const passo = comando?.def.roteiro[comando.passo];
 
-  useEffect(() => { logRef.current?.scrollTo({ top: logRef.current.scrollHeight }); }, [log]);
+  useEffect(() => { logRef.current?.scrollTo({ top: logRef.current.scrollHeight }); }, [log, expandido]);
   useEffect(() => {
     const f = (e: KeyboardEvent) => {
       const alvo = e.target as HTMLElement;
@@ -36,7 +38,7 @@ export function LinhaComando() {
 
   return (
     <div className="flex flex-col border-t border-line-soft bg-bg">
-      <div ref={logRef} role="log" aria-live="polite" aria-label="Histórico de comandos" className="h-24 overflow-y-auto px-3 py-1 mono text-[12px] leading-5">
+      <div ref={logRef} role="log" aria-live="polite" aria-label="Histórico de comandos" className={cx(expandido ? "h-72" : "h-24", "overflow-y-auto px-3 py-1 mono text-[12px] leading-5")}>
         {log.map((l) => (
           <p key={l.id} className={cx(l.tipo === "erro" && "text-danger", l.tipo === "ok" && "text-success", l.tipo === "entrada" && "text-text-3", l.tipo === "prompt" && "text-text", l.tipo === "info" && "text-text-2", l.tipo === "ia" && "text-ai-text")}>
             {l.tipo === "entrada" ? "› " : l.tipo === "erro" ? "✖ " : l.tipo === "ok" ? "✔ " : l.tipo === "ia" ? "✦ " : ""}{l.texto}

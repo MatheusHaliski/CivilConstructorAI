@@ -341,3 +341,12 @@ flowchart LR
 | Banco | `V1__contas_empresas_obras.sql` (conta, codigo_verificacao, user_key, aceite_termos, preferencia) | ✅ |
 | Testes | `CadastroIT` (422 completo, menor de 18, senha comum, verificação, duplicado neutro, 429 no reenvio), `DominioIdentidadeTest` | ✅ |
 | Pendente | foto de perfil: recorte 512 px e remoção de EXIF (`javax.imageio`) no confirm da foto | 🟡 |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **7,8 → 9,0**.
+
+- **Corrigido:** Verificação mostra o e-mail de destino e permite recomeçar com outro; o cadastro iniciado por convite volta ao convite (`?voltar=`, só caminhos internos).
+- **Evidência:** j1 CA-01..10; j4 UX-erros/corrigir-email; CadastroIT.
+- **Pendente:** —

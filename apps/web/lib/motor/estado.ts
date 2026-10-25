@@ -140,12 +140,44 @@ export const useMotor = create<Estado>((set, get) => {
     return true;
   }
 
+  /**
+   * CONCORDAR (FILLET) e CHANFRAR (CHAMFER) entre duas linhas: raio/distâncias 0 fecham o canto na interseção; acima de
+   * zero, recuam cada linha a partir da interseção e ligam os novos extremos com um arco tangente (raio) ou um segmento.
+   */
+  function cantos(codigo: string, sels: string[][], medidas: number[]): { codigo: string; args: Record<string, unknown> }[] {
+    const m = get().modelo; const a = m.elemento(sels[0]?.[0] ?? ""), b = m.elemento(sels[1]?.[0] ?? "");
+    if (!a || !b || !("p1" in a && "p2" in a) || !("p1" in b && "p2" in b)) { log("erro", "Selecione duas linhas."); return []; }
+    if (medidas.some((x) => !Number.isFinite(x) || x < 0)) { log("erro", "Raio e distâncias não podem ser negativos."); return []; }
+    const ip = intersecaoSegmentos(a.p1, a.p2, b.p1, b.p2, true);
+    if (!ip) { log("erro", "As linhas são paralelas: não há canto para concordar ou chanfrar."); return []; }
+    const lado = (e: { p1: Ponto2D; p2: Ponto2D }) => { const perto = dist(ip, e.p1) < dist(ip, e.p2) ? "p1" : "p2"; const longe = perto === "p1" ? e.p2 : e.p1; const L = dist(ip, longe); return { perto, L, u: { x: (longe.x - ip.x) / L, y: (longe.y - ip.y) / L } }; };
+    const la = lado(a), lb = lado(b);
+    const cos = Math.max(-1, Math.min(1, la.u.x * lb.u.x + la.u.y * lb.u.y)); const teta = Math.acos(cos);
+    const r = medidas[0] ?? 0;
+    const [da, db] = codigo === "CONCORDAR" ? [r / Math.tan(teta / 2), r / Math.tan(teta / 2)] : [medidas[0] ?? 0, medidas[1] ?? 0];
+    if (da >= la.L || db >= lb.L) { log("erro", `${codigo === "CONCORDAR" ? "Raio" : "Distância"} grande demais para essas linhas.`); return []; }
+    const pa = { x: ip.x + la.u.x * da, y: ip.y + la.u.y * da }, pb = { x: ip.x + lb.u.x * db, y: ip.y + lb.u.y * db };
+    const out: { codigo: string; args: Record<string, unknown> }[] = [
+      { codigo: "ALTERAR", args: { id: a.id, props: { [la.perto]: pa } } },
+      { codigo: "ALTERAR", args: { id: b.id, props: { [lb.perto]: pb } } },
+    ];
+    if (codigo === "CHANFRAR" && (da > 0 || db > 0)) out.push({ codigo: "LINHA", args: { p1: pa, p2: pb } });
+    if (codigo === "CONCORDAR" && r > 0) {
+      const bis = { x: la.u.x + lb.u.x, y: la.u.y + lb.u.y }; const nb = Math.hypot(bis.x, bis.y);
+      const centro = { x: ip.x + (bis.x / nb) * (r / Math.sin(teta / 2)), y: ip.y + (bis.y / nb) * (r / Math.sin(teta / 2)) };
+      const meio = { x: centro.x - (bis.x / nb) * r, y: centro.y - (bis.y / nb) * r };
+      out.push({ codigo: "ARCO", args: { p1: pa, p2: meio, p3: pb } });
+    }
+    return out;
+  }
+
   /** monta os comandos VI a partir dos valores coletados pelo roteiro */
   function montar(c: ComandoAtivo, fechar: boolean): { codigo: string; args: Record<string, unknown> }[] {
     const v = c.valores, pts = c.pontos, sels = c.selecoes;
     const sel = sels[0] ?? [...get().selecao];
     switch (c.def.codigo) {
-      case "LINHA": case "LINHA_DETALHE": case "LINHA_QUEBRA": { const todos = [v["p1"] as Ponto2D, ...pts]; const out = []; for (let i = 0; i < todos.length - 1; i++) out.push({ codigo: c.def.codigo === "LINHA_QUEBRA" ? "LINHA" : c.def.codigo, args: { p1: todos[i], p2: todos[i + 1], ...(c.def.codigo === "LINHA_QUEBRA" ? { rotulo: "quebra" } : {}) } }); if (fechar && todos.length > 2) out.push({ codigo: "LINHA", args: { p1: todos[todos.length - 1], p2: todos[0] } }); return out; }
+      // LINHA_QUEBRA vira linha de detalhe (camada anotação); o símbolo em zigue-zague ainda não é desenhado
+      case "LINHA": case "LINHA_DETALHE": case "LINHA_QUEBRA": { const todos = [v["p1"] as Ponto2D, ...(v["p2"] ? [v["p2"] as Ponto2D] : []), ...pts]; const out = []; for (let i = 0; i < todos.length - 1; i++) out.push({ codigo: c.def.codigo === "LINHA_QUEBRA" ? "LINHA_DETALHE" : c.def.codigo, args: { p1: todos[i], p2: todos[i + 1] } }); if (fechar && todos.length > 2) out.push({ codigo: "LINHA", args: { p1: todos[todos.length - 1], p2: todos[0] } }); return out; }
       case "POLILINHA": case "SPLINE": return [{ codigo: c.def.codigo, args: { pontos: [v["p1"], ...pts], fechar } }];
       case "LAJE": return [{ codigo: "LAJE", args: { contorno: [v["p1"], ...pts], h: v["h"] } }];
       case "COPIAR": return pts.map((d) => ({ codigo: "COPIAR", args: { sel, base: v["base"], destino: d } }));
@@ -161,7 +193,7 @@ export const useMotor = create<Estado>((set, get) => {
       case "MATRIZ": return [{ codigo: "MATRIZ", args: { sel, nx: v["nx"], dx: v["dx"], ny: v["ny"], dy: v["dy"] } }];
       case "HACHURA": case "ETIQUETA": case "REGIAO": case "APAGAR": case "EXPLODIR": case "UNIR": return [{ codigo: c.def.codigo === "REGIAO" ? "HACHURA" : c.def.codigo, args: { sel, ...(c.def.codigo === "HACHURA" ? { padrao: v["padrao"] } : {}), ...(c.def.codigo === "REGIAO" ? { padrao: "REGIAO" } : {}) } }];
       case "QUEBRAR": { const e = get().modelo.elemento(sel[0] ?? ""); if (!e || !("p1" in e && "p2" in e)) return []; const a = projetarNoSegmento(v["p1"] as Ponto2D, e.p1, e.p2), b = projetarNoSegmento(v["p2"] as Ponto2D, e.p1, e.p2); const [t1, t2] = a.t < b.t ? [a, b] : [b, a]; return [{ codigo: "APAGAR", args: { sel: [e.id] } }, { codigo: "LINHA", args: { p1: e.p1, p2: t1.ponto } }, { codigo: "LINHA", args: { p1: t2.ponto, p2: e.p2 } }]; }
-      case "CONCORDAR": case "CHANFRAR": { const m = get().modelo; const a = m.elemento(sels[0]?.[0] ?? ""), b = m.elemento(sels[1]?.[0] ?? ""); if (!a || !b || !("p1" in a && "p2" in a) || !("p1" in b && "p2" in b)) return []; const ip = intersecaoSegmentos(a.p1, a.p2, b.p1, b.p2, true); if (!ip) return []; const out = []; for (const e of [a, b]) { const campo = dist(ip, e.p1) < dist(ip, e.p2) ? "p1" : "p2"; out.push({ codigo: "ALTERAR", args: { id: e.id, props: { [campo]: ip } } }); } return out; }
+      case "CONCORDAR": case "CHANFRAR": return cantos(c.def.codigo, sels, c.def.codigo === "CONCORDAR" ? [Number(v["raio"] ?? 0)] : [Number(v["d1"] ?? 0), Number(v["d2"] ?? 0)]);
       case "ALINHAR": { const m = get().modelo; const ref = m.elemento(sels[0]?.[0] ?? ""); const alvos = sels[1] ?? []; if (!ref) return []; const pr = m.pontoRepresentativo(ref); return alvos.map((id) => { const e = m.elemento(id)!; const pe = m.pontoRepresentativo(e); const vertical = "p1" in ref && "p2" in ref ? Math.abs(ref.p2.x - ref.p1.x) < Math.abs(ref.p2.y - ref.p1.y) : true; const d = vertical ? { x: pr.x - pe.x, y: 0 } : { x: 0, y: pr.y - pe.y }; return { codigo: "MOVER", args: { sel: [id], base: pe, destino: { x: pe.x + d.x, y: pe.y + d.y } } }; }); }
       case "COPIAR_PROPRIEDADES": { const m = get().modelo; const o = m.elemento(sels[0]?.[0] ?? ""); if (!o) return []; return (sels[1] ?? []).map((id) => ({ codigo: "ALTERAR", args: { id, props: { camada: o.camada, materialId: o.materialId } } })); }
       case "ALONGAR": return [{ codigo: "ALONGAR", args: { sel, delta: v["delta"] } }];
@@ -219,8 +251,10 @@ export const useMotor = create<Estado>((set, get) => {
     const m = get().modelo;
     if ((def.codigo === "ESCALAR" || def.codigo === "EXPLODIR") && sel.some((id) => CONSTRUTIVOS.has(m.elemento(id)?.tipo ?? ""))) { log("erro", `${def.nomePtBr} não se aplica a elementos construtivos: use as propriedades (H5).`); set({ maquina: "OCIOSO" }); return; }
     if (def.codigo === "APAGAR") { const n = m.elementos.filter((e) => (e.tipo === "PORTA" || e.tipo === "JANELA") && sel.includes(e.paredeId)).length; if (n) log("info", `Atenção: ${n} abertura(s) hospedada(s) serão apagadas junto com a parede.`); }
+    const antes = get().log.length;
     const lote = montar(c, fechar);
-    if (!lote.length) { log("erro", `${def.nomePtBr}: nada a fazer com essa entrada.`); set({ maquina: "OCIOSO" }); return; }
+    // montar já explica o motivo quando sabe (ex.: linhas paralelas); senão, mensagem genérica
+    if (!lote.length) { if (get().log.length === antes) log("erro", `${def.nomePtBr}: nada a fazer com essa entrada.`); set({ maquina: "OCIOSO" }); return; }
     await aplicarInterno(lote, "CANVAS");
     if (["APAGAR", "EXPLODIR", "UNIR", "QUEBRAR"].includes(def.codigo)) set({ selecao: new Set() });
   }

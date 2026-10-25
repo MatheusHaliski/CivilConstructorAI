@@ -373,3 +373,12 @@ flowchart LR
 | IA | `ia/ModeloLinguagem.java`/`RotaIa.COMANDO_VI` (porta do fork de IA), `AuditorService.SCHEMA_COMANDO` | ✅ |
 | Geometria | `geometria/api/sanitizacao.py` | ⏳ |
 | Testes | `ParserViTest`, `CatalogoComandosTest`, `ModeloComandoIT#textoNaturalCriaRascunhoGeradoPorIa`; `evals/comando-vi/` | 🟡 |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **6,8 → 8,6**.
+
+- **Corrigido:** Função VI desconhecida devolve VI-001 com sugestões; texto natural vira rascunho de IA (`COMANDO_VI`) em vez de gravar direto; `mat=MAT.<CATEGORIA>.<ID>` aceito pelos dois motores.
+- **Evidência:** j2 CA-01/02, equivalência; j3 CA-04.
+- **Pendente:** Texto natural com IA real não verificado (dev usa simulação).

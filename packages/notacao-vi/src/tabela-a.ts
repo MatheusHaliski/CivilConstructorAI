@@ -81,5 +81,12 @@ export const TABELA_A: Material[] = [
 ];
 
 export function material(id: string): Material | undefined {
-  return TABELA_A.find((m) => m.materialId === id);
+  const normalizado = normalizarMaterialId(id);
+  return TABELA_A.find((m) => m.materialId === normalizado);
+}
+
+/** `MAT.ESTRUTURAL.CONC_FCK30` (código do catálogo) → `MAT_CONC_FCK30` (materialId); outro valor volta como veio. */
+export function normalizarMaterialId(id: string): string {
+  const m = /^MAT\.[A-Za-z]+\.(.+)$/.exec(id.trim());
+  return m ? `MAT_${m[1]!.toUpperCase()}` : id;
 }

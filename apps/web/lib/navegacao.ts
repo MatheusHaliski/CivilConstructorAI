@@ -13,7 +13,10 @@ import {
 export type ItemNav = { href: string; rotulo: string; Icone: LucideIcon; descricao?: string; palavras?: string; exato?: boolean };
 export type GrupoNav = { id: string; titulo: string; itens: ItemNav[] };
 
-export type ContextoNav = { suportePlataforma?: boolean };
+/** `gestorEmpresa: false` esconde o que só DONO/ADMIN da empresa usa (o backend responderia 403). */
+export type ContextoNav = { suportePlataforma?: boolean; gestorEmpresa?: boolean };
+
+const SO_GESTOR = new Set(["/obras/nova", "/empresa/membros", "/empresa/privacidade", "/empresa/consumo-ia"]);
 
 export function gruposGlobais(ctx: ContextoNav = {}): GrupoNav[] {
   const g: GrupoNav[] = [
@@ -42,6 +45,7 @@ export function gruposGlobais(ctx: ContextoNav = {}): GrupoNav[] {
     ] },
   ];
   if (ctx.suportePlataforma) g.push({ id: "plataforma", titulo: "Plataforma", itens: [{ href: "/plataforma/selos", rotulo: "Selos profissionais", Icone: BadgeCheck }] });
+  if (ctx.gestorEmpresa === false) for (const grupo of g) grupo.itens = grupo.itens.filter((i) => !SO_GESTOR.has(i.href));
   return g;
 }
 

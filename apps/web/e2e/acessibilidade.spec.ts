@@ -1,9 +1,20 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import crypto from "node:crypto";
+
+/** TOTP (RFC 6238) para contas com 2FA: dono/admin/aprovador sempre têm (RF19 CA-06). */
+function totp(segredo: string, t = Date.now()) {
+  const alfa = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  const bits = [...segredo.replace(/=+$/, "").toUpperCase()].map((c) => alfa.indexOf(c).toString(2).padStart(5, "0")).join("");
+  const chave = Buffer.from(bits.match(/.{8}/g)!.map((b) => parseInt(b, 2)));
+  const buf = Buffer.alloc(8); buf.writeBigUInt64BE(BigInt(Math.floor(t / 30_000)));
+  const h = crypto.createHmac("sha1", chave).update(buf).digest(); const o = h[h.length - 1]! & 15;
+  return String((h.readUInt32BE(o) & 0x7fffffff) % 1_000_000).padStart(6, "0");
+}
 
 /**
  * Acessibilidade (WCAG 2.2 AA via axe) nas telas públicas e, com E2E_EMAIL/E2E_SENHA de uma conta ativa, nas telas
- * autenticadas. Falha com qualquer violação "serious" ou "critical".
+ * autenticadas (E2E_TOTP com o segredo base32 quando a conta tem 2FA). Falha com qualquer violação "serious" ou "critical".
  */
 async function auditar(page: Page, rota: string) {
   await page.goto(rota);
@@ -29,6 +40,11 @@ test.describe("autenticado", () => {
     await page.getByLabel("E-mail").fill(process.env.E2E_EMAIL!);
     await page.getByLabel("Senha").fill(process.env.E2E_SENHA!);
     await page.getByRole("button", { name: "Entrar" }).click();
+    if (process.env.E2E_TOTP) {
+      await page.getByText("Segundo fator").waitFor();
+      await page.getByLabel("Código").fill(totp(process.env.E2E_TOTP));
+      await page.getByRole("button", { name: "Confirmar" }).click();
+    }
     await page.waitForURL(/\/(obras|conta)/);
     sessao = await ctx.storageState();
     await ctx.close();

@@ -298,3 +298,12 @@ flowchart LR
 | API | `EstruturaController` (`GET/PUT /estrutura/restricoes`, `/excecoes-normativas` → propor, `decidir?aprovar`, `revogar`), `cca-application/estrutura/RestricoesService.java`; `LancadorAutomatico.validar` aplica as seções mínimas às sugestões da IA | ✅ |
 | Banco | `V10__restricoes_projeto.sql` (restricoes_projeto só mais restritivas que o padrão; excecao_normativa com justificativa ≥ 20 caracteres e aprovação por `podeAprovar`) | ✅ |
 | Testes | `test_tolerancias.py`, `test_secoes_minimas.py`; backend coberto por `RestricoesProjeto`/`ExcecaoNormativa` nas validações de domínio (IT dedicado ⏳) | ✅ domínio · ⏳ IT |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **8,6 → 8,6**.
+
+- **Corrigido:** Sem mudança de regra (controller compartilhado com RF04). Pilar 10×10 → 422 com dimensão, mínimo e item da norma.
+- **Evidência:** j2 CA-01/03; ModeloBimTest.
+- **Pendente:** —

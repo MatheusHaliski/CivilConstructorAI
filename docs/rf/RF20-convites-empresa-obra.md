@@ -321,3 +321,12 @@ flowchart LR
 | API | `api/empresa/EmpresaController.java` (`/companies/{id}/invites`), `ConviteController.java` (`/convites/{token}/publico`, `/invites/{token}/accept|decline`, 410 quando indisponível) | ✅ |
 | Banco | `V1__contas_empresas_obras.sql` (convite) | ✅ |
 | Testes | `ConviteEAcessoIT` (não promove acima, e-mail diferente → 403, uso único, revogado → 410), `DominioIdentidadeTest` | ✅ |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **5,2 → 9,0**.
+
+- **Corrigido:** Link do e-mail para `/convite/{token}` montado de `app.web.url` (não do `Origin`); e-mail com empresa, obra, papel legível e validade em pt-BR; convite novo substitui o pendente; convite para DONO ou acima de quem convida → 403; aceitar troca a empresa ativa e leva à obra.
+- **Evidência:** j1 CA-02..08; j4 UX-email/convite/aceite; ConviteEAcessoIT.
+- **Pendente:** —

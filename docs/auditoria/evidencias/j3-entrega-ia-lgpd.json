@@ -5,7 +5,7 @@
     "descricao": "mesmo modelo → mesmo hash",
     "ok": true,
     "evidencia": {
-      "hash": "f5000aad",
+      "hash": "3254c190",
       "versao": 13
     }
   },
@@ -28,8 +28,8 @@
       "alvenariaM2": 11,
       "linhas": [
         {
-          "pavimentoId": "0b7f6451-7cdf-316a-95ce-64d94fcc969a",
-          "elementoId": "01a1743d-24dc-78c2-8cfd-d984b1e83824",
+          "pavimentoId": "34873f4d-b4a2-37c2-a93c-f12e8a8ec00f",
+          "elementoId": "01a17450-2762-7b0b-8344-3b8cb6befc7b",
           "tipo": "PAREDE",
           "rotulo": "PAR1",
           "materialId": "MAT_ALV_BLOCO14",
@@ -93,11 +93,11 @@
   {
     "rf": "RF12",
     "id": "importar",
-    "descricao": "importa tabela SINAPI PR 2020-06 não desonerada",
+    "descricao": "importa tabela SINAPI PR 2010-01 não desonerada",
     "ok": true,
     "evidencia": {
       "s": 201,
-      "j": "01a1743d-25be-729a-8891-331f0c239192"
+      "j": "01a17450-2833-7592-adf0-be21a0084798"
     }
   },
   {
@@ -105,7 +105,7 @@
     "id": "reimportar",
     "descricao": "reimportar o mesmo mês → 409 explicando",
     "ok": true,
-    "evidencia": "Já existe a tabela SINAPI PR 6/2020 não desonerada. Orçamentos já feitos guardam a versão usada; importe outro mês de referência."
+    "evidencia": "Já existe a tabela SINAPI PR 1/2010 não desonerada. Orçamentos já feitos guardam a versão usada; importe outro mês de referência."
   },
   {
     "rf": "RF12",
@@ -134,18 +134,18 @@
     "evidencia": {
       "n": 10,
       "ex": {
-        "atualizadoEm": "2026-10-25T18:05:26.928557Z",
+        "atualizadoEm": "2026-10-25T18:26:12.748223Z",
         "codigoSinapi": "",
-        "criadoEm": "2026-10-25T18:05:26.928557Z",
+        "criadoEm": "2026-10-25T18:26:12.748223Z",
         "custoUnitario": 0,
         "descricao": "Sem composição SINAPI vinculada: o código 92779 não existe em SINAPI PR 8/2026 não desonerado",
         "etapa": "Estrutura",
         "geradoPorIa": false,
-        "id": "01a1743d-260b-7c6e-99d6-9f6372d45d05",
-        "orcamentoId": "01a1743d-25fe-7d1a-a74d-c3f749309b8e",
+        "id": "01a17450-2887-766c-bf32-46adb1916ee6",
+        "orcamentoId": "01a17450-2879-7c3f-9d7b-b5016833ea9d",
         "quantidade": 122.36,
         "servico": "Aço CA-50 laje",
-        "tenantId": "01a1743d-202b-7582-ac73-e6cb49633b3d",
+        "tenantId": "01a17450-22b6-7770-9142-c45cf85af211",
         "total": 0,
         "unidade": "kg",
         "versao": 0
@@ -266,7 +266,7 @@
     "ok": true,
     "evidencia": {
       "s": 200,
-      "url": "http://localhost:3900/cca/obras/01a1743d-2300-7c19-9834-e7ed"
+      "url": "http://localhost:3900/cca/obras/01a17450-2574-717f-9e6b-637d"
     }
   },
   {
@@ -405,8 +405,8 @@
     "descricao": "GlobalId estável entre duas exportações da mesma versão",
     "ok": true,
     "evidencia": {
-      "a": "0Q5qFIDuSK6pKZBnoF0Mq0,0Q5qFIEWVmIgPgpFr$Orsm,0Q5q",
-      "b": "0Q5qFIDuSK6pKZBnoF0Mq0,0Q5qFIEWVmIgPgpFr$Orsm,0Q5q"
+      "a": "0Q5qK2O1UqI$HgKBCSTUVm,0Q5qK2OfUZMPxE6mH0FA8G,0Q5q",
+      "b": "0Q5qK2O1UqI$HgKBCSTUVm,0Q5qK2OfUZMPxE6mH0FA8G,0Q5q"
     }
   },
   {
@@ -461,11 +461,11 @@
     "evidencia": {
       "s": 201,
       "j": {
-        "id": "01a1743d-4718-7622-a013-292cd83a01d2",
-        "rascunhoId": "01a1743d-46aa-78c9-9adf-9ccd02bd51f1",
+        "id": "01a17450-48fb-781b-9a0c-83505c8763f9",
+        "rascunhoId": "01a17450-48a0-7ba8-8433-60f58a476544",
         "estado": "ABERTO",
         "motivo": "Quero que uma pessoa confira a decisão automática.",
-        "prazoEm": "2026-11-09T18:05:35.384376346Z"
+        "prazoEm": "2026-11-09T18:26:21.051501227Z"
       }
     }
   },
@@ -514,11 +514,11 @@
     "descricao": "rejeição mostra o motivo para o profissional",
     "ok": true,
     "evidencia": {
-      "uf": "PR",
-      "registro": "PR-123456/D",
       "motivo": "Documento ilegível",
-      "estado": "REJECTED",
-      "tipo": "CREA"
+      "registro": "PR-123456/D",
+      "uf": "PR",
+      "tipo": "CREA",
+      "estado": "REJECTED"
     }
   },
   {
@@ -534,14 +534,14 @@
     "descricao": "sessão nova reflete selo verificado",
     "ok": true,
     "evidencia": {
-      "sudoAtivo": false,
-      "mfaPendente": false,
+      "contaId": "01a17450-22a9-71e1-930e-e76a73b74ba3",
       "mfaVerificado": true,
-      "contaId": "01a1743d-201d-7e4b-ab32-5d8632173820",
-      "seloVerificado": true,
-      "papeisPorObra": {},
+      "mfaPendente": false,
+      "sudoAtivo": false,
+      "empresaAtivaId": "01a17450-22b6-7770-9142-c45cf85af211",
       "papelEmpresa": "DONO",
-      "empresaAtivaId": "01a1743d-202b-7582-ac73-e6cb49633b3d"
+      "papeisPorObra": {},
+      "seloVerificado": true
     }
   },
   {
@@ -593,8 +593,8 @@
     "evidencia": {
       "s": 200,
       "j": {
-        "empresaId": "01a1743d-202b-7582-ac73-e6cb49633b3d",
-        "obraId": "01a1743d-2300-7c19-9834-e7edbce091af",
+        "empresaId": "01a17450-22b6-7770-9142-c45cf85af211",
+        "obraId": "01a17450-2574-717f-9e6b-637d241c3051",
         "mensagem": "Convite aceito: a obra já aparece para você."
       }
     }
@@ -664,8 +664,8 @@
     "descricao": "histórico com as duas ações, data e versão do texto (mais recente primeiro)",
     "ok": true,
     "evidencia": [
-      "REVOGAR@2026-10-25T18:05:39.044185Z",
-      "CONCEDER@2026-10-25T18:05:39.010493Z"
+      "REVOGAR@2026-10-25T18:26:24.682093Z",
+      "CONCEDER@2026-10-25T18:26:24.640079Z"
     ]
   },
   {
@@ -742,7 +742,7 @@
     "ok": true,
     "evidencia": {
       "s": 201,
-      "prazo": "2026-11-09T18:05:42.902399075Z",
+      "prazo": "2026-11-09T18:26:36.676265237Z",
       "estado": "ABERTO"
     }
   },
@@ -752,7 +752,7 @@
     "descricao": "antes de excluir, mostra data final e o que fica/sai",
     "ok": true,
     "evidencia": {
-      "dataFinal": "2026-11-24T18:05:42.918130469Z",
+      "dataFinal": "2026-11-24T18:26:36.691120709Z",
       "carenciaDias": 30,
       "oQueFica": [
         "Registros que a construtora é obrigada a guardar (documentos trabalhistas e de segurança) pelos prazos legais, com base legal registrada.",
@@ -774,7 +774,7 @@
       "s": 202,
       "sessao": 401,
       "j": {
-        "dataFinal": "2026-11-24T18:05:42.940989920Z",
+        "dataFinal": "2026-11-24T18:26:36.711360920Z",
         "carenciaDias": 30,
         "oQueFica": [
           "Registros que a construtora é obrigada a guardar (documentos trabalhistas e de segurança) pelos prazos legais, com base legal registrada.",
@@ -794,8 +794,8 @@
     "descricao": "login na carência oferece reativação",
     "ok": true,
     "evidencia": {
-      "empresas": [],
-      "proximaEtapa": "OFERTA_REATIVACAO"
+      "proximaEtapa": "OFERTA_REATIVACAO",
+      "empresas": []
     }
   },
   {

@@ -337,3 +337,12 @@ flowchart LR
 | Banco | `V7__modelo_bim.sql` (prancha: EM_GERACAO→GERADA→EMITIDA/OBSOLETA, FALHOU) | ✅ |
 | Web | `apps/web/src/app/(app)/obras/[obraId]/pranchas/` | ⏳ |
 | Testes | `PranchaIT` (envoltória aberta → 422, arquiteto não pede formas, SVG/DXF, emissão sem 2FA → 403, emitida sem marca d'água); `test_bolhas.py`, `test_cotas.py` | 🟡 |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **4,7 → 8,0**.
+
+- **Corrigido:** Toda prancha com porta ou janela falhava (`%.1f` com inteiro) — corrigido e coberto por `GeradorPranchaTest`; falha de geração registra a causa e mostra mensagem clara.
+- **Evidência:** j3 CA-03/04/05/07; GeradorPranchaTest, PranchaIT.
+- **Pendente:** Sem PDF (só SVG e DXF).

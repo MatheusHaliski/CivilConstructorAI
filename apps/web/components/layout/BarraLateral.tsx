@@ -19,7 +19,7 @@ export function BarraLateral({ aberta, recolhida, onNavegar }: { aberta: boolean
   const obraId = obraDoCaminho(caminho);
   const obra = useDados<ObraResumo>(["obra", obraId], `/obras/${obraId}`, { ativo: !!obraId });
   const suporte = (sessao as { suportePlataforma?: boolean } | null)?.suportePlataforma === true;
-  const grupos: GrupoNav[] = obraId ? [...gruposObra(obraId), gruposGeraisCompactos()] : gruposGlobais({ suportePlataforma: suporte });
+  const grupos: GrupoNav[] = obraId ? [...gruposObra(obraId), gruposGeraisCompactos()] : gruposGlobais({ suportePlataforma: suporte, gestorEmpresa: sessao ? !!sessao.papelEmpresa : undefined });
 
   return (
     <aside id="menu-lateral" aria-label="Navegação"
@@ -59,7 +59,7 @@ export function BarraLateral({ aberta, recolhida, onNavegar }: { aberta: boolean
           ))}
         </nav>
         <div className="mt-auto flex flex-col gap-2 border-t border-line-soft pt-3">
-          {sessao && <p className="px-3 text-xs text-text-3">{sessao.papelEmpresa ? `Papel na empresa: ${sessao.papelEmpresa}` : "Sem empresa ativa"}{sessao.seloVerificado && " · selo verificado"}</p>}
+          {sessao && <p className="px-3 text-xs text-text-3">{sessao.papelEmpresa ? `Papel na empresa: ${sessao.papelEmpresa}` : sessao.empresaAtivaId ? "Convidado(a) em obras da empresa" : "Sem empresa ativa"}{sessao.seloVerificado && " · selo verificado"}</p>}
           <button type="button" onClick={() => void sair().then(() => (window.location.href = "/entrar"))} className="tap flex items-center gap-3 rounded-full py-1 pl-1 pr-3 text-sm text-text-2 hover:bg-surface hover:text-text">
             <span className="grid size-8 place-items-center rounded-full bg-surface"><LogOut className="size-4" aria-hidden /></span> Sair
           </button>

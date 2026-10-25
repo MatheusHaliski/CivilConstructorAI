@@ -350,3 +350,12 @@ flowchart LR
 | Banco | `V9__estrutura.sql` (carga, lancamento_estrutural, rascunho_lancamento; RLS via `app_aplicar_rls`) | ✅ |
 | Geometria | `geometria/calculations/cargas/` | ⏳ |
 | Testes | `GeradorCombinacoesTest` (NBR 8681/6123), `AnaliseIT` (lançamento de carga, combinações, 422 em carga inválida), `test_vento.py` | ✅ backend · ⏳ python |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **6,5 → 8,6**.
+
+- **Corrigido:** Lançar, remover carga ou mudar vento marca análise e lançamento como desatualizados; descrição da carga passa a ter valor padrão.
+- **Evidência:** j2 CA-02..05, carga-linear.
+- **Pendente:** —

@@ -147,8 +147,23 @@ if (link) {
   if (!/convite/.test(voltou)) await q.goto(link);
   await espera(1200);
   await q.getByRole("button", { name: "Aceitar convite" }).click();
-  await q.waitForURL(/obras\//, { timeout: 15000 }).catch(() => {});
+  // arquiteto(a) aprova rascunhos de IA: o papel exige 2FA (RF19 CA-06). O app leva à configuração e depois de volta à obra.
+  await q.waitForURL(/obras\/|conta\/seguranca/, { timeout: 15000 }).catch(() => {});
   await espera(1500);
+  if (/conta\/seguranca/.test(q.url())) {
+    const destino = new URL(q.url()).searchParams.get("voltar") ?? "";
+    await q.screenshot({ path: `${OUT}15a-convidado-configura-2fa.png` });
+    await q.getByRole("button", { name: "Ativar 2FA" }).click();
+    const segredo = (await q.locator("p.mono.select-all").innerText()).trim();
+    await q.getByLabel("Código").fill(totp(segredo));
+    await q.getByRole("button", { name: "Confirmar" }).click();
+    const continuar = q.getByRole("link", { name: /voltar para onde eu estava/ });
+    await continuar.waitFor({ timeout: 10000 }).catch(() => {});
+    registrar("RF19", "UX-mfa-convidado", "papel que aprova exige 2FA: o app explica, configura e oferece voltar à obra", /obras\//.test(destino) && (await continuar.count()) > 0, { destino });
+    if (await continuar.count()) await continuar.click(); else await q.goto(`${BASE}${destino}`);
+    await q.waitForURL(/obras\//, { timeout: 15000 }).catch(() => {});
+    await espera(1500);
+  }
   await q.screenshot({ path: `${OUT}15-convidado-na-obra.png` });
   registrar("RF20", "UX-aceite", "ao aceitar, cai direto na obra do convite", /obras\/[0-9a-f-]{36}/.test(q.url()) && (await q.getByText("Edifício Jacarandá").count()) > 0, q.url());
 }

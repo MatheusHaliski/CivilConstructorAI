@@ -427,3 +427,12 @@ flowchart LR
 | Web | `apps/web/src/motor/{MotorDesenho,LinhaComando,RegistroComandos,ModosCursor,Osnap,Selecao}.ts` | ⏳ |
 | API | `cca-web · api/notacao/CatalogoController.java` (`GET /catalogo/comandos?perfil&q`, `GET /catalogo/comandos/resolver`), `api/modelo/ModeloController.java` (`POST /modelo/comandos/lote`); `me/PreferenciasController.java` | 🟡 |
 | Testes | `CatalogoComandosTest`, `ModeloComandoIT`; `motor.spec.ts`, `linha-comando.test.ts` | 🟡 |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **6,7 → 8,6**.
+
+- **Corrigido:** `CONCORDAR` e `CHANFRAR` passaram a respeitar raio e distâncias; `LINHA_DETALHE` e `LINHA_QUEBRA` criavam nada e agora gravam; F2 expande o histórico; `ANEL` com raio interno igual nos dois motores; catálogo verificável: 73 de 85 comandos implementados e testados (eram 21 pelo mesmo critério).
+- **Evidência:** catálogo verificável 73/85; estado.test.ts; paridade 34 casos.
+- **Pendente:** `ESTILO_COTA`, `BLOCO`, `INSERIR`, `LOCALIZAR` só avisam; `BLOCO` é ambíguo com o bloco de fundação.

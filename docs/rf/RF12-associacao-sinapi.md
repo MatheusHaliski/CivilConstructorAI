@@ -353,3 +353,12 @@ flowchart LR
 | IA | rota `ASSOCIACAO_SINAPI` em `OrcamentoService.sugerirComIa` — candidatos de `consultar_sinapi` resolvidos localmente, sugestão validada (código existe, unidade compatível) e marcada `geradoPorIa` até confirmação | ✅ |
 | Banco | `V16__sinapi.sql` (tabela_sinapi, composicao_sinapi + seed PR 2026-09), `V17__orcamento.sql` (orcamento, item_orcamento, aditivo) | ✅ |
 | Testes | `OrcamentoIT` (sugestão inválida descartada, aprovação bloqueada com item IA pendente, CLIENTE só vê totais liberados, aditivo), avaliação `eval/sinapi/` ⏳ | ✅ backend · ⏳ eval |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **4,7 → 8,0**.
+
+- **Corrigido:** Tabela SINAPI de demonstração marcada (`origem`, V19) e nunca usada como real; sem tabela da UF/regime → 422; reimportar o mesmo mês → 409 explicado; item sem composição aparece com custo zero e bloqueia a aprovação; aviso de quantitativo desatualizado.
+- **Evidência:** j3 sem-tabela, importar, soma, sem-vinculo, CA-05/06; OrcamentoIT.
+- **Pendente:** —

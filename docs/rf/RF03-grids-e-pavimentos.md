@@ -316,3 +316,12 @@ flowchart LR
 | Banco | `V7__modelo_bim.sql` (eixo, pavimento; ancoragem = coordenadas dos elementos atualizadas no `MOVER_EIXO`) | ✅ |
 | Geometria | bolhas recuadas sem sobreposição em `cca-application · prancha/GeradorPrancha.java`; `geometria/kernel/grids.py` | 🟡 |
 | Testes | `ModeloBimTest` (malha, mover eixo arrasta pilar), `ModeloComandoIT#fluxoCompletoMalhaPilarVigaDiffDesfazer`; `test_grids.py` | 🟡 |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **5,5 → 8,6**.
+
+- **Corrigido:** Segunda malha com nomes repetidos → 422 explicando (antes 500); nomes de eixo A…Z, AA…; espaçamento mínimo de 0,05 m; pé-direito fora de 2,20–12,00 m exige `confirmar=true`.
+- **Evidência:** j2 malha/CA-01..04.
+- **Pendente:** —

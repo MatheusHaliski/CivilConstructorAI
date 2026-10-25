@@ -11,7 +11,7 @@ public enum PapelObra {
     DONO(4, true, true),
     ADMIN(3, true, true),
     ENGENHEIRO(2, true, true),
-    ARQUITETO(2, true, false),
+    ARQUITETO(2, true, true),
     ORCAMENTISTA(1, false, false),
     MESTRE_OBRAS(1, false, false),
     TECNICO_SEGURANCA(1, false, false),

@@ -336,3 +336,12 @@ flowchart LR
 | Banco | `V7__modelo_bim.sql` (modelo_bim, pavimento, elemento, comando_vi) com RLS | ✅ |
 | Geometria | laço 2 local em `cca-domain · modelo/ServicoGeometriaLocal.java` (JTS); kernel Python via `ServicoGeometriaHttp` quando `app.geometria.remota=true` | ✅ |
 | Testes | `ModeloBimTest` (porte de `modelo.test.ts`), `ModeloComandoIT` (fluxo malha→pilar→viga→diff→desfazer, 409, 422, 403/404); `canvas.spec.ts` | 🟡 |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **6,6 → 8,6**.
+
+- **Corrigido:** Mudança no modelo agora invalida o que dependia dele (análise, dimensionamento, fundações, quantitativo, pranchas) via `DependentesDoModelo`; rascunhos de IA ficam fora da versão vista por cliente/fornecedor; o histórico expõe autor e correções do auditor. Prévia (TS) e gravação (Java) provadas iguais por fixture compartilhada (36 casos).
+- **Evidência:** j2 CA-03/04/05, ModeloComandoIT, paridade TS↔Java.
+- **Pendente:** Comparar e restaurar versões; comentários e bloqueio de elemento.

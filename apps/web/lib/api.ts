@@ -72,7 +72,8 @@ export async function api<T = unknown>(metodo: "GET" | "POST" | "PUT" | "PATCH" 
     const erro = new ErroApi(res.status, problema);
     // 2FA obrigatório ainda não configurado (RF19 CA-06): leva direto à configuração em vez de quebrar a tela
     if (erro.codigo === "mfa_obrigatorio" && typeof window !== "undefined" && !window.location.pathname.startsWith("/conta/seguranca")) {
-      window.location.assign("/conta/seguranca?configurar-mfa=1");
+      const aqui = window.location.pathname + window.location.search;
+      window.location.assign(`/conta/seguranca?configurar-mfa=1&voltar=${encodeURIComponent(aqui)}`);
     }
     throw erro;
   }

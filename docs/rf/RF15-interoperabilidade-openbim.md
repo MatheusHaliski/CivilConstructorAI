@@ -324,3 +324,12 @@ flowchart LR
 | Banco | `V7__modelo_bim.sql` (exportacao_modelo, pareamento_revit) | ✅ |
 | Pendente | STEP AP242 é esboço (mesmo gerador, cabeçalho AP242); `/api/v1/revit/**` precisa de `permitAll` em `SegurancaConfig` (hoje atrás da sessão) | 🟡 |
 | Testes | `EscritorIfcTest`, `ExportacaoIfcIT` (exporta, lê de volta, importa referência, pareia Revit e rejeita reuso do código); `test_ifc_export.py`, `test_roundtrip.py` | 🟡 |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **5,5 → 7,4**.
+
+- **Corrigido:** IFC não leva a camada `ia-rascunho`; exportação para o S3 local corrigida (região e checksum).
+- **Evidência:** j3 CA-02/08, conteúdo IFC; EscritorIfcTest, ExportacaoIfcIT.
+- **Pendente:** IFC sem materiais; STEP citado no título, sem escritor no código.

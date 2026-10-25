@@ -32,4 +32,11 @@ describe("destinoSeguro", () => {
     expect(destinoSeguro("/\\mal.example")).toBe("/obras");
     expect(destinoSeguro(null)).toBe("/obras");
   });
+  it("quem não é DONO/ADMIN da empresa não vê telas que só a gestão usa", () => {
+    const hrefs = (ctx: Parameters<typeof gruposGlobais>[0]) => gruposGlobais(ctx).flatMap((g) => g.itens.map((i) => i.href));
+    expect(hrefs({ gestorEmpresa: false })).not.toContain("/empresa/membros");
+    expect(hrefs({ gestorEmpresa: false })).not.toContain("/obras/nova");
+    expect(hrefs({ gestorEmpresa: false })).toContain("/empresa/dados");
+    expect(hrefs({ gestorEmpresa: true })).toContain("/empresa/membros");
+  });
 });

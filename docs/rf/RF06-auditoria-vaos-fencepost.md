@@ -312,3 +312,12 @@ flowchart LR
 | Banco | `V7__modelo_bim.sql` (relatorio_auditoria, correcao_auditoria) | ⏳ |
 | Web | painel de relatório em `apps/web/src/components/h/auditoria/` | ⏳ |
 | Testes | `QuantificadorTest.fencepostDetectaVigaAlemDoUltimoApoio`, `AnaliseIT.vaosDetectamCaixaCartesiana`, `test_caixa_cartesiana.py`, `test_fencepost.py` | ✅ backend · ⏳ python |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **7,7 → 7,7**.
+
+- **Corrigido:** Sem mudança de regra; o controller de estrutura mudou por causa das cargas (RF04). Fencepost conferido na jornada (apoios = vãos + 1).
+- **Evidência:** j2 CA-02/caixa; EstresseAuditoriaTest e04.
+- **Pendente:** —

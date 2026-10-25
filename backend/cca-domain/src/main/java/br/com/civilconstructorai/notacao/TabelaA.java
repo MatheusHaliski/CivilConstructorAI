@@ -27,6 +27,19 @@ public final class TabelaA {
             m("MAT_MADEIRA_PORTA", "Porta de madeira semi-oca 80x210", "retangulo", "arquitetura", null, null, null, null, false, 6, "#A16207", "thin", null, null, null, "un", 650.0, "90843"));
 
     public static Optional<Material> material(String id) {
-        return MATERIAIS.stream().filter(x -> x.materialId().equals(id)).findFirst();
+        var normalizado = normalizarId(id);
+        return MATERIAIS.stream().filter(x -> x.materialId().equals(normalizado)).findFirst();
+    }
+
+    /**
+     * Aceita o código do catálogo de códigos ({@code MAT.ESTRUTURAL.CONC_FCK30}) e devolve o materialId legado
+     * ({@code MAT_CONC_FCK30}); qualquer outro valor volta como veio. Mesma regra de {@code normalizarMaterialId} no TS.
+     */
+    public static String normalizarId(String id) {
+        if (id == null) {
+            return null;
+        }
+        var m = java.util.regex.Pattern.compile("^MAT\\.[A-Za-z]+\\.(.+)$").matcher(id.trim());
+        return m.matches() ? "MAT_" + m.group(1).toUpperCase() : id;
     }
 }

@@ -351,3 +351,12 @@ flowchart LR
 | Banco | `V12__dimensionamento.sql` (dimensionamento com resultados JSON por elemento, aço total, aprovação) | ✅ |
 | Cálculo | `cca-domain/estrutura/dimensionamento/Nbr6118.java` (flexão, cisalhamento modelo I, pilar simplificado, flecha Branson, fissuração), `Bitolas.java` | ✅ |
 | Testes | `Nbr6118Test`, `DimensionamentoIT` (memória por elemento; aprovar sem selo/2FA → 403; sem ART → 422) | ✅ |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **5,9 → 8,2**.
+
+- **Corrigido:** Dimensionar análise obsoleta → 409 "Rode a análise estrutural da versão atual antes de dimensionar" (antes dimensionava sobre esforços de outra geometria).
+- **Evidência:** j2 CA-01 (409 obsoleta); DimensionamentoIT, Nbr6118Test.
+- **Pendente:** Armaduras não conferidas contra memória de cálculo independente.

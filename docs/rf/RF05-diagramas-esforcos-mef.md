@@ -331,3 +331,12 @@ flowchart LR
 | Banco | `V11__analise_estrutural.sql` (analise_estrutural com resultado/resumo JSON, estado `EstadoJob`) | ✅ |
 | Geometria | solver em Java: `cca-domain/estrutura/mef/SolverMef.java` (pórtico espacial 12×12, Gauss com pivotamento, singular → `EstruturaHipostaticaException`), `MontadorModeloAnalitico.java`; `geometria/calculations/mef/` fica como alternativa futura | ✅ Java · ⏳ python |
 | Testes | `SolverMefTest` (viga biapoiada qL²/8 e 5qL⁴/384EI, pórtico plano, hipostática), `AnaliseIT` (job → CONCLUIDO; viga solta → FALHOU) | ✅ |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **7,2 → 8,6**.
+
+- **Corrigido:** RN-03 aplicada: análise exige lançamento `PRONTO_PARA_ANALISE` (422 com o pavimento que falta); equilíbrio conferido na jornada (ΣRz = 1,4·ΣG).
+- **Evidência:** j2 equilíbrio ΣRz = 1,4·ΣG; SolverMefTest.
+- **Pendente:** Este doc descreve o MEF num serviço Python; o cálculo roda em Java (`cca-domain/estrutura/mef`).

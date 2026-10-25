@@ -151,6 +151,10 @@ registrar("RF21", "CA-01", "obra de outra empresa → 404 idêntico a id inexist
 const isoModelo = await intrusa.call("GET", `/obras/${obra.j.id}/modelo`);
 registrar("RF21", "CA-04a", "modelo de outra empresa → 404", isoModelo.s === 404, isoModelo.s);
 
+// RF19 CA-06: arquiteta aprova rascunho de IA → 2FA obrigatório antes de qualquer dado da obra
+registrar("RF19", "CA-06c", "arquiteta (papel aprovador) sem 2FA: sessão com 2FA pendente e obra bloqueada", sessArq.j.mfaPendente === true && (await arq.call("GET", `/obras/${obra.j.id}`)).s === 403, { mfaPendente: sessArq.j.mfaPendente });
+await ativarMfa(arq);
+
 // RF21 CA-02: papel insuficiente — arquiteta tenta aprovar/ calcular
 const arqAnalise = await arq.call("POST", `/obras/${obra.j.id}/analises`);
 registrar("RF21", "CA-02", "arquiteta solicitando análise → 403 com motivo pt-BR", arqAnalise.s === 403, { s: arqAnalise.s, d: arqAnalise.j.detail });

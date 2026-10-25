@@ -8,6 +8,7 @@ import type {
 import { auditar, type OpcoesAuditoria } from "./auditor";
 import { arredondarPonto, dist, espelhar, projetarNoSegmento, rotacionar, soma, sub } from "./geometria";
 import { formatarVI } from "./vi";
+import { normalizarMaterialId } from "./tabela-a";
 
 let seq = 0;
 export function novoId(prefixo = "e"): string {
@@ -118,7 +119,8 @@ export class ModeloBim {
   // ------------------------------------------------------------------ execução das funções da Tabela B
   private executar(cmd: ComandoVI, pavimentoId: string): DiffModelo {
     const diff: DiffModelo = { versaoNova: this.versao + 1, criados: [], alterados: [], removidos: [] };
-    const a = cmd.args;
+    // mat=MAT.ESTRUTURAL.CONC_FCK30 (código do catálogo) vale o mesmo que mat=MAT_CONC_FCK30 — igual ao ModeloBim Java
+    const a = typeof cmd.args["mat"] === "string" ? { ...cmd.args, mat: normalizarMaterialId(cmd.args["mat"] as string) } : cmd.args;
     const base = (tipo: Elemento["tipo"], camada: Elemento["camada"], extra: Record<string, unknown> = {}) => ({
       id: novoId(), tipo, pavimentoId, camada, origem: cmd.origem, ...(cmd.origem === "IA" ? { camada: "ia-rascunho" as const } : {}), ...extra,
     });
@@ -193,7 +195,7 @@ export class ModeloBim {
         break;
       }
       case "CIRCULO": criar(base("CIRCULO", "desenho", { centro: pt(a["centro"], "centro"), raio: n(a["raio"], 1, "raio") }) as Elemento); break;
-      case "ANEL": criar(base("CIRCULO", "desenho", { centro: pt(a["centro"], "centro"), raio: n(a["re"], 0.3), rotulo: `anel ri=${n(a["ri"], 0.2)}` }) as Elemento); break;
+      case "ANEL": criar(base("CIRCULO", "desenho", { centro: pt(a["centro"], "centro"), raio: n(a["re"], 0.3), raioInterno: n(a["ri"], 0.2), rotulo: "anel" }) as Elemento); break;
       case "RETANGULO": criar(base("RETANGULO", "desenho", { p1: pt(a["p1"], "p1"), p2: pt(a["p2"], "p2") }) as Elemento); break;
       case "ARCO": criar(base("ARCO", "desenho", { p1: pt(a["p1"], "p1"), p2: pt(a["p2"], "p2"), p3: pt(a["p3"], "p3") }) as Elemento); break;
       case "POLIGONO": {
@@ -353,7 +355,12 @@ export class ModeloBim {
         const e = this.elemento(a["id"] as string);
         if (!e) throw new ErroComandoVI("VI-002", "Elemento não encontrado.");
         const props = (a["props"] as Record<string, unknown>) ?? {};
-        for (const [k, v] of Object.entries(props)) if (k !== "id" && k !== "tipo") (e as unknown as Record<string, unknown>)[k] = v;
+        for (const [k, v] of Object.entries(props)) {
+          if (k === "id" || k === "tipo") continue;
+          // como no Java: "mat" e "materialId" gravam o materialId (normalizado)
+          if (k === "mat" || k === "materialId") (e as unknown as Record<string, unknown>)["materialId"] = normalizarMaterialId(String(v));
+          else (e as unknown as Record<string, unknown>)[k] = v;
+        }
         alterar(e); break;
       }
       case "APARAR": case "ESTENDER": {

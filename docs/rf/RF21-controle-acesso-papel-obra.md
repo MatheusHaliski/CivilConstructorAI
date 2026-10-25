@@ -375,3 +375,12 @@ flowchart LR
 | Web | `apps/web/src/app/(app)/conta/selo/` | ⏳ |
 | Testes | `ConviteEAcessoIT` (404 outra empresa, 403 papel insuficiente, isolamento por RLS via API e SQL direto como `cca_app`) | ✅ |
 | Pendente | acesso temporário do suporte da plataforma (`/companies/{id}/acessos-suporte`) e `/acesso/matriz` gerada | 🟡 |
+
+## Auditoria 2026-10
+
+Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md)). Nota (conclusão 30%, precisão 25%, clareza
+20%, feedback 15%, consistência/acessibilidade 10%): **5,5 → 8,7**.
+
+- **Corrigido:** Papel de empresa só vale nas obras da empresa ativa (antes um DONO de outra empresa gravava no modelo alheio); recusa de selo exige motivo, guardado e mostrado (V20); invariante "todo aprovador exige 2FA" testada.
+- **Evidência:** j1 CA-01/02/04a; j3 selo; EscopoEmpresaIT.
+- **Pendente:** `veDadoDeSaude()` sem caso de uso.
