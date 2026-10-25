@@ -1,5 +1,8 @@
 package br.com.civilconstructorai.identidade;
 
+import br.com.civilconstructorai.comum.ContextoTenant;
+import br.com.civilconstructorai.support.CnpjDeTeste;
+
 import br.com.civilconstructorai.email.EnviadorEmailLog;
 import br.com.civilconstructorai.support.AbstractIdentidadeIT;
 import br.com.civilconstructorai.support.ApiClient;
@@ -22,6 +25,9 @@ class CadastroIT extends AbstractIdentidadeIT {
 
     @Autowired
     EnviadorEmailLog emails;
+
+    @Autowired
+    br.com.civilconstructorai.lgpd.Portas.ChavesUsuario chavesUsuario;
 
     private ApiClient cliente() {
         return new ApiClient(porta, e -> EmailDeTeste.ultimoCodigo(emails, e));
@@ -56,7 +62,7 @@ class CadastroIT extends AbstractIdentidadeIT {
     }
 
     @Test
-    void cadastraVerificaEmailEAbreSessao() {
+    void cadastraVerificaEmailEAbreSessao() throws Exception {
         var email = "nova-" + UUID.randomUUID() + "@teste.cca";
         var c = cliente();
         var r = c.registrar(email, "Pessoa Nova", Map.of());
@@ -64,6 +70,10 @@ class CadastroIT extends AbstractIdentidadeIT {
         // sessão já aberta como PENDING_VERIFICATION
         var s = c.sessao();
         assertThat(s.status()).isEqualTo(200);
+        // antes de confirmar o e-mail, a sessão só serve às rotas de verificação
+        var cedo = c.post("/companies", Map.of("razaoSocial", "Construtora Apressada Ltda", "cnpj", CnpjDeTeste.aleatorio()));
+        assertThat(cedo.status()).isEqualTo(403);
+        assertThat(cedo.corpo().get("type").asString()).endsWith("/verificacao_pendente");
         // código errado: 422 com tentativas restantes
         var errado = c.post("/me/verify-email", Map.of("codigo", "000000"));
         assertThat(errado.status()).isEqualTo(422);
@@ -71,6 +81,13 @@ class CadastroIT extends AbstractIdentidadeIT {
         var certo = c.post("/me/verify-email", Map.of("codigo", EmailDeTeste.ultimoCodigo(emails, email)));
         assertThat(certo.status()).isEqualTo(204);
         assertThat(c.get("/me/profile").texto("estado")).isEqualTo("ACTIVE");
+        // verificada, a mesma sessão passa a valer para o resto da API
+        assertThat(c.post("/companies", Map.of("razaoSocial", "Construtora Verificada Ltda", "cnpj", CnpjDeTeste.aleatorio())).status()).isEqualTo(201);
+        // a DEK criada no cadastro abre pelo cofre de chaves (exportação RF25, crypto-shredding RF26)
+        var contaId = java.util.UUID.fromString(s.texto("contaId"));
+        var claro = "dado-do-titular".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        var volta = ContextoTenant.comoSistema(() -> chavesUsuario.decifrar(contaId, chavesUsuario.cifrar(contaId, claro)));
+        assertThat(volta).isEqualTo(claro);
     }
 
     @Test

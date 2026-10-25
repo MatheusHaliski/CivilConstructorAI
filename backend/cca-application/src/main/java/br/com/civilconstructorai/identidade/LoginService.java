@@ -112,6 +112,11 @@ public class LoginService {
     /** escolha da empresa ativa quando a pessoa tem mais de uma; também usada para trocar depois do login */
     public Resposta escolherEmpresa(UUID empresaId) {
         var estado = sessao.ler(CHAVE_ESTADO, EstadoLogin.class).orElse(null);
+        // login em andamento: só vale depois que avancar() chegou a ESCOLHER_EMPRESA — isto é, senha, 2FA (quando
+        // ativo) e oferta de reativação já resolvidos. A lista de empresas só é gravada nesse ponto.
+        if (estado != null && (!estado.senhaOk() || !estado.empresas().contains(empresaId))) {
+            throw new ExcecaoDominio.AcessoNegado("Conclua as etapas anteriores do login.");
+        }
         UUID contaId = estado != null ? estado.contaId() : principalAtual().map(PrincipalSessao::contaId).orElseThrow(() -> new ExcecaoDominio.AcessoNegado("Entre para continuar."));
         var conta = contas.findById(contaId).orElseThrow(() -> new ExcecaoDominio.AcessoNegado("Entre novamente."));
         var empresas = fabrica.empresasDaPessoa(contaId);

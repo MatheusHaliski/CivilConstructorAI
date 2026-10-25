@@ -10,15 +10,14 @@ import br.com.civilconstructorai.empresa.MembroEmpresa;
 import br.com.civilconstructorai.empresa.Repositorios.EmpresaRepository;
 import br.com.civilconstructorai.empresa.Repositorios.MembroEmpresaRepository;
 import br.com.civilconstructorai.acesso.PapelObra;
+import br.com.civilconstructorai.lgpd.Portas.ChavesUsuario;
 import br.com.civilconstructorai.identidade.Portas.ArmazemSessao;
 import br.com.civilconstructorai.identidade.Portas.AssinadorHmac;
-import br.com.civilconstructorai.identidade.Portas.GeradorChaveUsuario;
 import br.com.civilconstructorai.identidade.Portas.LimitadorTentativas;
 import br.com.civilconstructorai.identidade.Portas.RegistroAceite;
 import br.com.civilconstructorai.identidade.Repositorios.CodigoVerificacaoRepository;
 import br.com.civilconstructorai.identidade.Repositorios.ContaRepository;
 import br.com.civilconstructorai.identidade.Repositorios.PreferenciaRepository;
-import br.com.civilconstructorai.identidade.Repositorios.UserKeyRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -51,7 +50,6 @@ public class CadastroService {
 
     private final ContaRepository contas;
     private final CodigoVerificacaoRepository codigos;
-    private final UserKeyRepository chaves;
     private final PreferenciaRepository preferencias;
     private final EmpresaRepository empresas;
     private final MembroEmpresaRepository membrosEmpresa;
@@ -59,20 +57,19 @@ public class CadastroService {
     private final AssinadorHmac hmac;
     private final LimitadorTentativas limites;
     private final RegistroAceite aceites;
-    private final GeradorChaveUsuario chaveUsuario;
+    private final ChavesUsuario chavesUsuario;
     private final EnviadorEmail email;
     private final ArmazemSessao sessao;
     private final SessaoUsuarioFabrica fabrica;
     private final Relogio relogio;
     private final TransactionTemplate tx;
 
-    public CadastroService(ContaRepository contas, CodigoVerificacaoRepository codigos, UserKeyRepository chaves, PreferenciaRepository preferencias,
+    public CadastroService(ContaRepository contas, CodigoVerificacaoRepository codigos, PreferenciaRepository preferencias,
                            EmpresaRepository empresas, MembroEmpresaRepository membrosEmpresa, PasswordEncoder senhas, AssinadorHmac hmac,
-                           LimitadorTentativas limites, RegistroAceite aceites, GeradorChaveUsuario chaveUsuario, EnviadorEmail email,
+                           LimitadorTentativas limites, RegistroAceite aceites, ChavesUsuario chavesUsuario, EnviadorEmail email,
                            ArmazemSessao sessao, SessaoUsuarioFabrica fabrica, Relogio relogio, TransactionTemplate tx) {
         this.contas = contas;
         this.codigos = codigos;
-        this.chaves = chaves;
         this.preferencias = preferencias;
         this.empresas = empresas;
         this.membrosEmpresa = membrosEmpresa;
@@ -80,7 +77,7 @@ public class CadastroService {
         this.hmac = hmac;
         this.limites = limites;
         this.aceites = aceites;
-        this.chaveUsuario = chaveUsuario;
+        this.chavesUsuario = chavesUsuario;
         this.email = email;
         this.sessao = sessao;
         this.fabrica = fabrica;
@@ -112,7 +109,9 @@ public class CadastroService {
             }
             // flush: o aceite é gravado via JDBC na mesma transação e depende da FK conta_id já inserida
             c = contas.saveAndFlush(c);
-            chaves.save(chaveUsuario.gerar(c.getId()));
+            // DEK por usuário cifrada por uma KEK registrada no cofre (cofre_kek): o mesmo caminho que a exportação
+            // (RF25) e o crypto-shredding (RF26) usam para abrir/destruir a chave
+            chavesUsuario.criarParaConta(c.getId());
             preferencias.save(new Preferencia(c.getId()));
             var ipHash = hmac.hmacHex("ip", ip == null ? "" : ip);
             aceites.registrar(c.getId(), "TERMOS", p.versaoTermos(), ipHash, userAgent);
@@ -244,5 +243,10 @@ public class CadastroService {
                 conta.ativar();
             }
         });
+        // libera a sessão aberta no cadastro (até aqui restrita às rotas de verificação)
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof PrincipalSessao p && p.contaId().equals(contaId) && !p.emailVerificado()) {
+            sessao.autenticar(p.comEmailVerificado());
+        }
     }
 }

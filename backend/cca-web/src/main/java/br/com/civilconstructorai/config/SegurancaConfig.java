@@ -45,6 +45,8 @@ public class SegurancaConfig {
                         .authenticationEntryPoint((req, res, ex) -> problem.escrever(res, HttpStatus.UNAUTHORIZED, "nao_autenticado", "Entre para continuar."))
                         .accessDeniedHandler((req, res, ex) -> problem.escrever(res, HttpStatus.FORBIDDEN, "acesso_negado", "Você não tem permissão para esta ação.")))
                 .addFilterAfter(sessaoAbsoluta, org.springframework.security.web.context.SecurityContextHolderFilter.class)
+                // conta ainda não verificada (RF18): só rotas de verificação, antes da autorização por rota
+                .addFilterBefore(new VerificacaoPendenteFilter(problem), org.springframework.security.web.access.intercept.AuthorizationFilter.class)
                 .httpBasic(b -> b.disable())
                 .formLogin(f -> f.disable())
                 .logout(l -> l.disable())

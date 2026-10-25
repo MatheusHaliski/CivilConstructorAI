@@ -88,8 +88,13 @@ class LoginIT extends AbstractIdentidadeIT {
         assertThat(codigos.size()).isEqualTo(10);
 
         // próximo login exige o segundo fator; código de recuperação é de uso único
+        var empresaId = c.sessao().texto("empresaAtivaId");
         c.logout();
         assertThat(c.login(email, ApiClient.SENHA_PADRAO).texto("proximaEtapa")).isEqualTo("MFA");
+        // escolher a empresa antes do 2FA não conclui o login
+        var atalho = c.post("/auth/login/empresa", Map.of("empresaId", empresaId));
+        assertThat(atalho.status()).isEqualTo(403);
+        assertThat(c.sessao().status()).isEqualTo(401);
         var recuperacao = codigos.get(0).asString();
         assertThat(c.segundoFator(recuperacao).texto("proximaEtapa")).isEqualTo("AUTENTICADO");
         assertThat(c.sessao().corpo().get("mfaVerificado").asBoolean()).isTrue();

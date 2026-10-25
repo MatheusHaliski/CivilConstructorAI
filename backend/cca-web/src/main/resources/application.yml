@@ -94,13 +94,12 @@ spring:
   config:
     activate:
       on-profile: dev
-  flyway:
-    user: ${CCA_DB_USER:cca_app}
-    password: ${CCA_DB_PASSWORD:cca_app}
 server:
   servlet:
     session:
       cookie:
+        # em http://localhost o navegador rejeita cookies com prefixo __Host- sem Secure; só no perfil dev
+        name: cca_session
         secure: false
 app:
   arquivos:

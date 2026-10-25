@@ -63,10 +63,6 @@ public final class Portas {
         Versoes vigentes();
     }
 
-    /** Cria a DEK por usuário cifrada por uma KEK do cofre de chaves (RF26). */
-    public interface GeradorChaveUsuario {
-        UserKey gerar(UUID usuarioId);
-    }
 
     /** Sessões do Spring Session (repositório indexado por principal). */
     public interface RepositorioSessoes {

@@ -64,7 +64,8 @@ public class SessaoUsuarioFabrica {
 
     public PrincipalSessao principal(Conta conta, Vinculo v, boolean mfaVerificado) {
         return new PrincipalSessao(conta.getId(), v == null ? null : v.empresaId(), v == null ? null : v.papelEmpresa(),
-                v == null ? new HashMap<>() : v.papeisPorObra(), mfaVerificado, conta.seloVerificado(), 0L, suporte.contains(conta.getEmail()));
+                v == null ? new HashMap<>() : v.papeisPorObra(), mfaVerificado, conta.seloVerificado(), 0L, suporte.contains(conta.getEmail()),
+                conta.getEstado() != EstadoConta.PENDING_VERIFICATION);
     }
 
     private <T> T comoSistema(java.util.concurrent.Callable<T> acao) {

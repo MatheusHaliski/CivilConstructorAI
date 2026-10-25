@@ -2,7 +2,6 @@ package br.com.civilconstructorai.identidade;
 
 import br.com.civilconstructorai.comum.Ids;
 import br.com.civilconstructorai.identidade.Portas.AssinadorHmac;
-import br.com.civilconstructorai.identidade.Portas.GeradorChaveUsuario;
 import br.com.civilconstructorai.identidade.Portas.LimitadorTentativas;
 import br.com.civilconstructorai.identidade.Portas.RegistroAceite;
 import br.com.civilconstructorai.identidade.Portas.Totp;
@@ -142,29 +141,6 @@ public final class AdaptadoresIdentidade {
         @Override
         public Versoes vigentes() {
             return new Versoes(versaoTermos, versaoPolitica);
-        }
-    }
-
-    /**
-     * Cofre de chaves local: a KEK por usuário é derivada por HKDF do segredo do app a partir do {@code kekId}
-     * (fora do banco principal). Em produção o módulo LGPD troca por um cofre com KMS e tombstones (RF26).
-     */
-    @Component
-    public static class GeradorChaveUsuarioLocal implements GeradorChaveUsuario {
-        private static final SecureRandom RANDOM = new SecureRandom();
-        private final DerivacaoChaves chaves;
-
-        public GeradorChaveUsuarioLocal(DerivacaoChaves chaves) {
-            this.chaves = chaves;
-        }
-
-        @Override
-        public UserKey gerar(UUID usuarioId) {
-            var kekId = Ids.novo();
-            var kek = new CifraAesGcm(chaves.derivar("kek:" + kekId, 32));
-            var dek = new byte[32];
-            RANDOM.nextBytes(dek);
-            return new UserKey(usuarioId, kekId, kek.cifrar(dek, usuarioId.toString().getBytes(StandardCharsets.UTF_8)));
         }
     }
 }

@@ -25,10 +25,12 @@ public record PrincipalSessao(
         boolean mfaVerificado,
         boolean seloVerificado,
         long sudoAteEpoch,
-        boolean suportePlataforma) implements Principal, Serializable {
+        boolean suportePlataforma,
+        /* false enquanto a conta está PENDING_VERIFICATION: só as rotas de verificação/perfil respondem (RF18) */
+        boolean emailVerificado) implements Principal, Serializable {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     @Override
     public String getName() {
@@ -48,6 +50,10 @@ public record PrincipalSessao(
     }
 
     public PrincipalSessao comSudoAte(long epoch) {
-        return new PrincipalSessao(contaId, empresaAtivaId, papelEmpresa, papeisPorObra, mfaVerificado, seloVerificado, epoch, suportePlataforma);
+        return new PrincipalSessao(contaId, empresaAtivaId, papelEmpresa, papeisPorObra, mfaVerificado, seloVerificado, epoch, suportePlataforma, emailVerificado);
+    }
+
+    public PrincipalSessao comEmailVerificado() {
+        return new PrincipalSessao(contaId, empresaAtivaId, papelEmpresa, papeisPorObra, mfaVerificado, seloVerificado, sudoAteEpoch, suportePlataforma, true);
     }
 }
