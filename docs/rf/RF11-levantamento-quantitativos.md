@@ -2,14 +2,16 @@
 rf: RF11
 titulo: Levantamento automatizado de concreto (m³), fôrma (m²) e aço (kg)
 modulo: M5 Extração Quantitativa (5D)
-status: especificado
+status: em-andamento
 cards:
   - https://trello.com/c/ty5wWDp9
 paths:
   - geometria/kernel/quantitativos.py
-  - backend/src/main/java/br/com/civilconstructorai/quantitativo/**
   - apps/web/src/app/(app)/obras/[obraId]/quantitativos/**
-  - backend/src/main/resources/db/migration/*quantitativo*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/quantitativo/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/quantitativo/QuantitativoService.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/quantitativo/QuantitativoController.java
+  - backend/cca-infrastructure/src/main/resources/db/migration/V15__quantitativos.sql
 ---
 
 # RF11 · Levantamento automatizado de concreto (m³), fôrma (m²) e aço (kg)
@@ -287,7 +289,7 @@ flowchart LR
 | Documento | `docs/rf/RF11-levantamento-quantitativos.md` | ✅ |
 | Card | [Trello ty5wWDp9](https://trello.com/c/ty5wWDp9) | ✅ |
 | Web | `apps/web/src/app/(app)/obras/[obraId]/quantitativos/` | ⏳ |
-| API | `quantitativo/QuantitativoController.java`, `QuantitativoService.java` | ⏳ |
-| Banco | `V15__quantitativos.sql` (levantamento, linha_quantitativo, total_servico) | ⏳ |
-| Geometria | `geometria/kernel/quantitativos.py` | ⏳ |
-| Testes | `test_quantitativos.py`, `QuantitativoIT` | ⏳ |
+| API | `cca-web/api/quantitativo/QuantitativoController.java` (`GET /quantitativos`, `/export?formato=csv|xlsx`, `/{id}/liberar-cliente`), `cca-application/quantitativo/QuantitativoService.java` | ✅ |
+| Banco | `V15__quantitativos.sql` (levantamento_quantitativo com linhas/totais JSON, hash FNV-1a, liberado_cliente) | ✅ |
+| Geometria | port fiel de `packages/notacao-vi/src/quantitativos.ts` em `cca-domain/quantitativo/Quantificador.java` (mesmo hash FNV-1a e prioridade pilar > viga > laje) | ✅ Java · ⏳ python |
+| Testes | `QuantificadorTest` (hash igual ao TS, rascunho IA não entra, aço aprovado substitui taxa), `OrcamentoIT.quantitativosDoModeloEExportacao` (CSV/XLSX, DN-02 para CLIENTE) | ✅ |

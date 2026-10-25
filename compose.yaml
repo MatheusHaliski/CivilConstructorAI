@@ -1,0 +1,72 @@
+name: civilconstructorai
+
+services:
+  postgis:
+    image: postgis/postgis:17-3.5
+    environment:
+      POSTGRES_DB: cca
+      POSTGRES_USER: cca_migracao
+      POSTGRES_PASSWORD: cca_migracao
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis:/var/lib/postgresql/data
+      - ./infra/postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cca_migracao -d cca"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  valkey:
+    image: valkey/valkey:9
+    command: ["valkey-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - valkey:/data
+
+  garage:
+    image: dxflrs/garage:v2.4.0
+    ports:
+      - "3900:3900"   # S3
+      - "3903:3903"   # Admin API v2
+    volumes:
+      - ./infra/garage/garage.toml:/etc/garage.toml:ro
+      - garage-meta:/var/lib/garage/meta
+      - garage-data:/var/lib/garage/data
+
+  garage-init:
+    image: curlimages/curl:8.11.1
+    depends_on:
+      - garage
+    entrypoint: ["/bin/sh", "/init/garage-init.sh"]
+    volumes:
+      - ./infra/garage/garage-init.sh:/init/garage-init.sh:ro
+    environment:
+      GARAGE_ADMIN_TOKEN: dev-admin-token
+      GARAGE_BUCKET: cca
+      GARAGE_ACCESS_KEY_NAME: cca-dev
+
+  mailpit:
+    image: axllent/mailpit:v1.21
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  cassandra:
+    image: cassandra:5.0
+    profiles: ["full"]
+    environment:
+      CASSANDRA_CLUSTER_NAME: cca
+    ports:
+      - "9042:9042"
+    volumes:
+      - cassandra:/var/lib/cassandra
+
+volumes:
+  postgis:
+  valkey:
+  garage-meta:
+  garage-data:
+  cassandra:

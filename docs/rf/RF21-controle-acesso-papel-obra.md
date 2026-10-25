@@ -6,10 +6,12 @@ status: especificado
 cards:
   - https://trello.com/c/BUNJmEJI
 paths:
-  - backend/src/main/java/br/com/civilconstructorai/acesso/**
-  - backend/src/main/java/br/com/civilconstructorai/identidade/selo/**
-  - backend/src/main/resources/db/migration/*rls*
-  - backend/src/test/java/br/com/civilconstructorai/acesso/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/acesso/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/acesso/**
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/persistencia/**
+  - backend/cca-infrastructure/src/main/resources/db/migration/V2__rls.sql
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/config/SegurancaConfig.java
+  - backend/cca-web/src/test/java/br/com/civilconstructorai/empresa/**
   - apps/web/src/app/(app)/conta/selo/**
 ---
 
@@ -366,8 +368,10 @@ flowchart LR
 |---|---|---|
 | Documento | `docs/rf/RF21-controle-acesso-papel-obra.md` | ✅ |
 | Card | [Trello BUNJmEJI](https://trello.com/c/BUNJmEJI) | ✅ |
-| API | `acesso/ObraAccess.java`, `acesso/SecurityConfig.java`, `acesso/TenantConnectionPreparer.java` | ⏳ |
-| Selo | `identidade/selo/SeloProfissional.java`, `SeloController.java` | ⏳ |
-| Banco | `V1__contas_empresas_obras.sql` + `V2__rls.sql` (políticas e papel sem BYPASSRLS) | ⏳ |
+| Camada 1 | `cca-web · config/SegurancaConfig.java` (SecurityFilterChain, rotas públicas) | ✅ |
+| Camada 2 | `cca-application · acesso/AcessoObraImpl.java` (bean `obraAccess`: `hasObraRole`, 404 fora do escopo, 403 com motivo), `@PreAuthorize` em `ObraService`; `acesso/PapelObra.java` (níveis, aprovador, exigeMfa) | ✅ |
+| Camada 3 | `cca-infrastructure · persistencia/TenantJpaTransactionManager.java` (`set_config('app.tenant_id', …, true)` a cada transação) + `V2__rls.sql` (políticas, papel `cca_app` sem bypass) | ✅ |
+| Selo | `identidade/Conta.java` (NONE→PENDING→VERIFIED/REJECTED, volta a PENDING ao mudar nome/registro/CNPJ), `PerfilService.solicitarSelo/decidirSelo`, `MeController` (`/me/selo`, `/plataforma/selos`) | ✅ |
 | Web | `apps/web/src/app/(app)/conta/selo/` | ⏳ |
-| Testes | `MatrizAcessoIT`, `IsolamentoEmpresasIT`, `ObraAccessTest` | ⏳ |
+| Testes | `ConviteEAcessoIT` (404 outra empresa, 403 papel insuficiente, isolamento por RLS via API e SQL direto como `cca_app`) | ✅ |
+| Pendente | acesso temporário do suporte da plataforma (`/companies/{id}/acessos-suporte`) e `/acesso/matriz` gerada | 🟡 |

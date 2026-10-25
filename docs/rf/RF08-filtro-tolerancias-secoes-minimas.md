@@ -2,14 +2,17 @@
 rf: RF08
 titulo: Filtro de tolerâncias geométricas e seções mínimas
 modulo: M3 Dimensionamento Normativo
-status: especificado
+status: em-andamento
 cards:
   - https://trello.com/c/Dgtma9TN
 paths:
   - geometria/auditor/tolerancias.py
   - geometria/auditor/secoes_minimas.py
   - geometria/data_model/restricoes/**
-  - backend/src/main/java/br/com/civilconstructorai/modelo/restricoes/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/estrutura/restricoes/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/estrutura/RestricoesService.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/estrutura/EstruturaController.java
+  - backend/cca-infrastructure/src/main/resources/db/migration/V10__restricoes_projeto.sql
 ---
 
 # RF08 · Filtro de tolerâncias geométricas e seções mínimas
@@ -292,6 +295,6 @@ flowchart LR
 | Card | [Trello Dgtma9TN](https://trello.com/c/Dgtma9TN) | ✅ |
 | Geometria | `geometria/auditor/tolerancias.py`, `secoes_minimas.py` | ⏳ |
 | Dados | `geometria/data_model/restricoes/nbr6118.json` | ⏳ |
-| API | `modelo/restricoes/RestricoesController.java` | ⏳ |
-| Banco | `V10__restricoes_projeto.sql` (restricoes_projeto, excecao_normativa) | ⏳ |
-| Testes | `test_tolerancias.py`, `test_secoes_minimas.py`, `RestricoesIT` | ⏳ |
+| API | `EstruturaController` (`GET/PUT /estrutura/restricoes`, `/excecoes-normativas` → propor, `decidir?aprovar`, `revogar`), `cca-application/estrutura/RestricoesService.java`; `LancadorAutomatico.validar` aplica as seções mínimas às sugestões da IA | ✅ |
+| Banco | `V10__restricoes_projeto.sql` (restricoes_projeto só mais restritivas que o padrão; excecao_normativa com justificativa ≥ 20 caracteres e aprovação por `podeAprovar`) | ✅ |
+| Testes | `test_tolerancias.py`, `test_secoes_minimas.py`; backend coberto por `RestricoesProjeto`/`ExcecaoNormativa` nas validações de domínio (IT dedicado ⏳) | ✅ domínio · ⏳ IT |

@@ -166,15 +166,16 @@ CivilConstructorAI/
 │   ├── ui-native/                 # react-native-reusables + Uniwind
 │   ├── api/                       # cliente gerado do OpenAPI do Spring
 │   └── i18n/                      # i18next, pt-BR
-├── backend/                       # core-api · Spring Boot 4.1 · Java 21/25
-│   └── src/
-│       ├── main/java/br/com/civilconstructorai/
-│       │   ├── identidade/ acesso/ empresa/ obra/
-│       │   ├── modelo/ notacao/ ia/
-│       │   ├── estrutura/ geotecnia/ quantitativo/ orcamento/
-│       │   └── prancha/ interop/ lgpd/ arquivo/ registro/
-│       ├── main/resources/db/migration/   # Flyway V1..Vn (+ schema.sql verificado)
-│       └── test/java/…            # *Test (unitário) e *IT (Testcontainers, login real)
+├── backend/                       # core-api · Spring Boot 4.1 · Java 21/25 · Maven multi-módulo
+│   ├── pom.xml                    # cca-parent
+│   ├── schema.sql                 # concatenação exata das migrações (SchemaConsistencyTest)
+│   ├── cca-domain/                # entidades (anotações JPA, sem Spring), máquinas de estado, regras
+│   ├── cca-application/           # @Service, repositórios Spring Data, portas (AcessoObra, ModeloLinguagem…)
+│   ├── cca-infrastructure/        # RLS (TenantJpaTransactionManager), Flyway V1..Vn, Valkey, S3, Claude, e-mail
+│   └── cca-web/                   # /api/v1 (controladores por módulo), segurança, sessão, Problem Details, app
+│       └── src/test/…             # *Test (unitário) e *IT (Testcontainers PostGIS + Valkey, login real)
+│   # pacotes em todos os módulos: br.com.civilconstructorai.{identidade,acesso,empresa,obra,modelo,notacao,
+│   #   estrutura,geotecnia,quantitativo,orcamento,prancha,interop,lgpd,ia,arquivo,registro}
 ├── geometria/                     # serviço Python 3.13 (FastAPI interna, sem estado)
 │   ├── api/                       # rotas /auditar, /mef, /dimensionar, /pranchas, /ifc
 │   ├── auditor/                   # BoundingBox, ShortCurveTolerance, cotas Z, projeção vetorial

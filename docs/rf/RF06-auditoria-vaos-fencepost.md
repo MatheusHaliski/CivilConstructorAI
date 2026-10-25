@@ -2,14 +2,16 @@
 rf: RF06
 titulo: Auditoria de vãos reais corrigindo o Fencepost Error
 modulo: M2 Análise Estrutural & Esforços
-status: especificado
+status: em-andamento
 cards:
   - https://trello.com/c/OGjcAg5E
 paths:
   - geometria/auditor/caixa_cartesiana.py
   - geometria/auditor/vaos.py
   - geometria/auditor/relatorio.py
-  - backend/src/main/java/br/com/civilconstructorai/modelo/auditoria/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/estrutura/vaos/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/estrutura/VaosService.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/estrutura/EstruturaController.java
 ---
 
 # RF06 · Auditoria de vãos reais corrigindo o Fencepost Error
@@ -306,7 +308,7 @@ flowchart LR
 | Documento | `docs/rf/RF06-auditoria-vaos-fencepost.md` | ✅ |
 | Card | [Trello OGjcAg5E](https://trello.com/c/OGjcAg5E) | ✅ |
 | Geometria | `geometria/auditor/caixa_cartesiana.py`, `vaos.py`, `relatorio.py` | ⏳ |
-| API | `modelo/auditoria/RelatorioAuditoriaService.java` | ⏳ |
+| API | `cca-application/estrutura/VaosService.java` + `GET /estrutura/vaos` em `EstruturaController` (caixa real dos pilares, `C-FORA_DA_CAIXA`, `FENCEPOST`, `APOIO_FALTANTE`); auditoria de comandos em `modelo/auditoria/` (RF16) | ✅ |
 | Banco | `V7__modelo_bim.sql` (relatorio_auditoria, correcao_auditoria) | ⏳ |
 | Web | painel de relatório em `apps/web/src/components/h/auditoria/` | ⏳ |
-| Testes | `test_caixa_cartesiana.py`, `test_fencepost.py`, `AuditoriaComandoIT` | ⏳ |
+| Testes | `QuantificadorTest.fencepostDetectaVigaAlemDoUltimoApoio`, `AnaliseIT.vaosDetectamCaixaCartesiana`, `test_caixa_cartesiana.py`, `test_fencepost.py` | ✅ backend · ⏳ python |

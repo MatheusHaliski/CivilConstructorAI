@@ -11,7 +11,8 @@ paths:
   - apps/web/src/canvas/estilos/**
   - apps/web/src/canvas/fallback2d/**
   - apps/web/src/app/(app)/obras/[obraId]/visualizar/**
-  - backend/src/main/java/br/com/civilconstructorai/modelo/visualizacao/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/modelo/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/modelo/**
 ---
 
 # RF13 · Renderização WebGL com gerenciador de cena 3D (H9_scene3d)
@@ -338,6 +339,7 @@ flowchart LR
 | Documento | `docs/rf/RF13-renderizacao-cena-3d.md` | ✅ |
 | Card | [Trello S0TACTtJ](https://trello.com/c/S0TACTtJ) | ✅ |
 | Web | `apps/web/src/canvas/H9Scene3d.ts`, `scene/InstanciadorGeometria.ts`, `scene/GerenciadorLod.ts`, `fallback2d/` | ⏳ |
-| API | `modelo/visualizacao/VisualizacaoService.java`, publicador SSE | ⏳ |
+| Aplicação | `cca-application · modelo/ModeloService.java#snapshot` (por camada, CLIENTE/FORNECEDOR só versão liberada → 404, sem `ia-rascunho`), `#diffDesde`, `#liberarCliente` | ✅ |
+| API | `cca-web · api/modelo/ModeloController.java` (`GET /modelo/snapshot?versao`, `GET /modelo/diff?desde`, `PATCH /modelo/liberar-cliente`); publicador SSE | 🟡 |
 | Geometria | `geometria/kernel/triangulacao.py` (glTF) | ⏳ |
-| Testes | `VisualizacaoIT`, `scene.perf.spec.ts`, `scene.a11y.spec.ts` | ⏳ |
+| Testes | `SnapshotClienteIT` (CA-08: 404 antes da liberação, FORNECEDOR 403, cliente sem `ia-rascunho`); `scene.perf.spec.ts`, `scene.a11y.spec.ts` | 🟡 |

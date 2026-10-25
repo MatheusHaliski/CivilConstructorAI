@@ -6,12 +6,11 @@ status: especificado
 cards:
   - https://trello.com/c/9s245tLM
 paths:
-  - backend/src/main/java/br/com/civilconstructorai/lgpd/eliminacao/**
-  - backend/src/main/java/br/com/civilconstructorai/identidade/conta/**
-  - backend/src/main/java/br/com/civilconstructorai/arquivo/**
-  - backend/src/main/java/br/com/civilconstructorai/registro/**
-  - backend/src/main/resources/db/migration/*eliminacao*
-  - backend/src/main/resources/db/migration/*user_key*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/lgpd/{SagaEliminacao,RetencaoLegal,ReciboEliminacao,UserKey,EstadoContaLgpd}.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/lgpd/{ExclusaoContaService,SagaEliminacaoService,PassosEliminacao,EliminacaoJob}.java
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/lgpd/{CofreChavesLocal,ChavesUsuarioImpl,SessoesDoUsuarioRedis,RegistroAtividadesNoop}.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/lgpd/DeletionController.java
+  - backend/cca-infrastructure/src/main/resources/db/migration/V6__lgpd_eliminacao.sql
   - apps/web/src/app/(app)/conta/privacidade/excluir/**
   - apps/web/src/app/(auth)/login/reativar/**
 ---
@@ -399,9 +398,12 @@ flowchart LR
 |---|---|---|
 | Documento | `docs/rf/RF26-exclusao-conta-carencia.md` | ✅ |
 | Card | [Trello 9s245tLM](https://trello.com/c/9s245tLM) | ✅ |
+| Domínio | `lgpd/SagaEliminacao` (INICIADA → EM_EXECUCAO → FALHOU_PASSO/CONCLUIDA, passo atual), `RetencaoLegal`, `ReciboEliminacao`, `UserKey` (DEK cifrada pela KEK), `EstadoContaLgpd` | ✅ |
+| Serviço | `ExclusaoContaService` (consequências para o alertdialog, pedido com sudo + "Entendo", reativação na carência), `SagaEliminacaoService` + `PassosEliminacao` (6 passos, cada um em REQUIRES_NEW; S3 só depois do commit do passo 1), `EliminacaoJob` (`app.lgpd.eliminacao-cron`, 03:15) | ✅ |
+| API | `api/lgpd/DeletionController` (`GET/POST /me/deletion`); `POST /auth/reactivate` (módulo de identidade) chama `ExclusaoContaService.reativar` | ✅ / 🟡 integração com o login |
+| Domínio | `identidade/conta/Conta.java` (máquina de estados completa) — módulo de identidade | ⏳ |
+| Cripto | `ChavesUsuarioImpl` (DEK por usuário, AES-256-GCM), `Portas.CofreChaves` + `CofreChavesLocal` (KEK por usuário em `cofre_kek`, tombstones em `kek_revogada`) | ✅ local · 🟡 KMS sa-east-1 + armazenamento separado em produção |
+| Banco | `V1` (`user_key`), `V6__lgpd_eliminacao.sql` (`saga_eliminacao`, `retencao_legal`, `recibo_eliminacao`, `cofre_kek`, `kek_revogada`) | ✅ |
+| Cassandra | `Portas.RegistroAtividades` (no-op sem Cassandra; implementação Spring Data Cassandra no profile `full`) | 🟡 |
+| Testes | `MaquinasDeEstadoLgpdTest` (saga retoma do passo), `EliminacaoIT` (falha injetada no passo 3 → FALHOU_PASSO; retoma sem repetir 1–2; conta ANONYMOUS_LGPD_DELETED; recibo; **crypto-shredding**: `user_key` "restaurada de backup" não decifra porque a KEK foi revogada) | ✅ |
 | Web | `apps/web/src/app/(app)/conta/privacidade/excluir/page.tsx`, `apps/web/src/app/(auth)/login/reativar/page.tsx` | ⏳ |
-| API | `lgpd/eliminacao/DeletionController.java`, `EliminacaoJob.java`, `SagaEliminacao.java`, passos | ⏳ |
-| Domínio | `identidade/conta/Conta.java` (máquina de estados) | ⏳ |
-| Cripto | `identidade/chave/UserKeyService.java` (DEK por usuário), `chaves/CofreChaves.java` (KEK em armazenamento separado, KMS em prod) | ⏳ |
-| Banco | `V1__contas_empresas_obras.sql` (`user_key`), `V6__lgpd_eliminacao.sql` (saga, retencao_legal, recibo_eliminacao) | ⏳ |
-| Testes | `ExclusaoContaIT`, `SagaEliminacaoIT`, `CryptoShreddingIT`, `excluir-conta.spec.ts` | ⏳ |

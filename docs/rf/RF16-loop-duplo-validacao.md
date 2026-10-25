@@ -10,9 +10,11 @@ paths:
   - geometria/kernel/**
   - geometria/api/**
   - geometria/tests/estresse/**
-  - backend/src/main/java/br/com/civilconstructorai/auditoria/**
-  - backend/src/main/java/br/com/civilconstructorai/ia/**
-  - backend/src/main/resources/db/migration/*auditoria*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/modelo/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/modelo/**
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/modelo/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/modelo/**
+  - backend/cca-infrastructure/src/main/resources/db/migration/V7__modelo_bim.sql
 ---
 
 # RF16 · Loop duplo de validação (código e geometria de sólido)
@@ -386,8 +388,10 @@ Outros: `CicloAuditoriaIT` verifica que nenhum `comando_vi` existe sem ciclo `AP
 |---|---|---|
 | Documento | `docs/rf/RF16-loop-duplo-validacao.md` | ✅ |
 | Card | [Trello o2wBmxKy](https://trello.com/c/o2wBmxKy) | ✅ |
-| Geometria | `geometria/auditor/laco_codigo.py`, `laco_geometria.py`, `tabela_c/` | ⏳ |
-| IA | `ia/ModeloLinguagem.java`, `ia/ClaudeModeloLinguagem.java`, `ia/FakeModeloLinguagem.java` | ⏳ |
-| API | `auditoria/OrquestradorAuditoria.java`, `auditoria/RelatorioController.java` | ⏳ |
-| Banco | `Vn__auditoria.sql` (ciclo_auditoria, iteracao_auditoria) | ⏳ |
-| Testes | `geometria/tests/estresse/` (E01–E18), `CicloAuditoriaIT` | ⏳ |
+| Domínio | `cca-domain · modelo/Auditor.java` (laço 1: Tabela C mínimos 0,19/0,036/0,12/0,08/0,05, `C-SHORT_CURVE`, Caixa Cartesiana RECORTAR/BLOQUEAR, Disciplina Z), `ServicoGeometriaLocal.java` (laço 2 JTS: G-AUTO_INTERSECAO, G-INTERPENETRACAO, G-SEM_HOSPEDEIRA, ENVOLTORIA_ABERTA aviso→violação na conclusão), `RelatorioAuditoria.java` | ✅ |
+| Aplicação | `cca-application · modelo/AuditorService.java` (ciclo APROVADO/REPROVADO persistido mesmo no rollback do 422, correção LLM ≤ 3 iterações só para origem IA), `ModeloService#verificarConclusao/#exigirConclusao` | ✅ |
+| Geometria | `cca-infrastructure · modelo/ServicoGeometriaHttp.java` (kernel Python com fallback local + aviso `G-KERNEL_INDISPONIVEL`); `geometria/auditor/*.py` | 🟡 |
+| IA | `ia/ModeloLinguagem.java`/`RotaIa.CORRECAO_AUDITORIA` (fork de IA) | ✅ |
+| API | `cca-web · api/modelo/ModeloExceptionHandler.java` (422 `auditoria_reprovada` com relatório completo + `errors`), `ModeloController` (`POST /modelo/verificar-conclusao`) | ✅ |
+| Banco | `V7__modelo_bim.sql` (ciclo_auditoria com iterações em jsonb) | ✅ |
+| Testes | `EstresseAuditoriaTest` (E01–E18 em Java), `ModeloBimTest`, `ModeloComandoIT#reprovacaoDevolve422ComRelatorioCompleto`; `geometria/tests/estresse/` (Python) | 🟡 |

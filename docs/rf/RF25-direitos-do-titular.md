@@ -6,12 +6,12 @@ status: especificado
 cards:
   - https://trello.com/c/BQtSoryZ
 paths:
-  - backend/src/main/java/br/com/civilconstructorai/lgpd/titular/**
-  - backend/src/main/java/br/com/civilconstructorai/lgpd/exportacao/**
-  - backend/src/main/java/br/com/civilconstructorai/lgpd/inventario/**
-  - backend/src/main/java/br/com/civilconstructorai/arquivo/**
-  - backend/src/main/java/br/com/civilconstructorai/registro/**
-  - backend/src/main/resources/db/migration/*titular*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/lgpd/{PedidoTitular,Exportacao,RetencaoEmpresa,CategoriaDado}.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/lgpd/{DadosTitularService,ExportacaoService,ExportadorTitular,ExportacaoJob,CifraExportacao,PedidoTitularService,InventarioService,ContaLgpdDao}.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/lgpd/{DadosTitularController,PrivacidadeEmpresaController}.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/arquivo/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/registro/**
+  - backend/cca-infrastructure/src/main/resources/db/migration/V5__lgpd_titular.sql
   - apps/web/src/app/(app)/conta/privacidade/seus-dados/**
   - apps/web/src/app/(app)/empresa/[empresaId]/privacidade/**
 ---
@@ -394,9 +394,12 @@ flowchart LR
 |---|---|---|
 | Documento | `docs/rf/RF25-direitos-do-titular.md` | ✅ |
 | Card | [Trello BQtSoryZ](https://trello.com/c/BQtSoryZ) | ✅ |
+| Domínio | `lgpd/PedidoTitular` (prazo 15 dias, ATRASADO), `Exportacao` (senha consumida uma vez), `RetencaoEmpresa` (mínimo DN-03), `CategoriaDado` | ✅ |
+| Serviço | `DadosTitularService` (resumo, corrigir → selo PENDING, compartilhamentos), `ExportacaoService` + `ExportadorTitular` + `ExportacaoJob` (job gera a senha ao cifrar, guarda cifrada com a DEK, exibe uma vez), `PedidoTitularService` (fila, vigilância de prazos), `InventarioService` (ASO só contagem, retenção ≥ mínimo) | ✅ |
+| API | `DadosTitularController` (`GET /me/dados`, `PUT /me/dados/{campo}`, `GET /me/compartilhamentos`, `POST/GET /me/exportacoes`, `GET /me/exportacoes/{id}`, `POST/GET /me/pedidos`), `PrivacidadeEmpresaController` (`GET …/privacidade/inventario`, `PUT …/retencao/{categoria}`, `GET/PATCH …/privacidade/pedidos`) | ✅ |
+| Cripto | `CifraExportacao`: pacote `.zip.cca` = AES-256-GCM com chave PBKDF2 da senha (formato próprio documentado) | 🟡 compatibilidade ZIP-AES (WinZip/7-Zip) pendente |
+| Schema | `cca-export/v1` validado estruturalmente em `ExportadorTitular.valido` | 🟡 JSON Schema formal em `resources/schemas/` pendente |
+| Banco | `V5__lgpd_titular.sql` (`pedido_titular`, `exportacao`, `retencao_empresa` com RLS) | ✅ |
+| Testes | `CifraExportacaoTest`, `MaquinasDeEstadoLgpdTest` (retenção mínima, prazo), `ExportacaoIT` (sudo → 202, job → PRONTA, senha uma vez, pacote decifra) | ✅ |
+| Testes | `PedidoTitularIT`, `InventarioAsoIT` | ⏳ |
 | Web | `apps/web/src/app/(app)/conta/privacidade/seus-dados/page.tsx`, `apps/web/src/app/(app)/empresa/[empresaId]/privacidade/page.tsx` | ⏳ |
-| API | `lgpd/titular/TitularController.java`, `lgpd/titular/PedidoTitularService.java` | ⏳ |
-| API | `lgpd/exportacao/ExportadorTitular.java`, `ExportacaoJob.java`, `lgpd/inventario/InventarioService.java` | ⏳ |
-| Schema | `backend/src/main/resources/schemas/cca-export-v1.json` | ⏳ |
-| Banco | `V5__lgpd_titular.sql` (pedido_titular, exportacao, retencao_empresa, categoria_dado) | ⏳ |
-| Testes | `ExportacaoIT`, `PedidoTitularIT`, `InventarioAsoIT`, `seus-dados.spec.ts` | ⏳ |

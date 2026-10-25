@@ -6,10 +6,14 @@ status: especificado
 cards:
   - https://trello.com/c/IEf3vByh
 paths:
-  - backend/src/main/java/br/com/civilconstructorai/identidade/login/**
-  - backend/src/main/java/br/com/civilconstructorai/identidade/sessao/**
-  - backend/src/main/java/br/com/civilconstructorai/acesso/SecurityConfig.java
-  - backend/src/main/resources/application*.yml
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/identidade/LoginService.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/identidade/SessaoUsuarioFabrica.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/identidade/PrincipalSessao.java
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/sessao/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/config/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/identidade/AuthController.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/identidade/ArmazemSessaoHttp.java
+  - backend/cca-web/src/main/resources/application*.yml
   - apps/web/src/app/(auth)/entrar/**
 ---
 
@@ -335,7 +339,9 @@ flowchart LR
 | Documento | `docs/rf/RF19-login-2fa-sessao.md` | ✅ |
 | Card | [Trello IEf3vByh](https://trello.com/c/IEf3vByh) | ✅ |
 | Web | `apps/web/src/app/(auth)/entrar/` (etapas senha, 2fa, reativar, empresa) | ⏳ |
-| API | `identidade/login/LoginService.java`, `acesso/SecurityConfig.java`, `identidade/sessao/SessaoAbsolutaFilter.java` | ⏳ |
-| Banco | `V1__contas_empresas_obras.sql` (fator_totp, codigo_recuperacao) | ⏳ |
-| Infra | `compose.yaml` (Valkey 9), `application.yml` (timeout 60 min) | ⏳ |
-| Testes | `LoginIT`, `SessaoIT`, `CsrfIT`, `FatorTotpTest` | ⏳ |
+| Aplicação | `identidade/LoginService.java` (etapas na sessão: MFA, CONFIGURAR_MFA, OFERTA_REATIVACAO, ESCOLHER_EMPRESA, AUTENTICADO; mensagem neutra; limites por conta e IP), `SessaoUsuarioFabrica.java`, `PrincipalSessao.java` (serializável, índice de principal) | ✅ |
+| Segurança | `cca-web · config/SegurancaConfig.java` (csrf.spa, CSP, troca de id de sessão), `SessaoAbsolutaFilter.java` (24 h), `api/identidade/ArmazemSessaoHttp.java` | ✅ |
+| Infra | `cca-infrastructure · sessao/SessaoConfig.java` (Spring Session Redis indexed, cookie `__Host-cca_session`, 60 min), `LimiteTentativas.java` (Valkey) | ✅ |
+| Banco | `V1__contas_empresas_obras.sql` (conta.mfa_*, codigo_recuperacao_mfa) | ✅ |
+| Testes | `LoginIT` (neutra, 429 + Retry-After, CONFIGURAR_MFA para dono, TOTP + código de recuperação de uso único, logout invalida) | ✅ |
+| Pendente | alerta de login por e-mail usa o e-mail transacional; canal push do mobile | 🟡 |

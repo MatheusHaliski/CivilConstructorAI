@@ -7,8 +7,11 @@ cards:
   - https://trello.com/c/MCxqnKl2
 paths:
   - geometria/pranchas/**
-  - backend/src/main/java/br/com/civilconstructorai/prancha/**
-  - backend/src/main/resources/db/migration/*prancha*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/prancha/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/prancha/**
+  - backend/cca-infrastructure/src/main/java/br/com/civilconstructorai/prancha/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/prancha/**
+  - backend/cca-infrastructure/src/main/resources/db/migration/V7__modelo_bim.sql
   - apps/web/src/app/(app)/obras/[obraId]/pranchas/**
 ---
 
@@ -328,8 +331,9 @@ flowchart LR
 |---|---|---|
 | Documento | `docs/rf/RF14-geracao-plantas-cortes.md` | ✅ |
 | Card | [Trello MCxqnKl2](https://trello.com/c/MCxqnKl2) | ✅ |
-| Geometria | `geometria/pranchas/` (gerador_vista, bolhas, cotas, colisoes, exportar) | ⏳ |
-| API | `prancha/PranchaController.java`, `prancha/PranchaService.java` | ⏳ |
-| Banco | `Vn__prancha.sql` (prancha, job_prancha, arquivo_prancha) | ⏳ |
+| Geometria | `cca-application · prancha/GeradorPrancha.java` (SVG/DXF R12 determinísticos: eixos e bolhas recuadas, cotas totais pela envoltória real, camadas EIXOS/COTAS/CORTADO/VISTA/OCULTO/TEXTO, carimbo, marca d'água RASCUNHO); `geometria/pranchas/` (Python) | 🟡 |
+| Aplicação | `cca-application · prancha/PranchaService.java` (solicitar exige conclusão RF16; PLANTA_FORMAS só ENGENHEIRO/DONO/ADMIN; job `processarPendentes` como sistema; download pré-assinado 15 min; emitir exige 2FA + selo + ART/RRT) | ✅ |
+| API | `cca-web · api/prancha/PranchaController.java` (`POST /pranchas` 202, `GET /pranchas`, `GET /pranchas/{id}`, `GET /{id}/download`, `POST /{id}/emitir`) | ✅ |
+| Banco | `V7__modelo_bim.sql` (prancha: EM_GERACAO→GERADA→EMITIDA/OBSOLETA, FALHOU) | ✅ |
 | Web | `apps/web/src/app/(app)/obras/[obraId]/pranchas/` | ⏳ |
-| Testes | `test_bolhas.py`, `test_cotas.py`, `PranchaIT` | ⏳ |
+| Testes | `PranchaIT` (envoltória aberta → 422, arquiteto não pede formas, SVG/DXF, emissão sem 2FA → 403, emitida sem marca d'água); `test_bolhas.py`, `test_cotas.py` | 🟡 |

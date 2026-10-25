@@ -6,10 +6,12 @@ status: especificado
 cards:
   - https://trello.com/c/4vumPt2g
 paths:
-  - backend/src/main/java/br/com/civilconstructorai/empresa/**
-  - backend/src/main/java/br/com/civilconstructorai/obra/**
-  - backend/src/main/resources/db/migration/*empresa*
-  - backend/src/main/resources/db/migration/*obra*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/empresa/**
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/obra/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/empresa/**
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/obra/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/empresa/**
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/obra/**
   - apps/web/src/app/(app)/empresa/**
   - apps/web/src/app/(app)/obras/**
 ---
@@ -302,6 +304,9 @@ flowchart LR
 | Documento | `docs/rf/RF22-empresas-e-obras.md` | ✅ |
 | Card | [Trello 4vumPt2g](https://trello.com/c/4vumPt2g) | ✅ |
 | Web | `apps/web/src/app/(app)/obras/`, `(app)/empresa/` | ⏳ |
-| API | `empresa/EmpresaService.java`, `obra/ObraService.java`, `obra/EstadoObra.java` | ⏳ |
-| Banco | `V1__contas_empresas_obras.sql` (empresa, obra, membro_obra, trabalhador) | ⏳ |
-| Testes | `ObraIT`, `EstadoObraTest`, `EmpresaIT` | ⏳ |
+| Domínio | `empresa/Empresa.java` (tenant raiz, CNPJ válido), `Cnpj.java`, `MembroEmpresa.java`, `obra/Obra.java` (PostGIS SIRGAS 2000, máquina de estados, arquivada somente leitura, responsável técnico), `EstadoObra.java`, `MembroObra.java` | ✅ |
+| Aplicação | `empresa/EmpresaService.java`, `obra/ObraService.java` (CRUD, transições, membros/papéis com registro de operações, trabalhador sem login) | ✅ |
+| API | `api/empresa/EmpresaController.java` (`/companies`), `api/obra/ObraController.java` (`/obras`, `/transicoes`, `/responsavel-tecnico`, `/membros`, `/trabalhadores`) | ✅ |
+| Banco | `V1__contas_empresas_obras.sql` (empresa, membro_empresa, obra, membro_obra) | ✅ |
+| Testes | `ConviteEAcessoIT` (sem engenheiro não inicia, transição inválida 409, arquivada 409, isolamento) | ✅ |
+| Pendente | dados pessoais do trabalhador sem login (CPF, contato) ficam no módulo LGPD/empresa; aqui só o vínculo | 🟡 |

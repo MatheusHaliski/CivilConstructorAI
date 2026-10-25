@@ -6,8 +6,11 @@ status: especificado
 cards:
   - https://trello.com/c/22GiOPjC
 paths:
-  - backend/src/main/java/br/com/civilconstructorai/empresa/convite/**
-  - backend/src/main/resources/db/migration/*convite*
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/empresa/Convite.java
+  - backend/cca-domain/src/main/java/br/com/civilconstructorai/empresa/EstadoConvite.java
+  - backend/cca-application/src/main/java/br/com/civilconstructorai/empresa/ConviteService.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/empresa/ConviteController.java
+  - backend/cca-web/src/main/java/br/com/civilconstructorai/api/empresa/EmpresaController.java
   - apps/web/src/app/(auth)/convite/**
   - apps/web/src/app/(app)/empresa/membros/**
 ---
@@ -95,7 +98,7 @@ arquiteto(a) convidam apenas para obras em que são membros.
 | `GET /api/v1/companies/{empresaId}/invites?estado=` | Lista convites | 200, 403, 404 |
 | `POST /api/v1/companies/{empresaId}/invites/{id}/resend` | Reenvia (novo token, mesmo prazo) | 204, 410 |
 | `DELETE /api/v1/companies/{empresaId}/invites/{id}` | Revoga | 204, 409 |
-| `GET /api/v1/invites/{token}` | Resumo público do convite | 200, 410 |
+| `GET /api/v1/convites/{token}/publico` | Resumo público do convite (sem sessão; rota liberada na SecurityFilterChain) | 200, 410 |
 | `POST /api/v1/invites/{token}/accept` | Aceita (sessão autenticada) | 200, 403, 409, 410 |
 | `POST /api/v1/invites/{token}/decline` | Recusa | 204, 410 |
 
@@ -313,6 +316,8 @@ flowchart LR
 | Documento | `docs/rf/RF20-convites-empresa-obra.md` | ✅ |
 | Card | [Trello 22GiOPjC](https://trello.com/c/22GiOPjC) | ✅ |
 | Web | `apps/web/src/app/(auth)/convite/[token]/page.tsx`, `(app)/empresa/membros/` | ⏳ |
-| API | `empresa/convite/ConviteController.java`, `ConviteService.java`, `acesso/HierarquiaPapeis.java` | ⏳ |
-| Banco | `V3__convites.sql` | ⏳ |
-| Testes | `ConviteIT`, `HierarquiaPapeisTest` | ⏳ |
+| Domínio | `empresa/Convite.java` (7 dias, token só como hash, e-mail deve bater, nunca promove acima — `PapelObra.podeConvidar`), `EstadoConvite.java` | ✅ |
+| Aplicação | `empresa/ConviteService.java` (criar/listar/reenviar/revogar; público, aceitar e recusar em modo sistema + tenant do convite; registro de operações) | ✅ |
+| API | `api/empresa/EmpresaController.java` (`/companies/{id}/invites`), `ConviteController.java` (`/convites/{token}/publico`, `/invites/{token}/accept|decline`, 410 quando indisponível) | ✅ |
+| Banco | `V1__contas_empresas_obras.sql` (convite) | ✅ |
+| Testes | `ConviteEAcessoIT` (não promove acima, e-mail diferente → 403, uso único, revogado → 410), `DominioIdentidadeTest` | ✅ |
