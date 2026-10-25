@@ -3,17 +3,14 @@ package br.com.civilconstructorai.interop;
 import br.com.civilconstructorai.acesso.PapelObra;
 import br.com.civilconstructorai.arquivo.ArmazenamentoArquivos;
 import br.com.civilconstructorai.comum.UsuarioAtual;
-import br.com.civilconstructorai.modelo.AcessoObraTeste;
 import br.com.civilconstructorai.modelo.ComoUsuario;
 import br.com.civilconstructorai.modelo.ObraDeTeste;
 import br.com.civilconstructorai.support.AbstractIT;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.PlatformTransactionManager;
 import tools.jackson.databind.ObjectMapper;
@@ -27,8 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** RF15: exportação IFC 4.3 válida, ida e volta pelo leitor, importação de referência e pareamento Revit. */
 @AutoConfigureMockMvc
-@Import(AcessoObraTeste.class)
-@TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
 class ExportacaoIfcIT extends AbstractIT {
 
     @Autowired MockMvc mvc;

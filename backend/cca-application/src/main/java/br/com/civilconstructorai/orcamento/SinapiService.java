@@ -99,6 +99,12 @@ public class SinapiService {
         return composicoes.findByTabelaIdAndDescricaoContainingIgnoreCase(tabelaId, termo == null ? "" : termo.trim()).stream().limit(50).toList();
     }
 
+    /** consulta sem exceção: usada dentro de laços que descartam sugestões inválidas sem derrubar a transação */
+    @Transactional(readOnly = true)
+    public java.util.Optional<ComposicaoSinapi> buscarPorCodigo(UUID tabelaId, String codigo) {
+        return composicoes.findByTabelaIdAndCodigo(tabelaId, codigo == null ? "" : codigo.trim());
+    }
+
     @Transactional(readOnly = true)
     public ComposicaoSinapi porCodigo(UUID tabelaId, String codigo) {
         return composicoes.findByTabelaIdAndCodigo(tabelaId, codigo.trim()).orElseThrow(() -> new ExcecaoDominio.RecursoNaoEncontrado("Composição SINAPI " + codigo));

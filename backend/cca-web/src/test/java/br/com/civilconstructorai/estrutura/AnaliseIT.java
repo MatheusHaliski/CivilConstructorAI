@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,8 +25,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 /** RF04/RF05/RF06: lançamento de cargas, combinações NBR 8681, análise MEF (job → CONCLUIDO / FALHOU) e vãos. */
 @AutoConfigureMockMvc
-// o módulo LGPD declara um @EnableJpaRepositories próprio que duplica o scan de PersistenciaConfig; como nos ITs do modelo, permite a sobreposição
-@TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
 class AnaliseIT extends AbstractIT {
 
     @Autowired MockMvc mvc;

@@ -5,10 +5,8 @@ import br.com.civilconstructorai.support.AbstractIT;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -21,8 +19,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** RF13 CA-08: CLIENTE só recebe versões liberadas (senão 404); FORNECEDOR não libera (403). */
 @AutoConfigureMockMvc
-@Import(AcessoObraTeste.class)
-@TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
 class SnapshotClienteIT extends AbstractIT {
 
     @Autowired MockMvc mvc;

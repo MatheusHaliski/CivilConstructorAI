@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
@@ -37,8 +36,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * antes da aprovação) e visão do CLIENTE restrita aos totais liberados (DN-02).
  */
 @AutoConfigureMockMvc
-// o módulo LGPD declara um @EnableJpaRepositories próprio que duplica o scan de PersistenciaConfig; como nos ITs do modelo, permite a sobreposição
-@TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
 @Import(OrcamentoIT.IaDeTeste.class)
 class OrcamentoIT extends AbstractIT {
 
@@ -146,7 +143,7 @@ class OrcamentoIT extends AbstractIT {
         assertThat(tabelas.getResponse().getStatus()).as(tabelas.getResponse().getContentAsString()).isEqualTo(200);
         assertThat(json(tabelas).size()).isGreaterThanOrEqualTo(1);
         var tabelaId = json(tabelas).get(0).get("id").asString();
-        var formas = getJson(engenheiro, "/api/v1/sinapi/composicoes?tabelaId=" + tabelaId + "&termo=F%C3%B4rma");
+        var formas = getJson(engenheiro, "/api/v1/sinapi/composicoes?tabelaId=" + tabelaId + "&termo=Fôrma");
         assertThat(formas.getResponse().getStatus()).isEqualTo(200);
         assertThat(json(formas).size()).isGreaterThanOrEqualTo(2);
     }

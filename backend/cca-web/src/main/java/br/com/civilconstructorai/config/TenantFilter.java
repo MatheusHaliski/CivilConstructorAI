@@ -13,7 +13,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/** Propaga a empresa ativa da sessão para o {@link ContextoTenant} (e daí para o RLS) durante a requisição. */
+/** Propaga a empresa ativa e a conta da sessão para o {@link ContextoTenant} (e daí para o RLS) durante a requisição. */
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE - 10)
 public class TenantFilter extends OncePerRequestFilter {
@@ -27,7 +27,12 @@ public class TenantFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
         try {
-            contexto.atual().map(u -> u.empresaAtivaId()).ifPresent(ContextoTenant::definir);
+            contexto.atual().ifPresent(u -> {
+                if (u.empresaAtivaId() != null) {
+                    ContextoTenant.definir(u.empresaAtivaId());
+                }
+                ContextoTenant.definirConta(u.contaId());
+            });
             chain.doFilter(req, res);
         } finally {
             ContextoTenant.limpar();

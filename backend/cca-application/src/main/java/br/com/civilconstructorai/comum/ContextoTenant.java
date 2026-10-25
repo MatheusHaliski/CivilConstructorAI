@@ -5,13 +5,16 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 /**
- * Tenant (empresa) da transação corrente. A infraestrutura lê daqui para executar
- * {@code set_config('app.tenant_id', …, true)} no início de cada transação (RLS, RF21).
- * Jobs de sistema usam {@link #comoSistema(Callable)} — a política de RLS permite o papel de sistema.
+ * Tenant (empresa) e conta da requisição corrente. A infraestrutura lê daqui para executar
+ * {@code set_config('app.tenant_id' | 'app.sistema' | 'app.conta_id', …)} na retirada de cada conexão e no início
+ * de cada transação (RLS, RF21). Jobs de sistema usam {@link #comoSistema(Callable)} — a política de RLS permite
+ * o papel de sistema. {@code app.conta_id} alimenta as políticas "próprio vínculo" (listar as empresas da pessoa
+ * antes de haver empresa ativa).
  */
 public final class ContextoTenant {
 
     private static final ThreadLocal<UUID> TENANT = new ThreadLocal<>();
+    private static final ThreadLocal<UUID> CONTA = new ThreadLocal<>();
     private static final ThreadLocal<Boolean> SISTEMA = ThreadLocal.withInitial(() -> false);
 
     private ContextoTenant() {
@@ -19,6 +22,10 @@ public final class ContextoTenant {
 
     public static Optional<UUID> atual() {
         return Optional.ofNullable(TENANT.get());
+    }
+
+    public static Optional<UUID> conta() {
+        return Optional.ofNullable(CONTA.get());
     }
 
     public static boolean sistema() {
@@ -29,8 +36,13 @@ public final class ContextoTenant {
         TENANT.set(tenantId);
     }
 
+    public static void definirConta(UUID contaId) {
+        CONTA.set(contaId);
+    }
+
     public static void limpar() {
         TENANT.remove();
+        CONTA.remove();
         SISTEMA.remove();
     }
 
@@ -49,11 +61,12 @@ public final class ContextoTenant {
     }
 
     public static <T> T comoSistema(Callable<T> acao) throws Exception {
+        var anterior = SISTEMA.get();
         SISTEMA.set(true);
         try {
             return acao.call();
         } finally {
-            SISTEMA.remove();
+            SISTEMA.set(anterior);
         }
     }
 }

@@ -152,12 +152,17 @@ public class OrcamentoService {
                 continue;
             }
             var k = chave.split("\\|", -1);
+            // valida: código existe (consulta sem exceção — uma exceção num método @Transactional participante
+            // marcaria a transação inteira como rollback-only)
+            var comp = sinapi.buscarPorCodigo(tabelaId, a.path("codigo").asText()).orElse(null);
+            if (comp == null) {
+                continue;
+            }
             try {
-                var comp = sinapi.porCodigo(tabelaId, a.path("codigo").asText()); // valida: código existe
                 lista.add(new ItemOrcamento(tenantId, orc.getId(), k[0], k[1], null, comp, k[2], servicos.get(chave), true, a.path("justificativa").asText())); // valida: unidade compatível
                 n++;
             } catch (ExcecaoDominio e) {
-                // sugestão inválida é descartada; o item fica sem vínculo para o orçamentista resolver
+                // sugestão com unidade incompatível é descartada; o item fica sem vínculo para o orçamentista resolver
             }
         }
         return n;

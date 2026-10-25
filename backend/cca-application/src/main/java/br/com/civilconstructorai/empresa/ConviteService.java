@@ -80,13 +80,24 @@ public class ConviteService {
     public Resumo criar(UUID empresaId, String emailConvidado, UUID obraId, PapelObra papel, String urlBase) {
         var u = empresaService.exigirEmpresaAtiva(empresaId);
         limites.registrar("convite:empresa:" + empresaId, 50, Duration.ofHours(1));
+        // 1) quem convida: DONO/ADMIN da empresa, ou engenheiro(a) de alguma obra; mais ninguém convida (403)
+        var ehEngenheiro = u.papeisPorObra().values().stream().anyMatch(ps -> ps.contains(PapelObra.ENGENHEIRO));
         var papelDoConvidante = u.papelEmpresa().orElseGet(() -> {
-            if (obraId == null || !u.temPapelNaObra(obraId, PapelObra.ENGENHEIRO)) {
+            if (!ehEngenheiro) {
                 throw new ExcecaoDominio.AcessoNegado("Só DONO/ADMIN da empresa ou o(a) engenheiro(a) responsável pela obra convidam.");
             }
             return PapelObra.ENGENHEIRO;
         });
-        if (obraId != null && obras.findByIdAndTenantId(obraId, empresaId).isEmpty()) {
+        // 2) regra do RF20 antes do escopo: um convite nunca promove acima de quem convida (422)
+        if (!papelDoConvidante.podeConvidar(papel)) {
+            throw new ExcecaoDominio.RegraDeNegocio("convite_acima_do_convidante", "Um convite nunca promove alguém acima do papel de quem convida (" + papelDoConvidante + ").");
+        }
+        // 3) escopo: engenheiro(a) só convida para obra em que é engenheiro(a)
+        if (!papelDoConvidante.escopoEmpresa() && (obraId == null || !u.temPapelNaObra(obraId, PapelObra.ENGENHEIRO))) {
+            throw new ExcecaoDominio.AcessoNegado("Engenheiro(a) só convida para a obra pela qual responde; convites de empresa são de DONO/ADMIN.");
+        }
+        // dentro de uma transação explícita: fora dela não há set_config('app.tenant_id') e o RLS esconderia a obra
+        if (obraId != null && Boolean.TRUE.equals(tx.execute(st -> obras.findByIdAndTenantId(obraId, empresaId).isEmpty()))) {
             throw new ExcecaoDominio.RecursoNaoEncontrado("Obra");
         }
         var token = novoToken();

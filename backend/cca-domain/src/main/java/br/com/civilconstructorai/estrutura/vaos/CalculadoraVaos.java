@@ -37,13 +37,18 @@ public final class CalculadoraVaos {
         }
     }
 
+    /** pilares que sustentam o pavimento: lançados nele ou que nascem/chegam nele (base ou topo), sem rascunhos de IA */
+    public static List<ElementoEstrutural> pilaresDoPavimento(ModeloEstrutural m, String pavimentoId) {
+        return m.elementos().stream()
+                .filter(e -> e.tipo() == TipoElementoEstrutural.PILAR && !e.rascunhoIa())
+                .filter(e -> pavimentoId.equals(e.pavimentoId()) || pavimentoId.equals(e.nivelBaseId()) || pavimentoId.equals(e.nivelTopoId()))
+                .toList();
+    }
+
     public static Caixa caixaReal(ModeloEstrutural m, String pavimentoId) {
         double xMin = Double.MAX_VALUE, xMax = -Double.MAX_VALUE, yMin = Double.MAX_VALUE, yMax = -Double.MAX_VALUE;
         boolean algum = false;
-        for (var e : m.doPavimento(pavimentoId)) {
-            if (e.tipo() != TipoElementoEstrutural.PILAR || e.rascunhoIa()) {
-                continue;
-            }
+        for (var e : pilaresDoPavimento(m, pavimentoId)) {
             algum = true;
             xMin = Math.min(xMin, e.centro().x()); xMax = Math.max(xMax, e.centro().x());
             yMin = Math.min(yMin, e.centro().y()); yMax = Math.max(yMax, e.centro().y());
@@ -70,7 +75,7 @@ public final class CalculadoraVaos {
             }
         }
         var linhas = new ArrayList<LinhaVigas>();
-        var pilares = elementos.stream().filter(e -> e.tipo() == TipoElementoEstrutural.PILAR && !e.rascunhoIa()).toList();
+        var pilares = pilaresDoPavimento(m, pavimentoId);
         var vigas = elementos.stream().filter(e -> e.tipo() == TipoElementoEstrutural.VIGA && !e.rascunhoIa()).toList();
         for (boolean horizontal : new boolean[]{true, false}) {
             var posicoes = new ArrayList<Double>();

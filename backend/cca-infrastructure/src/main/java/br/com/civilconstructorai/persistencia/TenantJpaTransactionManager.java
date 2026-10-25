@@ -7,9 +7,10 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 
 /**
- * Define o tenant na conexão a cada transação (RLS, RF21): logo depois do BEGIN executa
- * {@code set_config('app.tenant_id', <uuid>, true)} — <em>local</em> à transação, então uma conexão devolvida
- * ao pool nunca carrega o tenant de outra requisição. Jobs de sistema marcam {@code app.sistema = on}.
+ * Segunda camada do tenant (RLS, RF21): logo depois do BEGIN executa
+ * {@code set_config('app.tenant_id' | 'app.sistema' | 'app.conta_id', …, true)} — <em>local</em> à transação —
+ * para refletir mudanças de contexto feitas depois da retirada da conexão (ex.: {@code comoSistema} dentro de uma
+ * transação já aberta não é suportado; abra uma transação nova). A primeira camada é o {@link TenantDataSource}.
  */
 public class TenantJpaTransactionManager extends JpaTransactionManager {
 
@@ -24,12 +25,10 @@ public class TenantJpaTransactionManager extends JpaTransactionManager {
         if (em == null) {
             return;
         }
-        var tenant = ContextoTenant.atual().map(Object::toString).orElse("");
-        em.createNativeQuery("select set_config('app.tenant_id', :tenant, true)")
-                .setParameter("tenant", tenant)
-                .getSingleResult();
-        em.createNativeQuery("select set_config('app.sistema', :sistema, true)")
+        em.createNativeQuery("select set_config('app.tenant_id', :tenant, true), set_config('app.sistema', :sistema, true), set_config('app.conta_id', :conta, true)")
+                .setParameter("tenant", ContextoTenant.atual().map(Object::toString).orElse(""))
                 .setParameter("sistema", ContextoTenant.sistema() ? "on" : "off")
+                .setParameter("conta", ContextoTenant.conta().map(Object::toString).orElse(""))
                 .getSingleResult();
     }
 }

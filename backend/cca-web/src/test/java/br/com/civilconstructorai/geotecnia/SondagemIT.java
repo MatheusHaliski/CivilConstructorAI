@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,8 +28,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 /** RF09: furos SPT dentro do perímetro da obra (PostGIS), confirmação e perfil interpolado. */
 @AutoConfigureMockMvc
-// o módulo LGPD declara um @EnableJpaRepositories próprio que duplica o scan de PersistenciaConfig; como nos ITs do modelo, permite a sobreposição
-@TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
 class SondagemIT extends AbstractIT {
 
     /** quadrado de ~200 m em Curitiba (SIRGAS 2000) */

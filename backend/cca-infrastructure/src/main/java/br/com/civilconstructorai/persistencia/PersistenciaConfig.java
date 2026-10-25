@@ -11,7 +11,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableTransactionManagement
 @EntityScan(basePackages = "br.com.civilconstructorai")
-@EnableJpaRepositories(basePackages = "br.com.civilconstructorai")
+// único ponto de registro de repositórios: as interfaces ficam aninhadas em `Repositorios` de cada módulo
+@EnableJpaRepositories(basePackages = "br.com.civilconstructorai", considerNestedRepositories = true)
 public class PersistenciaConfig {
 
     @Bean
