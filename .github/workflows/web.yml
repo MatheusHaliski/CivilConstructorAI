@@ -1,0 +1,27 @@
+name: Web
+
+on:
+  pull_request:
+    paths: ["apps/web/**", "packages/**", "package.json", "package-lock.json", ".github/workflows/web.yml"]
+  push:
+    branches: [main]
+    paths: ["apps/web/**", "packages/**", "package.json", "package-lock.json"]
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Notação VI (tipos + testes)
+        run: npm --workspace @cca/notacao-vi run typecheck && npm --workspace @cca/notacao-vi test
+      - name: Web (tipos + testes)
+        run: npm --workspace @cca/web run typecheck && npm --workspace @cca/web test
+      - name: Web (build)
+        run: npm --workspace @cca/web run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"

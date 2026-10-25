@@ -43,12 +43,18 @@ function num(t: string): number {
 function dividir(texto: string): string[] {
   const partes: string[] = [];
   let nivel = 0, atual = "", aspas: string | null = null;
-  for (const ch of texto) {
+  for (let i = 0; i < texto.length; i++) {
+    const ch = texto[i]!;
     if (aspas) { atual += ch; if (ch === aspas) aspas = null; continue; }
     if (ch === '"' || ch === "'") { aspas = ch; atual += ch; continue; }
     if (ch === "[") nivel++;
     if (ch === "]") nivel--;
-    if (ch === "," && nivel === 0) { partes.push(atual); atual = ""; continue; }
+    if (ch === "," && nivel === 0) {
+      // vírgula decimal: "esp=0,15" (token termina em dígito logo após "=" e o próximo caractere é dígito)
+      const prox = texto[i + 1];
+      if (/=\s*-?\d+$/.test(atual) && prox !== undefined && /\d/.test(prox)) { atual += "."; continue; }
+      partes.push(atual); atual = ""; continue;
+    }
     atual += ch;
   }
   if (atual.trim() !== "") partes.push(atual);

@@ -56,7 +56,15 @@ cd backend && mvn -q spring-boot:run -pl cca-web -Dspring-boot.run.profiles=dev
 ```
 
 ```bash
+npm install                                 # monorepo (apps/web + packages/*)
+npm --workspace @cca/web run dev            # front em http://localhost:3000 (proxy de /api para :8080)
+```
+
+```bash
 cd backend && mvn verify                    # unitários + *IT com Testcontainers (precisa de Docker)
+npm --workspace @cca/web run typecheck && npm --workspace @cca/web test   # front: tipos + unitários (vitest)
+# acessibilidade (axe, WCAG 2.2 AA) com backend e front no ar; E2E_EMAIL/E2E_SENHA auditam as telas internas
+npm --workspace @cca/web run e2e
 python3 scripts/gerar_schema.py             # regenera backend/schema.sql após criar uma migração
 ```
 

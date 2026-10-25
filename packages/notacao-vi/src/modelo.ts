@@ -64,7 +64,10 @@ export class ModeloBim {
     const rascunho = new ModeloBim(antes);
     const diff = rascunho.executar(comando, pavimentoId);
     const relatorio = auditar(rascunho, diff, comando, this.opcoesAuditoria);
-    if (!relatorio.aprovado) throw new ErroComandoVI("REPROVADO", "Comando reprovado pelo auditor.", relatorio);
+    if (!relatorio.aprovado) {
+      const motivos = [...relatorio.laco1.violacoes, ...relatorio.laco2.violacoes].map((x) => x.mensagem).join(" ");
+      throw new ErroComandoVI("REPROVADO", `Comando reprovado pelo auditor. ${motivos}`.trim(), relatorio);
+    }
 
     this.pilhaDesfazer.push({ estado: antes, comando });
     this.pilhaRefazer = [];
@@ -314,7 +317,7 @@ export class ModeloBim {
         break;
       }
       case "UNIR": {
-        const linhas = sel().filter((e) => e.tipo === "LINHA") as Extract<Elemento, { tipo: "LINHA" }>[];
+        const linhas = sel().filter((e) => e.tipo === "LINHA") as Extract<Elemento, { tipo: "LINHA" | "PLANO_REF" }>[];
         if (linhas.length < 2) throw new ErroComandoVI("VI-002", "Selecione 2+ linhas para unir.");
         const pontos: Ponto2D[] = [linhas[0]!.p1, linhas[0]!.p2];
         const resto = linhas.slice(1);
