@@ -414,3 +414,11 @@ Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md))
 - **Corrigido:** Aprovar rascunho de IA tem efeito no modelo; rascunhos ocultos para cliente e fornecedor; aprovação expõe quem aprovou.
 - **Evidência:** j3 CA-01/03/04/06/08/10, promoção; RascunhoIaIT.
 - **Pendente:** IA real não verificada em dev.
+
+## Auditoria 2026-10 · 2ª rodada
+
+Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10_ESTRUTURA_INSTALACOES_MATERIAIS.md)).
+
+- **Corrigido:** chamadas de IA do texto natural registradas (`chamada_ia`); rascunho com `chamadaIaId`, `versaoModeloBase` e `versaoModeloResultado`; falha do provedor → 503 `ia_indisponivel`; resposta fora do esquema → 422 sem efeito; comandos que a IA não pode executar → lote recusado.
+- **Evidência:** `CaminhoIaIT` (4).
+- **Pendente:** IA real não exercitada em desenvolvimento.

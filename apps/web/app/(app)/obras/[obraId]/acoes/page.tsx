@@ -2,7 +2,7 @@
 import { use, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Eye, Search, Undo2 } from "lucide-react";
-import { ErroComandoVI, ModeloBim, TABELA_A, type RelatorioAuditoria } from "@cca/notacao-vi";
+import { CATALOGO_MATERIAIS, ErroComandoVI, ModeloBim, materiaisPersonalizados, type RelatorioAuditoria } from "@cca/notacao-vi";
 import { ErroApi, post } from "@/lib/api";
 import { useAcao, useDados } from "@/lib/dados";
 import { editaModelo, usePapeis } from "@/lib/sessao";
@@ -141,8 +141,8 @@ function Campo({ e, valor, erro, onChange, intersecoes, paredes, pilares }: { e:
   if (e.tipo === "ponto") return <CampoPonto e={e} valor={valor as { x: number; y: number } | undefined} erro={erro} onChange={onChange} intersecoes={intersecoes} />;
   if (e.tipo === "pontos") return <CampoContorno e={e} valor={(valor as { x: number; y: number }[] | undefined) ?? []} erro={erro} onChange={onChange} intersecoes={intersecoes} />;
   if (e.tipo === "material") {
-    const ops = TABELA_A.filter((m) => !e.categoriaMaterial || m.ontology.category === e.categoriaMaterial);
-    return <Selecao rotulo={e.rotulo} erro={erro} value={String(valor ?? e.padrao ?? "")} onChange={(x) => onChange(x.target.value)} opcoes={ops.map((m) => ({ valor: m.materialId, rotulo: `${m.name} · ${codigoMaterial(m)}` }))} />;
+    const ops = [...CATALOGO_MATERIAIS.materiais, ...materiaisPersonalizados()].filter((m) => !e.aplicaA || m.aplicacoes.includes(e.aplicaA));
+    return <Selecao rotulo={e.rotulo} erro={erro} value={String(valor ?? e.padrao ?? "")} onChange={(x) => onChange(x.target.value)} opcoes={ops.map((m) => ({ valor: m.codigo, rotulo: `${m.nome}${m.resumo ? ` (${m.resumo})` : ""}${m.personalizado ? " · personalizado" : ""}` }))} ajuda="Propriedades, origem dos valores e referências: Projeto › Materiais." />;
   }
   if (e.tipo === "parede" || e.tipo === "pilar") {
     const ops = e.tipo === "parede" ? paredes : pilares;

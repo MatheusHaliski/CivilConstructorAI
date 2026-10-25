@@ -119,7 +119,7 @@ export class ModeloBim {
   // ------------------------------------------------------------------ execução das funções da Tabela B
   private executar(cmd: ComandoVI, pavimentoId: string): DiffModelo {
     const diff: DiffModelo = { versaoNova: this.versao + 1, criados: [], alterados: [], removidos: [] };
-    // mat=MAT.ESTRUTURAL.CONC_FCK30 (código do catálogo) vale o mesmo que mat=MAT_CONC_FCK30 — igual ao ModeloBim Java
+    // mat: código do catálogo ou legado (MAT_CONC_FCK30 → MAT.CONCRETO.C30) — igual ao ModeloBim Java
     const a = typeof cmd.args["mat"] === "string" ? { ...cmd.args, mat: normalizarMaterialId(cmd.args["mat"] as string) } : cmd.args;
     const base = (tipo: Elemento["tipo"], camada: Elemento["camada"], extra: Record<string, unknown> = {}) => ({
       id: novoId(), tipo, pavimentoId, camada, origem: cmd.origem, ...(cmd.origem === "IA" ? { camada: "ia-rascunho" as const } : {}), ...extra,
@@ -144,7 +144,7 @@ export class ModeloBim {
 
     switch (cmd.codigo) {
       case "PAREDE": {
-        criar(base("PAREDE", "arquitetura", { p1: pt(a["p1"], "p1"), p2: pt(a["p2"], "p2"), espessura: n(a["esp"], 0.15), altura: n(a["h"], 2.8), materialId: (a["mat"] as string) ?? "MAT_ALV_BLOCO14", externa: a["externa"] !== false }) as Parede);
+        criar(base("PAREDE", "arquitetura", { p1: pt(a["p1"], "p1"), p2: pt(a["p2"], "p2"), espessura: n(a["esp"], 0.15), altura: n(a["h"], 2.8), materialId: (a["mat"] as string) ?? "MAT.ALVENARIA.CERAMICO_VEDACAO_14", externa: a["externa"] !== false }) as Parede);
         break;
       }
       case "PILAR": {
@@ -152,23 +152,23 @@ export class ModeloBim {
         const topo = this.pavimentoAcima(pav.id);
         criar(base("PILAR", "estrutura", {
           centro: pt(a["centro"] ?? a["p"], "centro"), b: n(a["b"], 0.19), h: n(a["h"], 0.4), secao: a["secao"] === "CIRCULAR" ? "CIRCULAR" : "RETANGULAR",
-          materialId: (a["mat"] as string) ?? "MAT_CONC_FCK30", nivelBaseId: pav.id, nivelTopoId: topo?.id ?? pav.id,
+          materialId: (a["mat"] as string) ?? "MAT.CONCRETO.C30", nivelBaseId: pav.id, nivelTopoId: topo?.id ?? pav.id,
           baseOffset: n(a["baseOffset"], 0), topoOffset: n(a["topoOffset"], 0), continuo: a["continuo"] === true, rotacao: n(a["rot"], 0),
         }) as Pilar);
         break;
       }
       case "VIGA": {
-        criar(base("VIGA", "estrutura", { p1: pt(a["p1"], "p1"), p2: pt(a["p2"], "p2"), b: n(a["b"], 0.12), h: n(a["h"], 0.4), materialId: (a["mat"] as string) ?? "MAT_CONC_FCK30" }) as Viga);
+        criar(base("VIGA", "estrutura", { p1: pt(a["p1"], "p1"), p2: pt(a["p2"], "p2"), b: n(a["b"], 0.12), h: n(a["h"], 0.4), materialId: (a["mat"] as string) ?? "MAT.CONCRETO.C30" }) as Viga);
         break;
       }
       case "CONTRAVENTAMENTO": {
-        criar(base("CONTRAVENTAMENTO", "estrutura", { p1: pt(a["p1"], "p1"), p2: pt(a["p2"], "p2"), perfil: (a["perfil"] as string) ?? "L 50x5", materialId: "MAT_ACO_PERFIL_W" }) as Elemento);
+        criar(base("CONTRAVENTAMENTO", "estrutura", { p1: pt(a["p1"], "p1"), p2: pt(a["p2"], "p2"), perfil: (a["perfil"] as string) ?? "L 50x5", materialId: (a["mat"] as string) ?? "MAT.ACO_ESTRUTURAL.A572_G50" }) as Elemento);
         break;
       }
       case "LAJE": case "REGIAO": {
         const contorno = ((a["contorno"] ?? a["pontos"]) as unknown[] | undefined)?.map((p, i) => pt(p, `contorno[${i}]`));
         if (!contorno || contorno.length < 3) throw new ErroComandoVI("VI-002", "Laje precisa de contorno com 3+ vértices.");
-        criar(base("LAJE", "estrutura", { contorno, h: n(a["h"], 0.12), materialId: (a["mat"] as string) ?? "MAT_CONC_FCK30" }) as Laje);
+        criar(base("LAJE", "estrutura", { contorno, h: n(a["h"], 0.12), materialId: (a["mat"] as string) ?? "MAT.CONCRETO.C30" }) as Laje);
         break;
       }
       case "PORTA": case "JANELA": {
@@ -176,7 +176,7 @@ export class ModeloBim {
         if (!parede) throw new ErroComandoVI("VI-002", "Abertura precisa de uma parede hospedeira (clique sobre a parede).");
         const posicao = typeof a["posicao"] === "number" ? (a["posicao"] as number) : projetarNoSegmento(pt(a["pos"], "pos"), parede.p1, parede.p2).t;
         const porta = cmd.codigo === "PORTA";
-        criar(base(cmd.codigo, "arquitetura", { paredeId: parede.id, posicao, largura: n(a["larg"], porta ? 0.8 : 1.2), altura: n(a["alt"], porta ? 2.1 : 1.2), peitoril: porta ? 0 : n(a["peitoril"], 1.0), materialId: porta ? "MAT_MADEIRA_PORTA" : "MAT_VIDRO_TEMP8" }) as Abertura);
+        criar(base(cmd.codigo, "arquitetura", { paredeId: parede.id, posicao, largura: n(a["larg"], porta ? 0.8 : 1.2), altura: n(a["alt"], porta ? 2.1 : 1.2), peitoril: porta ? 0 : n(a["peitoril"], 1.0), materialId: porta ? "MAT.COMPONENTE.PORTA_MADEIRA_80x210" : "MAT.COMPONENTE.VIDRO_TEMPERADO_8" }) as Abertura);
         break;
       }
       case "AMBIENTE": criar(base("AMBIENTE", "arquitetura", { ponto: pt(a["ponto"], "ponto"), nome: (a["nome"] as string) ?? "Ambiente" }) as Elemento); break;
@@ -255,7 +255,7 @@ export class ModeloBim {
         const tipo = (cmd.codigo === "FUNDACAO" ? ((a["tipo"] as string) ?? "SAPATA") : cmd.codigo) as "SAPATA" | "BLOCO" | "RADIER";
         const pilar = sel().find((e) => e.tipo === "PILAR") as Pilar | undefined ?? (a["pilar"] ? (this.elemento(a["pilar"] as string) as Pilar) : undefined);
         const centro = pilar ? pilar.centro : pt(a["centro"], "centro");
-        criar(base(tipo, "fundacao", { pilarId: pilar?.id, centro, bx: n(a["bx"], 1.5), by: n(a["by"], 1.5), h: n(a["h"], 0.5), estacas: a["estacas"] ? n(a["estacas"]) : undefined, diametroEstaca: a["diam"] ? n(a["diam"]) : undefined, materialId: "MAT_CONC_FCK25" }) as Elemento);
+        criar(base(tipo, "fundacao", { pilarId: pilar?.id, centro, bx: n(a["bx"], 1.5), by: n(a["by"], 1.5), h: n(a["h"], 0.5), estacas: a["estacas"] ? n(a["estacas"]) : undefined, diametroEstaca: a["diam"] ? n(a["diam"]) : undefined, materialId: (a["mat"] as string) ?? "MAT.CONCRETO.C25" }) as Elemento);
         break;
       }
       case "COTA_LINEAR": case "COTA_ALINHADA": case "COTA_NIVEL":

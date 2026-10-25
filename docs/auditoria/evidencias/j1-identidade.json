@@ -39,8 +39,8 @@
       "s": 422,
       "e": [
         {
-          "mensagem": "A senha não pode conter o seu e-mail ou usuário.",
-          "campo": "senha"
+          "campo": "senha",
+          "mensagem": "A senha não pode conter o seu e-mail ou usuário."
         }
       ]
     }
@@ -112,14 +112,14 @@
     "descricao": "GET /session traz empresa ativa, papéis, selo, mfa",
     "ok": true,
     "evidencia": [
+      "papelEmpresa",
+      "papeisPorObra",
+      "seloVerificado",
       "contaId",
       "mfaVerificado",
       "mfaPendente",
       "sudoAtivo",
-      "empresaAtivaId",
-      "papelEmpresa",
-      "papeisPorObra",
-      "seloVerificado"
+      "empresaAtivaId"
     ]
   },
   {
@@ -128,14 +128,14 @@
     "descricao": "nenhuma resposta traz o id real da sessão",
     "ok": true,
     "evidencia": [
+      "papelEmpresa",
+      "papeisPorObra",
+      "seloVerificado",
       "contaId",
       "mfaVerificado",
       "mfaPendente",
       "sudoAtivo",
-      "empresaAtivaId",
-      "papelEmpresa",
-      "papeisPorObra",
-      "seloVerificado"
+      "empresaAtivaId"
     ]
   },
   {
@@ -153,8 +153,8 @@
     "evidencia": {
       "s": 401,
       "detail": "E-mail ou senha incorretos.",
-      "medianaExiste": 500,
-      "medianaInexiste": 498
+      "medianaExiste": 507,
+      "medianaInexiste": 485
     }
   },
   {
@@ -180,7 +180,7 @@
     "ok": true,
     "evidencia": {
       "s": 201,
-      "j": "01a1744f-f2e0-79b4-9e43-b919fa6fde0c"
+      "j": "01a174de-1886-724f-8c02-c9bc101bea19"
     }
   },
   {
@@ -190,7 +190,7 @@
     "ok": true,
     "evidencia": {
       "mfaPendente": true,
-      "empresa": "01a1744f-f2e0-79b4-9e43-b919fa6fde0c",
+      "empresa": "01a174de-1886-724f-8c02-c9bc101bea19",
       "papel": "DONO"
     }
   },
@@ -275,10 +275,10 @@
     "ok": true,
     "evidencia": [
       {
+        "id": "f10e7a66-b558-379d-b769-226766a87ae0",
+        "tipo": "TERREO",
         "elevacao": 0,
-        "nome": "Térreo",
-        "id": "c8f9bdd8-af0c-31dd-8ac2-51262dfa04df",
-        "tipo": "TERREO"
+        "nome": "Térreo"
       }
     ]
   },
@@ -358,7 +358,7 @@
     "id": "e-mail-url",
     "descricao": "link absoluto para a rota /convite/{token} do app",
     "ok": true,
-    "evidencia": "\r Para aceitar, abra o link abaixo e entre (ou crie a conta) com este mesmo e-mail:\r http://localhost:3000/convite/32JSFm2a11Af5kJs4XPNCB06IOsZPmlETNqINwVn79g\r \r O convite vale at=C3=A9 1 de novembro de 2026, 15:26 (hor=C3=A1rio de Bras=C3=ADlia) e s=C3=B3 pode ser usado uma vez. Se voc=C3=AA n=C3=A"
+    "evidencia": "\r Para aceitar, abra o link abaixo e entre (ou crie a conta) com este mesmo e-mail:\r http://localhost:3000/convite/ReE58ibYaWHiXUsYpH8MPc5deI27yrihXn9o37Z04s0\r \r O convite vale at=C3=A9 1 de novembro de 2026, 18:01 (hor=C3=A1rio de Bras=C3=ADlia) e s=C3=B3 pode ser usado uma vez. Se voc=C3=AA n=C3=A"
   },
   {
     "rf": "RF20",
@@ -374,10 +374,10 @@
     "ok": true,
     "evidencia": {
       "empresa": "Mendes Projetos Ltda",
-      "expiraEm": "2026-11-01T18:26:01.522524Z",
+      "expiraEm": "2026-11-01T21:01:17.730317Z",
       "obra": "Residencial Auditoria",
       "papel": "ARQUITETO",
-      "email": "a***1@exemplo.cca"
+      "email": "a***9@exemplo.cca"
     }
   },
   {
@@ -414,8 +414,8 @@
     "evidencia": {
       "s": 200,
       "j": {
-        "empresaId": "01a1744f-f2e0-79b4-9e43-b919fa6fde0c",
-        "obraId": "01a1744f-fbe6-7689-b7c4-9fa867b55d7f",
+        "empresaId": "01a174de-1886-724f-8c02-c9bc101bea19",
+        "obraId": "01a174de-2352-74fe-a5a7-7868569d321a",
         "mensagem": "Convite aceito: a obra já aparece para você."
       }
     }
@@ -433,7 +433,7 @@
     "descricao": "sessão da arquiteta reflete o papel na obra sem novo login",
     "ok": true,
     "evidencia": {
-      "01a1744f-fbe6-7689-b7c4-9fa867b55d7f": [
+      "01a174de-2352-74fe-a5a7-7868569d321a": [
         "ARQUITETO"
       ]
     }
@@ -510,9 +510,9 @@
     "descricao": "GET /me/sessions não expõe id real",
     "ok": true,
     "evidencia": {
-      "apelido": "1a0c068275e09068",
-      "criadaEm": "2026-10-25T18:25:59.983Z",
-      "ultimoAcessoEm": "2026-10-25T18:26:05.997Z",
+      "apelido": "3f7525b44c789eeb",
+      "criadaEm": "2026-10-25T21:01:16.135Z",
+      "ultimoAcessoEm": "2026-10-25T21:01:22.072Z",
       "userAgent": "Playwright/1.64.1 (x64; ubuntu 24.04) node/22.22",
       "atual": true
     }

@@ -4,6 +4,7 @@ import br.com.civilconstructorai.modelo.Elemento;
 import br.com.civilconstructorai.modelo.Enums.TipoElemento;
 import br.com.civilconstructorai.modelo.ModeloBim;
 import br.com.civilconstructorai.modelo.Pavimento;
+import br.com.civilconstructorai.notacao.CatalogoMateriais;
 import br.com.civilconstructorai.notacao.TabelaA;
 
 import java.nio.ByteBuffer;
@@ -218,9 +219,8 @@ public final class EscritorIfc {
             if (mat.physicalProperties().fck_MPa() != null) {
                 props.add("#" + b.add("IFCPROPERTYSINGLEVALUE('fck_MPa',$,IFCREAL(" + d(mat.physicalProperties().fck_MPa()) + "),$)"));
             }
-            if (mat.physicalProperties().fireRating() != null) {
-                props.add("#" + b.add("IFCPROPERTYSINGLEVALUE('FireRating',$,IFCLABEL(" + s(mat.physicalProperties().fireRating()) + "),$)"));
-            }
+            // resistência ao fogo não é exportada: depende do elemento (dimensões, cobrimento), não só do material
+            props.add("#" + b.add("IFCPROPERTYSINGLEVALUE('CatalogoVersao',$,IFCLABEL(" + s(CatalogoMateriais.padrao().versao()) + "),$)"));
             props.add("#" + b.add("IFCPROPERTYSINGLEVALUE('LoadBearing',$,IFCBOOLEAN(" + (mat.physicalProperties().loadBearing() ? ".T." : ".F.") + "),$)"));
             if (mat.baseQuantities().sinapi() != null) {
                 props.add("#" + b.add("IFCPROPERTYSINGLEVALUE('SINAPI',$,IFCLABEL(" + s(mat.baseQuantities().sinapi()) + "),$)"));

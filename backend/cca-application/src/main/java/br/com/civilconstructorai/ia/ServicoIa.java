@@ -46,7 +46,15 @@ public class ServicoIa {
      *                           a validação completa de JSON Schema é feita pelo próprio modelo em structured outputs)
      */
     public Resultado gerarEstruturado(RotaIa rota, String systemPromptFixo, String entradaVariavel, String jsonSchema, List<String> camposObrigatorios, Contexto ctx) {
-        var resposta = modelo.gerarEstruturado(rota, systemPromptFixo, entradaVariavel, jsonSchema, Map.of("rota", rota.id()));
+        ModeloLinguagem.Resposta resposta;
+        try {
+            resposta = modelo.gerarEstruturado(rota, systemPromptFixo, entradaVariavel, jsonSchema, Map.of("rota", rota.id()));
+        } catch (ExcecaoDominio e) {
+            throw e;
+        } catch (RuntimeException e) {
+            // falha do provedor (rede, tempo esgotado, 5xx): 503 antes de qualquer escrita no modelo; sem tokens, não há uso a registrar
+            throw new ExcecaoDominio.Indisponivel("ia_indisponivel", "O provedor de IA não respondeu. Nada foi alterado; tente de novo em instantes.");
+        }
         var chamadaId = registrar(rota, ctx, resposta);
         if (resposta.recusa() || "refusal".equals(resposta.stopReason())) {
             return new Resultado(null, null, true, resposta.stopReason(), chamadaId, resposta.inputTokens() + resposta.outputTokens());

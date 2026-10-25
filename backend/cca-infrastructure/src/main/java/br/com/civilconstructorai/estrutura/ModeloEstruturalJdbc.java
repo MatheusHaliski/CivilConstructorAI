@@ -15,6 +15,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -51,7 +52,7 @@ public class ModeloEstruturalJdbc implements ModeloEstruturalFonte {
             var pavimentos = jdbc.query("select id, nome, elevacao from pavimento where modelo_id = ? order by elevacao",
                     (rs, i) -> new PavimentoRef(rs.getString("id"), rs.getString("nome"), rs.getDouble("elevacao")), modeloId);
             var elementos = new ArrayList<ElementoEstrutural>();
-            jdbc.query("select id, pavimento_id, tipo, camada, material_id, rotulo, geometria::text as geometria, rascunho_ia_id from elemento where modelo_id = ?", rs -> {
+            jdbc.query("select id, pavimento_id, tipo, camada, material_id, rotulo, geometria::text as geometria, rascunho_ia_id from elemento where modelo_id = ? order by criado_em, id", rs -> {
                 boolean rascunho = rs.getString("rascunho_ia_id") != null || "ia-rascunho".equals(rs.getString("camada"));
                 var e = converter(rs.getString("id"), rs.getString("pavimento_id"), rs.getString("tipo"), rs.getString("material_id"), rs.getString("rotulo"),
                         rs.getString("geometria"), rascunho);
@@ -62,18 +63,42 @@ public class ModeloEstruturalJdbc implements ModeloEstruturalFonte {
             if (pavimentos.isEmpty()) {
                 return ModeloEstrutural.vazio(obraId);
             }
-            return new ModeloEstrutural(obraId, versao, pavimentos, elementos);
+            return new ModeloEstrutural(obraId, versao, pavimentos, comRotulosAutomaticos(elementos));
         } catch (DataAccessException e) {
             log.warn("tabelas do modelo BIM indisponíveis para a obra {}: {}", obraId, e.getMostSpecificCause().getMessage());
             return ModeloEstrutural.vazio(obraId);
         }
     }
 
+    /**
+     * Elemento sem etiqueta recebe o mesmo rótulo automático do modelo BIM (P1, V2, L1… por tipo e pavimento, na ordem
+     * de criação). Antes o modelo analítico usava os 6 primeiros caracteres do id, iguais em ids criados em sequência
+     * (UUID v7), e todos os pilares apareciam como "P-01a174" nos resultados.
+     */
+    static List<ElementoEstrutural> comRotulosAutomaticos(List<ElementoEstrutural> elementos) {
+        var contagem = new java.util.HashMap<String, Integer>();
+        var out = new ArrayList<ElementoEstrutural>(elementos.size());
+        for (var e : elementos) {
+            int n = contagem.merge(e.tipo() + "|" + e.pavimentoId(), 1, Integer::sum);
+            if (e.rotulo() != null) {
+                out.add(e);
+                continue;
+            }
+            String prefixo = switch (e.tipo()) {
+                case PILAR -> "P"; case VIGA -> "V"; case LAJE -> "L"; case CONTRAVENTAMENTO -> "CO";
+                default -> e.tipo().name().substring(0, 1);
+            };
+            out.add(e.comRotulo(prefixo + n));
+        }
+        return out;
+    }
+
     ElementoEstrutural converter(String id, String pav, String tipo, String material, String rotulo, String geometria, boolean rascunho) {
         JsonNode g = mapper.readTree(geometria == null ? "{}" : geometria);
         ElementoEstrutural e = switch (tipo) {
             case "PILAR" -> ElementoEstrutural.pilar(id, pav, ponto(g.path("centro")), g.path("b").asDouble(), g.path("h").asDouble(),
-                    texto(g, "nivelBaseId"), texto(g, "nivelTopoId"), material);
+                    texto(g, "nivelBaseId"), texto(g, "nivelTopoId"), material, g.path("rotacao").asDouble(0), "CIRCULAR".equals(texto(g, "secao")));
+            case "CONTRAVENTAMENTO" -> ElementoEstrutural.contraventamento(id, pav, ponto(g.path("p1")), ponto(g.path("p2")), texto(g, "perfil"), material);
             case "VIGA" -> ElementoEstrutural.viga(id, pav, ponto(g.path("p1")), ponto(g.path("p2")), g.path("b").asDouble(), g.path("h").asDouble(), material);
             case "LAJE" -> {
                 var pts = new ArrayList<Ponto>();

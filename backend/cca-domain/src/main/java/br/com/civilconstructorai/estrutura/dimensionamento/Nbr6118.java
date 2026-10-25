@@ -81,9 +81,21 @@ public final class Nbr6118 {
     public static Flexao flexaoSimples(double mk, double b, double h, double d, double fck) {
         var mem = Memoria.nova();
         double md = GAMA_F * mk;
-        double fcdKpa = fcd(fck) * 1000, fydKpa = fyd() * 1000;
         mem.add("Md = γf·Mk = %.2f·%.2f = %.2f kN·m", GAMA_F, mk, md);
-        mem.add("fcd = %.1f/%.2f = %.2f MPa; fyd = %.0f/%.2f = %.1f MPa", fck, GAMA_C, fcd(fck), FYK, GAMA_S, fyd());
+        return flexao(md, b, h, d, fck, FYK, mem);
+    }
+
+    /** flexão simples a partir do momento de cálculo Md (kN·m) já combinado (envoltória ELU) e do fyk do aço escolhido */
+    public static Flexao flexaoMd(double md, double b, double h, double d, double fck, double fyk) {
+        var mem = Memoria.nova();
+        mem.add("Md = %.2f kN·m (envoltória das combinações ELU, já com γf)", md);
+        return flexao(md, b, h, d, fck, fyk, mem);
+    }
+
+    private static Flexao flexao(double md, double b, double h, double d, double fck, double fyk, Memoria mem) {
+        double fyd = fyk / GAMA_S;
+        double fcdKpa = fcd(fck) * 1000, fydKpa = fyd * 1000;
+        mem.add("fcd = %.1f/%.2f = %.2f MPa; fyd = %.0f/%.2f = %.1f MPa", fck, GAMA_C, fcd(fck), fyk, GAMA_S, fyd);
         double disc = d * d - 2.353 * md / (fcdKpa * b);
         double asMin = rhoMin(fck) / 100 * b * h * 1e4;
         if (disc < 0) {
@@ -113,13 +125,18 @@ public final class Nbr6118 {
 
     /** cisalhamento, modelo de cálculo I (θ = 45°), 17.4.2.2; Vk em kN, bw e d em m */
     public static Cisalhamento cisalhamento(double vk, double bw, double d, double fck) {
+        return cisalhamentoVd(GAMA_F * vk, bw, d, fck);
+    }
+
+    /** idem, a partir do cortante de cálculo Vd (kN) já combinado */
+    public static Cisalhamento cisalhamentoVd(double vsd, double bw, double d, double fck) {
         var mem = Memoria.nova();
-        double vsd = GAMA_F * vk;
+        double vk = vsd / GAMA_F;
         double alphaV2 = 1 - fck / 250;
         double vrd2 = 0.27 * alphaV2 * fcd(fck) * 1000 * bw * d;
         double vc = 0.6 * fctd(fck) * 1000 * bw * d;
         double fywd = Math.min(fyd(), 435);
-        mem.add("Vsd = %.2f·%.2f = %.2f kN; VRd2 = 0,27·αv2·fcd·bw·d = %.2f kN; Vc = 0,6·fctd·bw·d = %.2f kN", GAMA_F, vk, vsd, vrd2, vc);
+        mem.add("Vsd = %.2f kN (Vk equivalente %.2f kN); VRd2 = 0,27·αv2·fcd·bw·d = %.2f kN; Vc = 0,6·fctd·bw·d = %.2f kN", vsd, vk, vrd2, vc);
         if (vsd > vrd2) {
             mem.add("Vsd > VRd2: esmagamento da biela.");
             return new Cisalhamento(false, "Vsd > VRd2: aumente a seção (biela comprimida).", Double.NaN, Double.NaN, vrd2, vc, 0, mem);

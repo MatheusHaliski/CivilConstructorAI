@@ -10,6 +10,7 @@ import br.com.civilconstructorai.estrutura.carga.GeradorCombinacoes;
 import br.com.civilconstructorai.estrutura.carga.NaturezaAcao;
 import br.com.civilconstructorai.estrutura.carga.ParametrosVento;
 import br.com.civilconstructorai.estrutura.carga.TipoCarga;
+import br.com.civilconstructorai.estrutura.modelo.TipoElementoEstrutural;
 import br.com.civilconstructorai.estrutura.lancamento.EstadoLancamento;
 import br.com.civilconstructorai.estrutura.lancamento.LancamentoEstrutural;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,11 @@ public class CargasService {
         this.json = json;
     }
 
-    public record NovaCarga(String pavimentoId, NaturezaAcao natureza, TipoCarga tipo, double valor, String elementoAlvoId, String descricao, String casoCarga) {
+    /** {@code posicao}: carga pontual em viga, distância em metros a partir do primeiro ponto (p1) da viga */
+    public record NovaCarga(String pavimentoId, NaturezaAcao natureza, TipoCarga tipo, double valor, String elementoAlvoId, String descricao, String casoCarga, Double posicao) {
+        public NovaCarga(String pavimentoId, NaturezaAcao natureza, TipoCarga tipo, double valor, String elementoAlvoId, String descricao, String casoCarga) {
+            this(pavimentoId, natureza, tipo, valor, elementoAlvoId, descricao, casoCarga, null);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -62,11 +67,25 @@ public class CargasService {
         if (n.elementoAlvoId() != null && m.elemento(n.elementoAlvoId()).isEmpty()) {
             throw new ExcecaoDominio.Validacao("elementoAlvoId", "Elemento alvo não existe no modelo.");
         }
+        var alvo = n.elementoAlvoId() == null ? null : m.elemento(n.elementoAlvoId()).orElseThrow();
+        // RF04: carga pontual em viga precisa de posição (antes caía no nó do apoio e a viga não fletia)
+        if (alvo != null && alvo.tipo() == TipoElementoEstrutural.VIGA && n.tipo() == TipoCarga.PONTUAL) {
+            if (n.posicao() == null) {
+                throw new ExcecaoDominio.Validacao("posicao", String.format(java.util.Locale.ROOT,
+                        "Informe a posição da carga pontual: distância em metros a partir do início da viga (0 a %.2f m).", alvo.comprimento()));
+            }
+            if (n.posicao() < 0 || n.posicao() > alvo.comprimento() + 1e-6) {
+                throw new ExcecaoDominio.Validacao("posicao", String.format(java.util.Locale.ROOT,
+                        "A posição deve ficar entre 0 e %.2f m (comprimento da viga).", alvo.comprimento()));
+            }
+        } else if (n.posicao() != null) {
+            throw new ExcecaoDominio.Validacao("posicao", "Posição só se aplica a carga pontual em viga.");
+        }
         // descrição é opcional na tela; sem ela, um rótulo legível pela natureza e unidade
         var descricao = n.descricao() == null || n.descricao().isBlank()
                 ? "Carga " + n.natureza().name().toLowerCase() + " " + switch (n.tipo()) { case AREA -> "(kN/m²)"; case LINEAR -> "(kN/m)"; default -> "(kN)"; }
                 : n.descricao().trim();
-        var c = cargas.save(new Carga(u.empresaAtivaId(), obraId, n.pavimentoId(), n.natureza(), n.tipo(), n.valor(), n.elementoAlvoId(), descricao, n.casoCarga()));
+        var c = cargas.save(new Carga(u.empresaAtivaId(), obraId, n.pavimentoId(), n.natureza(), n.tipo(), n.valor(), n.elementoAlvoId(), descricao, n.casoCarga(), n.posicao()));
         dependentes.cargasMudaram(obraId, n.pavimentoId());
         var l = lancamento(obraId, n.pavimentoId(), u.empresaAtivaId());
         if (l.getEstado() == EstadoLancamento.VAZIO || l.getEstado() == EstadoLancamento.SUGESTAO_IA) {

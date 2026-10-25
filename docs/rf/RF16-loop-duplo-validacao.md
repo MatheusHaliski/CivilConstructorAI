@@ -404,3 +404,11 @@ Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md))
 - **Corrigido:** Texto natural passa pelo laço como rascunho; aprovar promove à camada da disciplina, descartar remove (comandos versionados `APROVAR`/`DESCARTAR_RASCUNHO_IA`).
 - **Evidência:** EstresseAuditoriaTest e13/e15; j3 CA-04 (simulação).
 - **Pendente:** Laço com LLM real não verificado.
+
+## Auditoria 2026-10 · 2ª rodada
+
+Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10_ESTRUTURA_INSTALACOES_MATERIAIS.md)).
+
+- **Corrigido:** a correção automática pela IA não pode trocar o tipo do comando; falha do provedor durante a correção encerra o laço sem gravar nada; auditor aceita materiais personalizados da empresa ativa.
+- **Evidência:** `CaminhoIaIT`, `CoordenacaoMateriaisIT`.
+- **Pendente:** laço com LLM real não verificado.

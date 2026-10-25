@@ -36,7 +36,7 @@ class EscritorIfcTest {
                 .containsEntry("IFCBUILDINGSTOREY", 2).containsEntry("IFCWALL", 1).containsEntry("IFCCOLUMN", 1).containsEntry("IFCBEAM", 1)
                 .containsEntry("IFCSLAB", 1).containsEntry("IFCDOOR", 1);
         assertThat(resumo.porTipo().get("IFCPROPERTYSET")).isEqualTo(5);
-        assertThat(ifc).contains("Pset_TabelaA").contains("MAT_CONC_FCK30").doesNotContain("CPF");
+        assertThat(ifc).contains("Pset_TabelaA").contains("MAT.CONCRETO.C30").doesNotContain("FireRating").doesNotContain("CPF");
     }
 
     @Test

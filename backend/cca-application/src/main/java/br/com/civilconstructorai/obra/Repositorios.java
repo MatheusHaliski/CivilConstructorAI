@@ -12,6 +12,11 @@ public final class Repositorios {
     private Repositorios() {
     }
 
+    @Repository("obraBaseCalculoRepository")
+    public interface BaseCalculoRepository extends JpaRepository<BaseCalculo, UUID> {
+        Optional<BaseCalculo> findByObraId(UUID obraId);
+    }
+
     @Repository("obraObraRepository")
     public interface ObraRepository extends JpaRepository<Obra, UUID> {
         List<Obra> findByTenantIdOrderByNome(UUID tenantId);

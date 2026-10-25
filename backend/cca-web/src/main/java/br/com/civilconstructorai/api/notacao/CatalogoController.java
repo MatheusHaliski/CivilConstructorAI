@@ -42,7 +42,7 @@ public class CatalogoController {
     @GetMapping("/vi/catalogo")
     public Map<String, Object> tabelaB() {
         return Map.of("funcoes", CatalogoComandos.tabelaB().stream().map(c -> Map.of("codigo", c.codigo(), "descricao", c.descricao(), "argumentos", c.roteiro().stream().map(p -> Map.of("nome", p.nome(), "tipo", p.tipo(), "padrao", p.padrao() == null ? "" : p.padrao(), "opcional", p.opcional())).toList(), "aliases", c.aliases().getOrDefault(Perfil.CIVILCONSTRUCTOR, List.of()))).toList(),
-                "materiais", TabelaA.MATERIAIS);
+                "materiais", TabelaA.materiais());
     }
 
     public record ValidarReq(String vi) {

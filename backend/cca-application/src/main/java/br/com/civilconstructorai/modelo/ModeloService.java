@@ -44,10 +44,19 @@ public class ModeloService {
     private final ObjectMapper mapper;
     private final DependentesDoModelo dependentes;
     private final br.com.civilconstructorai.ia.RascunhoIaService rascunhosIa;
+    private final br.com.civilconstructorai.ia.ServicoIa servicoIa;
+
+    /**
+     * Comandos que a IA pode propor pelo texto natural: só criação de elementos, que nascem na camada de rascunho e
+     * dependem de aprovação (RF27). Modificar, apagar, mover, desfazer ou criar pavimentos e eixos fica com a pessoa.
+     */
+    public static final java.util.Set<String> COMANDOS_IA = java.util.Set.of("PAREDE", "PORTA", "JANELA", "AMBIENTE", "PILAR", "VIGA", "LAJE",
+            "CONTRAVENTAMENTO", "FUNDACAO", "LINHA", "POLILINHA", "RETANGULO", "CIRCULO", "TEXTO", "ETIQUETA");
 
     public ModeloService(ModeloRepositorio repositorio, AuditorService auditor, AcessoObra acesso, ContextoUsuario contexto,
                          RegistroOperacoes registro, ModeloLinguagem llm, ObjectMapper mapper, DependentesDoModelo dependentes,
-                         br.com.civilconstructorai.ia.RascunhoIaService rascunhosIa) {
+                         br.com.civilconstructorai.ia.RascunhoIaService rascunhosIa, br.com.civilconstructorai.ia.ServicoIa servicoIa) {
+        this.servicoIa = servicoIa;
         this.dependentes = dependentes;
         this.rascunhosIa = rascunhosIa;
         this.repositorio = repositorio;
@@ -282,30 +291,49 @@ public class ModeloService {
         var contextoModelo = Map.of(
                 "pavimentos", String.valueOf(m.pavimentosOrdenados().stream().map(p -> p.nome() + "@" + p.elevacao()).toList()),
                 "eixos", String.valueOf(m.eixos().stream().map(e -> e.nome() + "=" + e.posicao()).toList()),
-                "materiais", String.valueOf(br.com.civilconstructorai.notacao.TabelaA.MATERIAIS.stream().map(x -> x.materialId()).toList()));
-        var r = llm.gerarEstruturado(RotaIa.COMANDO_VI, PROMPT_COMANDO_VI, Sanitizador.texto(texto), AuditorService.SCHEMA_COMANDO, contextoModelo);
+                "materiais", String.valueOf(br.com.civilconstructorai.notacao.TabelaA.materiais().stream().map(x -> x.materialId()).toList()));
+        var u0 = contexto.exigir();
+        // contexto do modelo vai na entrada (antes ia como metadado e o provedor não o via); chamada registrada no uso de IA
+        var entrada = Sanitizador.texto(texto) + "\n\nContexto do modelo: " + contextoModelo;
+        var r = servicoIa.gerarEstruturado(RotaIa.COMANDO_VI, PROMPT_COMANDO_VI, entrada, AuditorService.SCHEMA_COMANDO, List.of("comandos"),
+                new br.com.civilconstructorai.ia.ServicoIa.Contexto(u0.empresaAtivaId(), obraId, u0.contaId()));
         if (!r.completa()) {
             throw new ExcecaoDominio.RegraDeNegocio("ia_recusou", "O modelo de IA não devolveu comandos (" + r.stopReason() + "). Tente reformular.");
         }
         var pedidos = new ArrayList<PedidoComando>();
+        var recusados = new ArrayList<String>();
         try {
-            var comandos = mapper.readTree(r.conteudoJson()).get("comandos");
+            var comandos = r.json().get("comandos");
             for (var c : comandos) {
+                String codigo = c.get("codigo").asString().toUpperCase();
+                if (!c.get("args").isObject()) {
+                    throw new IllegalArgumentException("args");
+                }
+                if (!COMANDOS_IA.contains(codigo)) {
+                    recusados.add(codigo);
+                    continue;
+                }
                 Map<String, Object> args = mapper.convertValue(c.get("args"), new tools.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() { });
-                pedidos.add(new PedidoComando(pavimentoId, c.get("codigo").asString().toUpperCase(), ModeloBim.resolverCoordenadas(args), null, OrigemComando.IA, null));
+                pedidos.add(new PedidoComando(pavimentoId, codigo, ModeloBim.resolverCoordenadas(args), null, OrigemComando.IA, null));
             }
         } catch (RuntimeException e) {
-            throw new ExcecaoDominio.RegraDeNegocio("ia_resposta_invalida", "A resposta da IA não segue o esquema de comandos VI.");
+            throw new ExcecaoDominio.RegraDeNegocio("ia_resposta_invalida", "A resposta da IA não segue o esquema de comandos VI. Nada foi alterado.");
+        }
+        if (!recusados.isEmpty()) {
+            throw new ExcecaoDominio.RegraDeNegocio("ia_comando_nao_permitido", "A IA propôs comando(s) que ela não pode executar: " + String.join(", ", recusados)
+                    + ". Pelo texto natural a IA só cria elementos (que ficam como rascunho); modificar ou apagar é feito por você. Nada foi alterado.");
         }
         if (pedidos.isEmpty()) {
             throw new ExcecaoDominio.RegraDeNegocio("ia_sem_comandos", "A IA não identificou nenhum comando no texto.");
         }
+        long versaoBase = carregado.versao();
         var resultados = aplicarLote(obraId, pedidos);
         // RF27 CA-01: o resultado da IA nasce como RascunhoIA vinculado aos elementos (camada ia-rascunho) e só vira
         // projeto quando aprovado; antes os elementos ficavam no modelo sem rascunho para aprovar ou rejeitar
         var u = contexto.exigir();
-        var conteudo = mapper.writeValueAsString(Map.of("texto", Sanitizador.texto(texto), "comandos", resultados.stream().map(ResultadoComando::vi).toList()));
-        var rascunho = rascunhosIa.criar(u.empresaAtivaId(), obraId, TIPO_RASCUNHO_COMANDO, RotaIa.COMANDO_VI, null, conteudo, u.contaId(), null, false);
+        var conteudo = mapper.writeValueAsString(Map.of("texto", Sanitizador.texto(texto), "comandos", resultados.stream().map(ResultadoComando::vi).toList(),
+                "versaoModeloBase", versaoBase, "versaoModeloResultado", resultados.get(resultados.size() - 1).versao()));
+        var rascunho = rascunhosIa.criar(u.empresaAtivaId(), obraId, TIPO_RASCUNHO_COMANDO, RotaIa.COMANDO_VI, null, conteudo, u.contaId(), r.chamadaId(), false);
         var criados = resultados.stream().flatMap(x -> x.diff().criados.stream()).map(Elemento::getId).toList();
         repositorio.vincularRascunho(obraId, criados, rascunho.getId());
         return resultados;
@@ -468,10 +496,10 @@ public class ModeloService {
         }
         codigo = Sanitizador.identificador(codigo).toUpperCase();
         if (args.get("mat") instanceof String s) {
-            args.put("mat", Sanitizador.identificador(s).toUpperCase());
+            args.put("mat", Sanitizador.codigo(s).toUpperCase());
         }
         if (args.get("materialId") instanceof String s) {
-            args.put("materialId", Sanitizador.identificador(s).toUpperCase());
+            args.put("materialId", Sanitizador.codigo(s).toUpperCase());
         }
         var origem = p.origem() == null ? OrigemComando.CANVAS : p.origem();
         return new ComandoVi(Ids.novo(), codigo, ModeloBim.resolverCoordenadas(args), origem, base, u.contaId(), Instant.now());

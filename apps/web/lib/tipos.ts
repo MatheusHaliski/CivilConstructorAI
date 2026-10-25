@@ -54,7 +54,7 @@ export type ResultadoComando = { comandoId: UUID; vi: string; versao: number; di
 export type AlertaTransicao = { id: UUID; obraId: UUID; elementoId: UUID; tipo: string; estado: string; mensagem: string; justificativa?: string; criadoEm: string };
 export type RascunhoIa = { id: UUID; tipo?: string; estado: EstadoRascunho; resumo?: string; criadoEm?: string; rota?: string; [k: string]: unknown };
 
-export type Carga = { id: UUID; pavimentoId: string; natureza: "PERMANENTE" | "ACIDENTAL" | "VENTO"; tipo: "AREA" | "LINEAR" | "PONTUAL"; valor: number; elementoAlvoId?: string; descricao?: string; casoCarga?: string };
+export type Carga = { id: UUID; pavimentoId: string; natureza: "PERMANENTE" | "ACIDENTAL" | "VENTO"; tipo: "AREA" | "LINEAR" | "PONTUAL"; valor: number; elementoAlvoId?: string; descricao?: string; casoCarga?: string; posicao?: number | null };
 export type Restricoes = { shortCurveTolerance: number; pilarLadoMin: number; pilarAreaMin: number; vigaBMin: number; lajeHMin: number; paredeEspMin: number };
 export type Analise = { id: UUID; estado: EstadoJob | string; versaoModelo?: number; criadaEm?: string; erro?: string; [k: string]: unknown };
 export type Dimensionamento = { id: UUID; estado: string; analiseId?: UUID; criadoEm?: string; [k: string]: unknown };

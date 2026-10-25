@@ -6,7 +6,7 @@ import { Sparkles, Wind } from "lucide-react";
 import { del, post, put } from "@/lib/api";
 import { useAcao, useDados } from "@/lib/dados";
 import { aprova, editaModelo, usePapeis } from "@/lib/sessao";
-import type { Carga, RascunhoIa, Restricoes } from "@/lib/tipos";
+import type { Carga, RascunhoIa, Restricoes, VisaoModelo } from "@/lib/tipos";
 import { data, numero } from "@/lib/formatos";
 import { Aviso, Botao, Cartao, Carregando, Entrada, Etiqueta, Selecao, Tabela, Vazio } from "@/components/ui";
 import { CabecalhoObra, EstadoEtiqueta, EtiquetaIa, usePavimentos } from "@/components/obra/comuns";
@@ -35,11 +35,17 @@ export default function PaginaEstrutura({ params }: { params: Promise<{ obraId: 
   const restr = useDados<Restricoes>(["estrutura", obraId, "restricoes"], `${base}/restricoes`);
   const exc = useDados<Excecao[]>(["estrutura", obraId, "exc"], `${base}/excecoes-normativas`);
   const inv = [["estrutura", obraId]];
-  const [nc, setNc] = useState({ natureza: "PERMANENTE", tipo: "AREA", valor: "", descricao: "", casoCarga: "G1", elementoAlvoId: "" });
+  const [nc, setNc] = useState({ natureza: "PERMANENTE", tipo: "AREA", valor: "", descricao: "", casoCarga: "G1", elementoAlvoId: "", posicao: "" });
+  const modelo = useDados<VisaoModelo>(["modelo", obraId], `/obras/${obraId}/modelo`);
+  // alvos possíveis no pavimento ativo, pelo rótulo legível (a API recebe o id; antes o campo pedia o id digitado)
+  const alvos = (modelo.data?.elementos ?? []).filter((e) => e["pavimentoId"] === pavAtivo && ["LAJE", "VIGA", "PILAR"].includes(String(e["tipo"])) && e["camada"] !== "ia-rascunho")
+    .map((e) => ({ id: String(e["id"]), tipo: String(e["tipo"]), rotulo: String(e["rotulo"] ?? e["id"]).slice(0, 18), comprimento: e["tipo"] === "VIGA" ? Math.hypot(Number((e["p2"] as { x: number }).x) - Number((e["p1"] as { x: number }).x), Number((e["p2"] as { y: number }).y) - Number((e["p1"] as { y: number }).y)) : null }));
+  const alvoSel = alvos.find((a) => a.id === nc.elementoAlvoId);
+  const pedePosicao = nc.tipo === "PONTUAL" && alvoSel?.tipo === "VIGA";
   const [vento, setVento] = useState({ v0: "45", s1: "1", s2: "1", s3: "1", ca: "1.2" });
   const [r, setR] = useState<Restricoes | null>(null);
   const [ne, setNe] = useState({ regra: "pilarLadoMin", elementoId: "", valorSolicitado: "", justificativa: "" });
-  const lancar = useAcao((v: typeof nc) => post(`${base}/cargas`, { pavimentoId: pavAtivo, natureza: v.natureza, tipo: v.tipo, valor: Number(v.valor.replace(",", ".")), descricao: v.descricao || null, casoCarga: v.casoCarga || null, elementoAlvoId: v.elementoAlvoId || null }), { invalidar: inv, sucesso: "Carga lançada." });
+  const lancar = useAcao((v: typeof nc) => post(`${base}/cargas`, { pavimentoId: pavAtivo, natureza: v.natureza, tipo: v.tipo, valor: Number(v.valor.replace(",", ".")), descricao: v.descricao || null, casoCarga: v.casoCarga || null, elementoAlvoId: v.elementoAlvoId || null, posicao: pedePosicao && v.posicao ? Number(v.posicao.replace(",", ".")) : null }), { invalidar: inv, sucesso: "Carga lançada." });
   const removerCarga = useAcao((id: string) => del(`${base}/cargas/${id}`), { invalidar: inv });
   const salvarVento = useAcao((v: typeof vento) => put(`${base}/vento/${pavAtivo}`, { v0: Number(v.v0), s1: Number(v.s1), s2: Number(v.s2), s3: Number(v.s3), ca: Number(v.ca) }), { invalidar: inv, sucesso: "Vento (NBR 6123) salvo." });
   const pronto = useAcao(() => post(`${base}/lancamentos/${pavAtivo}/pronto`), { invalidar: inv, sucesso: "Lançamento marcado como pronto para análise." });
@@ -62,6 +68,7 @@ export default function PaginaEstrutura({ params }: { params: Promise<{ obraId: 
               { titulo: "Natureza", celula: (c) => <Etiqueta tom={c.natureza === "PERMANENTE" ? "neutro" : c.natureza === "VENTO" ? "info" : "aviso"}>{c.natureza}</Etiqueta> },
               { titulo: "Tipo", celula: (c) => c.tipo === "AREA" ? "kN/m²" : c.tipo === "LINEAR" ? "kN/m" : "kN" }, { titulo: "Valor", celula: (c) => numero(c.valor), numerica: true },
               { titulo: "Caso", celula: (c) => c.casoCarga ?? "—" }, { titulo: "Descrição", celula: (c) => c.descricao ?? "—" },
+              { titulo: "Alvo", celula: (c) => c.elementoAlvoId ? `${alvos.find((a) => a.id === c.elementoAlvoId)?.rotulo ?? "elemento removido"}${c.posicao != null ? ` @ ${numero(c.posicao)} m` : ""}` : "todas as lajes" },
               { titulo: "", celula: (c) => edita ? <Botao pequeno variante="fantasma" onClick={() => removerCarga.mutate(c.id)}>Remover</Botao> : null },
             ]} />}
             <details className="text-sm"><summary className="cursor-pointer font-medium">Combinações geradas (NBR 8681)</summary>
@@ -72,11 +79,16 @@ export default function PaginaEstrutura({ params }: { params: Promise<{ obraId: 
             <Cartao titulo="Lançar carga">
               <Selecao rotulo="Natureza" value={nc.natureza} onChange={(e) => setNc((v) => ({ ...v, natureza: e.target.value }))} opcoes={[{ valor: "PERMANENTE", rotulo: "Permanente (G)" }, { valor: "ACIDENTAL", rotulo: "Acidental (Q)" }, { valor: "VENTO", rotulo: "Vento (W)" }]} />
               <Selecao rotulo="Tipo" value={nc.tipo} onChange={(e) => setNc((v) => ({ ...v, tipo: e.target.value }))} opcoes={[{ valor: "AREA", rotulo: "Área (kN/m²)" }, { valor: "LINEAR", rotulo: "Linear (kN/m)" }, { valor: "PONTUAL", rotulo: "Pontual (kN)" }]} />
-              <Entrada rotulo="Valor" inputMode="decimal" className="mono" value={nc.valor} onChange={(e) => setNc((v) => ({ ...v, valor: e.target.value }))} />
+              <Entrada rotulo={`Valor (${nc.tipo === "AREA" ? "kN/m²" : nc.tipo === "LINEAR" ? "kN/m" : "kN"})`} inputMode="decimal" className="mono" value={nc.valor} onChange={(e) => setNc((v) => ({ ...v, valor: e.target.value }))} obrigatorio />
               <Entrada rotulo="Caso de carga" value={nc.casoCarga} onChange={(e) => setNc((v) => ({ ...v, casoCarga: e.target.value }))} />
-              <Entrada rotulo="Elemento alvo (id/rótulo, opcional)" value={nc.elementoAlvoId} onChange={(e) => setNc((v) => ({ ...v, elementoAlvoId: e.target.value }))} className="mono" />
+              <Selecao rotulo="Elemento alvo" value={nc.elementoAlvoId} onChange={(e) => setNc((v) => ({ ...v, elementoAlvoId: e.target.value }))}
+                vazio={nc.tipo === "AREA" ? "Todas as lajes do pavimento" : "Escolher…"}
+                opcoes={alvos.filter((a) => nc.tipo === "AREA" ? a.tipo === "LAJE" : true).map((a) => ({ valor: a.id, rotulo: `${a.rotulo} · ${a.tipo.toLowerCase()}${a.comprimento ? ` · ${a.comprimento.toFixed(2)} m` : ""}` }))}
+                ajuda={nc.tipo === "AREA" ? "Sem alvo, a carga vale para todas as lajes do pavimento." : "Cargas lineares e pontuais precisam de um elemento; sem ele a análise as ignora e avisa."} />
+              {pedePosicao && <Entrada rotulo="Posição na viga (m)" inputMode="decimal" className="mono" value={nc.posicao} onChange={(e) => setNc((v) => ({ ...v, posicao: e.target.value }))} obrigatorio
+                ajuda={`Distância a partir do início da viga, de 0 a ${alvoSel?.comprimento?.toFixed(2)} m.`} />}
               <Entrada rotulo="Descrição" value={nc.descricao} onChange={(e) => setNc((v) => ({ ...v, descricao: e.target.value }))} />
-              <Botao pequeno disabled={!edita || !nc.valor} carregando={lancar.isPending} onClick={() => lancar.mutate(nc)}>Lançar</Botao>
+              <Botao pequeno disabled={!edita || !nc.valor || (pedePosicao && !nc.posicao)} carregando={lancar.isPending} onClick={() => lancar.mutate(nc)}>Lançar</Botao>
             </Cartao>
             <Cartao titulo="Vento (NBR 6123)">
               <div className="grid grid-cols-2 gap-2">{(["v0", "s1", "s2", "s3", "ca"] as const).map((k) => <Entrada key={k} rotulo={k === "v0" ? "V0 (m/s)" : k.toUpperCase()} inputMode="decimal" className="mono" value={vento[k]} onChange={(e) => setVento((v) => ({ ...v, [k]: e.target.value }))} />)}</div>

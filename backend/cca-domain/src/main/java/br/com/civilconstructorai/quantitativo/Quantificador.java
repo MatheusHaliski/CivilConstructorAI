@@ -51,8 +51,9 @@ public final class Quantificador {
             switch (e.tipo()) {
                 case PILAR -> {
                     double altura = m.alturaPilar(e);
-                    double area = e.b() * e.h();
-                    double per = 2 * (e.b() + e.h());
+                    // pilar circular: b é o diâmetro (antes a área saía b·b, 27 % acima de π·b²/4)
+                    double area = e.circular() ? Math.PI * e.b() * e.b() / 4 : e.b() * e.h();
+                    double per = e.circular() ? Math.PI * e.b() : 2 * (e.b() + e.h());
                     concreto = area * altura;
                     forma = per * altura;
                 }
@@ -115,7 +116,7 @@ public final class Quantificador {
     private static String rotuloAutomatico(ElementoEstrutural e, Map<String, Integer> contadores) {
         String prefixo = switch (e.tipo()) {
             case PILAR -> "P"; case VIGA -> "V"; case LAJE -> "L"; case PAREDE -> "PAR"; case PORTA -> "PT"; case JANELA -> "J";
-            case SAPATA -> "S"; case BLOCO -> "B"; case RADIER -> "R";
+            case SAPATA -> "S"; case BLOCO -> "B"; case RADIER -> "R"; case CONTRAVENTAMENTO -> "C";
         };
         int n = contadores.merge(e.tipo() + "/" + e.pavimentoId(), 1, Integer::sum);
         return prefixo + n;

@@ -16,6 +16,10 @@ import java.util.UUID;
 @Table(name = "analise_estrutural")
 public class AnaliseEstrutural extends EntidadeTenant {
 
+    /** cópia da base de cálculo (CAA, agregado, catálogo, referências e edições) usada neste resultado */
+    @Column(name = "base_calculo_json")
+    private String baseCalculoJson;
+
     @Column(name = "obra_id", nullable = false)
     private UUID obraId;
 
@@ -87,4 +91,8 @@ public class AnaliseEstrutural extends EntidadeTenant {
     public String getMensagemErro() { return mensagemErro; }
     public Instant getIniciadaEm() { return iniciadaEm; }
     public Instant getConcluidaEm() { return concluidaEm; }
+
+    public String getBaseCalculoJson() { return baseCalculoJson; }
+
+    public void registrarBaseCalculo(String json) { this.baseCalculoJson = json; }
 }

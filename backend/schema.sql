@@ -1037,3 +1037,77 @@ update tabela_sinapi set origem = 'DEMONSTRACAO' where id = '019a0000-0000-7000-
 -- V20 · RF21 motivo da rejeição do selo profissional, mostrado ao profissional (antes era descartado)
 
 alter table conta add column selo_motivo text;
+-- V21__carga_posicao.sql
+
+-- V21 · RF04 posição da carga pontual ao longo da viga (antes a carga caía no nó do apoio e a viga não fletia)
+
+alter table carga add column posicao_m double precision check (posicao_m is null or posicao_m >= 0);
+-- V22__base_calculo_e_materiais.sql
+
+-- V22 · base de cálculo por obra (finalidade, sistema construtivo, classe de agressividade, agregado, versão do
+-- catálogo e referências adotadas), gravada em cada análise e dimensionamento; materiais personalizados por empresa
+-- com situação de validação e histórico (auditoria 2026-10: materiais, conformidade)
+
+create table base_calculo_obra (
+  id                   uuid primary key,
+  tenant_id            uuid not null references empresa(id) on delete cascade,
+  obra_id              uuid not null unique references obra(id) on delete cascade,
+  finalidade           text check (finalidade in ('RESIDENCIAL','COMERCIAL','INSTITUCIONAL','INDUSTRIAL','MISTA')),
+  sistema_construtivo  text check (sistema_construtivo in ('CONCRETO_ARMADO_MOLDADO_NO_LOCAL','CONCRETO_PRE_MOLDADO','ESTRUTURA_METALICA','ALVENARIA_ESTRUTURAL','MISTO')),
+  classe_agressividade text check (classe_agressividade in ('I','II','III','IV')),
+  agregado             text check (agregado in ('basalto','diabasio','granito','gnaisse','calcario','arenito')),
+  versao_catalogo      text not null,
+  referencias_json     text not null default '[]',
+  atualizado_por       uuid references conta(id),
+  criado_em            timestamptz not null default now(),
+  atualizado_em        timestamptz not null default now(),
+  versao               bigint not null default 0
+);
+call app_aplicar_rls('base_calculo_obra');
+
+create table material_personalizado (
+  id             uuid primary key,
+  tenant_id      uuid not null references empresa(id) on delete cascade,
+  codigo         text not null,
+  nome           text not null,
+  familia        text not null,
+  baseado_em     text,
+  item_json      text not null,
+  situacao       text not null check (situacao in ('VALIDACAO_PENDENTE','VALIDADO','REJEITADO')),
+  criado_por     uuid not null references conta(id),
+  historico_json text not null default '[]',
+  criado_em      timestamptz not null default now(),
+  atualizado_em  timestamptz not null default now(),
+  versao         bigint not null default 0,
+  unique (tenant_id, codigo)
+);
+call app_aplicar_rls('material_personalizado');
+
+alter table analise_estrutural add column base_calculo_json text;
+alter table dimensionamento add column base_calculo_json text;
+-- V23__conflito_coordenacao.sql
+
+-- V23 · conflitos de coordenação por obra (proposta P-COORD-01, auditoria 2026-10): chave estável entre versões,
+-- estado (aberto, em revisão, resolvido só por reverificação, aceito com justificativa) e versões do modelo
+create table conflito_coordenacao (
+  id                uuid primary key,
+  tenant_id         uuid not null references empresa(id) on delete cascade,
+  obra_id           uuid not null references obra(id) on delete cascade,
+  chave             text not null,
+  tipo              text not null check (tipo in ('GEOMETRICO','FOLGA','CONECTIVIDADE','FUNCIONAL','CONSTRUTIVO')),
+  regra             text not null,
+  elementos_json    text not null,
+  mensagem          text not null,
+  evidencia         text not null,
+  estado            text not null check (estado in ('ABERTO','EM_REVISAO','RESOLVIDO','ACEITO')),
+  justificativa     text,
+  versao_detectada  bigint not null,
+  versao_verificada bigint not null,
+  decidido_por      uuid references conta(id),
+  decidido_em       timestamptz,
+  criado_em         timestamptz not null default now(),
+  atualizado_em     timestamptz not null default now(),
+  versao            bigint not null default 0,
+  unique (obra_id, chave)
+);
+call app_aplicar_rls('conflito_coordenacao');

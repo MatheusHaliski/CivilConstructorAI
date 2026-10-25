@@ -340,3 +340,11 @@ Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md))
 - **Corrigido:** RN-03 aplicada: análise exige lançamento `PRONTO_PARA_ANALISE` (422 com o pavimento que falta); equilíbrio conferido na jornada (ΣRz = 1,4·ΣG).
 - **Evidência:** j2 equilíbrio ΣRz = 1,4·ΣG; SolverMefTest.
 - **Pendente:** Este doc descreve o MEF num serviço Python; o cálculo roda em Java (`cca-domain/estrutura/mef`).
+
+## Auditoria 2026-10 · 2ª rodada
+
+Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10_ESTRUTURA_INSTALACOES_MATERIAIS.md)).
+
+- **Corrigido (falha crítica):** inércia do pilar trocada entre X e Y; laje repartida pelas charneiras a 45° quando retangular e apoiada; carga concentrada na posição; contraventamento como treliça; equilíbrio global obrigatório (resíduo ≤ 1e-6); avisos de exclusão, aproximação e premissa (inclusive extremidade livre de viga analisada como balanço); metadados com natureza CALCULADO, método, hipóteses, unidades e convenção; base de cálculo gravada; rótulos automáticos iguais aos do BIM (antes todos os pilares apareciam como "P-01a174"); tela com grandeza, unidade, combinação, convenção, extremos, equilíbrio e deformada amplificada.
+- **Evidência:** 13 casos de referência calculados à mão; j5.
+- **Pendente:** 2ª ordem global, lajes como placas, vento além de +X.

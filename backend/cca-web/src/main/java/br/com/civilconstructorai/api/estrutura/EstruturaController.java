@@ -48,7 +48,7 @@ public class EstruturaController {
 
     public record NovaCargaRequest(@NotBlank String pavimentoId, @NotNull br.com.civilconstructorai.estrutura.carga.NaturezaAcao natureza,
                                    @NotNull br.com.civilconstructorai.estrutura.carga.TipoCarga tipo, double valor, String elementoAlvoId,
-                                   String descricao, String casoCarga) {
+                                   String descricao, String casoCarga, Double posicao) {
     }
 
     public record VentoRequest(double v0, Double s1, Double s2, Double s3, Double ca) {
@@ -71,7 +71,7 @@ public class EstruturaController {
     @PostMapping("/cargas")
     @ResponseStatus(HttpStatus.CREATED)
     public Carga lancar(@PathVariable UUID obraId, @Valid @RequestBody NovaCargaRequest r) {
-        return cargas.lancar(obraId, new CargasService.NovaCarga(r.pavimentoId(), r.natureza(), r.tipo(), r.valor(), r.elementoAlvoId(), r.descricao(), r.casoCarga()));
+        return cargas.lancar(obraId, new CargasService.NovaCarga(r.pavimentoId(), r.natureza(), r.tipo(), r.valor(), r.elementoAlvoId(), r.descricao(), r.casoCarga(), r.posicao()));
     }
 
     @DeleteMapping("/cargas/{cargaId}")

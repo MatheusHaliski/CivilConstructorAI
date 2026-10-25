@@ -26,7 +26,7 @@ describe("catálogo de ações (RF29)", () => {
     const { erros } = montarArgs(parede, { p1: { x: 0, y: 0 }, p2: { x: 0, y: 0 }, esp: "3", mat: "MAT_CONC_FCK30" });
     const msgs = erros.map((e) => e.mensagem).join(" | ");
     expect(msgs).toMatch(/Espessura: máximo 1 m/);
-    expect(msgs).toMatch(/não é da categoria arquitetura/);
+    expect(msgs).toMatch(/não se aplica a parede/);
     expect(msgs).toMatch(/coincidem/);
   });
   it("args montados geram a mesma geometria no modelo (prévia = aplicação)", () => {
@@ -36,7 +36,7 @@ describe("catálogo de ações (RF29)", () => {
     const m = new ModeloBim();
     const r = m.aplicar(parede.codigoVi, args, { origem: "FORMULARIO", pavimentoId: m.pavimentos[0]!.id });
     const criada = r.diff.criados[0] as unknown as { p2: { x: number }; espessura: number; materialId: string };
-    expect(criada.p2.x).toBe(5); expect(criada.espessura).toBe(0.15); expect(criada.materialId).toBe("MAT_ALV_BLOCO14");
+    expect(criada.p2.x).toBe(5); expect(criada.espessura).toBe(0.15); expect(criada.materialId).toBe("MAT.ALVENARIA.CERAMICO_VEDACAO_14");
     expect(r.vi).toContain("PAREDE");
   });
   it("posição de abertura em % vira fração 0–1", () => {

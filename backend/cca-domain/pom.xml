@@ -29,6 +29,11 @@
       <groupId>jakarta.validation</groupId>
       <artifactId>jakarta.validation-api</artifactId>
     </dependency>
+    <!-- leitura do catálogo técnico de materiais (JSON compartilhado com o motor TS) -->
+    <dependency>
+      <groupId>tools.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
@@ -40,4 +45,19 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <!-- fonte única do catálogo de materiais: o mesmo arquivo que o motor TS importa -->
+      <resource>
+        <directory>${project.basedir}/../../packages/notacao-vi/catalogo</directory>
+        <targetPath>catalogo</targetPath>
+        <includes>
+          <include>materiais.json</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
 </project>

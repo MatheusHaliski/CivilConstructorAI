@@ -4,7 +4,7 @@
  * enviado ao backend (POST /modelo/comandos) e o modelo é recarregado do servidor para adotar os ids persistidos.
  */
 import { create } from "zustand";
-import { CATALOGO, ErroComandoVI, ModeloBim, PRIORIDADE_OSNAP, buscarComandos, dist, formatarVI, intersecaoSegmentos, parseVI, projetarNoSegmento, resolverComando, type Camada, type Comando, type Elemento, type EstadoModelo, type ModoOsnap, type PerfilAtalhos, type Ponto2D, type RelatorioAuditoria, type Violacao } from "@cca/notacao-vi";
+import { CATALOGO, ErroComandoVI, ModeloBim, PRIORIDADE_OSNAP, buscarComandos, dist, formatarVI, intersecaoSegmentos, parseVI, projetarNoSegmento, registrarMateriaisPersonalizados, resolverComando, type Camada, type Comando, type Elemento, type EstadoModelo, type ItemCatalogo, type ModoOsnap, type PerfilAtalhos, type Ponto2D, type RelatorioAuditoria, type Violacao } from "@cca/notacao-vi";
 import { ErroApi, get as apiGet, mensagemDeErro, post } from "@/lib/api";
 import type { ResultadoComando, VisaoModelo } from "@/lib/tipos";
 import { interpretarPonto, interpretarValor, restringir } from "./entrada";
@@ -271,6 +271,8 @@ export const useMotor = create<Estado>((set, get) => {
     carregar: async (obraId, podeEditar) => {
       set({ obraId, podeEditar });
       if (!obraId) { const m = new ModeloBim(); set({ modelo: m, pavimentoId: m.pavimentos[0]!.id }); bump(); return; }
+      // materiais personalizados da empresa: o auditor local precisa conhecê-los para aceitar o elemento
+      try { const ps = await apiGet<{ item: ItemCatalogo; situacao: string }[]>("/materiais/personalizados"); registrarMateriaisPersonalizados(ps.filter((p) => p.situacao !== "REJEITADO").map((p) => p.item)); } catch { /* sem empresa ativa: só o catálogo */ }
       try { await recarregarServidor(obraId); log("info", `Modelo da obra carregado (v${get().versaoServidor}).`); }
       catch (e) { log("erro", `Não foi possível carregar o modelo: ${mensagemDeErro(e)}`); set({ erroSync: mensagemDeErro(e) }); }
     },

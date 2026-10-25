@@ -382,3 +382,11 @@ Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md))
 - **Corrigido:** Função VI desconhecida devolve VI-001 com sugestões; texto natural vira rascunho de IA (`COMANDO_VI`) em vez de gravar direto; `mat=MAT.<CATEGORIA>.<ID>` aceito pelos dois motores.
 - **Evidência:** j2 CA-01/02, equivalência; j3 CA-04.
 - **Pendente:** Texto natural com IA real não verificado (dev usa simulação).
+
+## Auditoria 2026-10 · 2ª rodada
+
+Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10_ESTRUTURA_INSTALACOES_MATERIAIS.md)).
+
+- **Corrigido:** catálogo de materiais único (`packages/notacao-vi/catalogo/materiais.json`) lido pelo Java (`CatalogoMateriais`) e pelo TS (`tabela-a.ts`); códigos legados resolvem para o canônico; a IA do texto natural só propõe comandos de criação (`ModeloService.COMANDOS_IA`), passa por `ServicoIa` (registro de uso, recusa, truncamento) e o rascunho guarda as versões do modelo.
+- **Evidência:** paridade 38 casos (`ModeloBimParidadeTest`) e 51 no TS; `CaminhoIaIT` (4).
+- **Pendente:** IA real não exercitada em desenvolvimento.

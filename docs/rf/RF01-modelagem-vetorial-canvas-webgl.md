@@ -345,3 +345,11 @@ Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md))
 - **Corrigido:** Mudança no modelo agora invalida o que dependia dele (análise, dimensionamento, fundações, quantitativo, pranchas) via `DependentesDoModelo`; rascunhos de IA ficam fora da versão vista por cliente/fornecedor; o histórico expõe autor e correções do auditor. Prévia (TS) e gravação (Java) provadas iguais por fixture compartilhada (36 casos).
 - **Evidência:** j2 CA-03/04/05, ModeloComandoIT, paridade TS↔Java.
 - **Pendente:** Comparar e restaurar versões; comentários e bloqueio de elemento.
+
+## Auditoria 2026-10 · 2ª rodada
+
+Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10_ESTRUTURA_INSTALACOES_MATERIAIS.md)).
+
+- **Corrigido:** códigos de material com ponto (`MAT.CONCRETO.C40`) chegavam ao auditor como `MAT_CONCRETO_C40` e eram recusados (`Sanitizador.codigo`); materiais personalizados da empresa passam pelo auditor nos dois motores; painel de propriedades troca o material por seletor com pesquisa, comparação, prévia dos elementos afetados e desfazer.
+- **Evidência:** `CoordenacaoMateriaisIT`; jornada j5.
+- **Pendente:** material personalizado criado com o editor aberto só aparece depois de recarregar.

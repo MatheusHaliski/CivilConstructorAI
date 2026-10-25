@@ -352,3 +352,11 @@ Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md))
 - **Corrigido:** Cliente e fornecedor veem só a versão liberada, sem rascunhos de IA (antes viam a atual).
 - **Evidência:** j3 CA-08, liberado; SnapshotClienteIT.
 - **Pendente:** 3D só inspeciona e seleciona; sem corte interativo.
+
+## Auditoria 2026-10 · 2ª rodada
+
+Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10_ESTRUTURA_INSTALACOES_MATERIAIS.md)).
+
+- **Corrigido:** vigas e lajes com a face superior na elevação do pavimento (a mesma convenção da análise; antes apareciam no pavimento de cima); contraventamento sólido; rotação do pilar também no 2D; raio X, corte horizontal e armaduras do último dimensionamento (polilinhas do detalhamento, com estado do resultado).
+- **Evidência:** j5 `j5-06-3d-armaduras-raio-x.png`.
+- **Pendente:** filtros por sistema de instalações (não há instalações no modelo).

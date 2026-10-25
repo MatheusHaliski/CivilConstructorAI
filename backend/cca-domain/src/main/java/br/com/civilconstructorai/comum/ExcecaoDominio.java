@@ -10,7 +10,7 @@ import java.util.Map;
 public abstract sealed class ExcecaoDominio extends RuntimeException
         permits ExcecaoDominio.RecursoNaoEncontrado, ExcecaoDominio.NaoAutenticado, ExcecaoDominio.AcessoNegado, ExcecaoDominio.TransicaoInvalida,
         ExcecaoDominio.Validacao, ExcecaoDominio.Conflito, ExcecaoDominio.LimiteExcedido, ExcecaoDominio.SudoNecessario,
-        ExcecaoDominio.ReaceiteNecessario, ExcecaoDominio.RegraDeNegocio {
+        ExcecaoDominio.ReaceiteNecessario, ExcecaoDominio.RegraDeNegocio, ExcecaoDominio.Indisponivel {
 
     private final String codigo;
 
@@ -81,6 +81,13 @@ public abstract sealed class ExcecaoDominio extends RuntimeException
     public static final class Conflito extends ExcecaoDominio {
         public Conflito(String mensagem) {
             super("conflito", mensagem);
+        }
+    }
+
+    /** 503: dependência externa (ex.: provedor de IA) não respondeu; nada foi alterado */
+    public static final class Indisponivel extends ExcecaoDominio {
+        public Indisponivel(String codigo, String mensagem) {
+            super(codigo, mensagem);
         }
     }
 

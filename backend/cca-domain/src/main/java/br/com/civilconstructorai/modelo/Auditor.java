@@ -21,7 +21,12 @@ public class Auditor {
 
     public enum PoliticaCaixa { RECORTAR, BLOQUEAR }
 
-    public record Opcoes(double shortCurveTolerance, boolean conclusao, PoliticaCaixa politicaCaixa) {
+    /** {@code materialExtra}: códigos aceitos além do catálogo (materiais personalizados da empresa ativa) */
+    public record Opcoes(double shortCurveTolerance, boolean conclusao, PoliticaCaixa politicaCaixa, java.util.function.Predicate<String> materialExtra) {
+        public Opcoes(double shortCurveTolerance, boolean conclusao, PoliticaCaixa politicaCaixa) {
+            this(shortCurveTolerance, conclusao, politicaCaixa, c -> false);
+        }
+
         public static Opcoes padrao() {
             return new Opcoes(0.05, false, PoliticaCaixa.RECORTAR);
         }
@@ -42,7 +47,7 @@ public class Auditor {
 
         for (var e : diff.novosOuAlterados()) {
             var mat = e.getMaterialId() == null ? null : TabelaA.material(e.getMaterialId()).orElse(null);
-            if (e.getMaterialId() != null && mat == null) {
+            if (e.getMaterialId() != null && mat == null && !opts.materialExtra().test(e.getMaterialId())) {
                 v1.add(Violacao.de("VI-003", "Tabela A", "Material " + e.getMaterialId() + " não existe na Tabela A.", e));
             }
             if (e.temSegmento()) {

@@ -44,7 +44,9 @@
     { "codigo": "PLANO_REF", "args": { "p1": { "x": 0, "y": -5 }, "p2": { "x": 10, "y": -5 } }, "espera": { "criados": 1, "tipo": "PLANO_REF" } },
     { "codigo": "ESTICAR", "args": { "sel": ["$5"], "base": { "x": 0, "y": 0 }, "destino": { "x": 1, "y": 0 }, "janela": { "min": { "x": -1, "y": 5 }, "max": { "x": 0.5, "y": 7 } } }, "espera": { "alterados": 1, "campo": "p1.x", "valor": 1 } },
     { "codigo": "UNIR", "args": { "sel": ["$5", "$6"] }, "espera": { "criados": 1, "removidos": 2 } },
-    { "codigo": "VIGA", "args": { "p1": { "x": 0, "y": 30 }, "p2": { "x": 5, "y": 30 }, "b": 0.2, "h": 0.5, "mat": "MAT.ESTRUTURAL.CONC_FCK25" }, "espera": { "criados": 1, "tipo": "VIGA", "materialId": "MAT_CONC_FCK25" } },
-    { "codigo": "ALTERAR", "args": { "id": "$3", "props": { "mat": "MAT.ESTRUTURAL.ALV_BLOCO19" } }, "espera": { "alterados": 1, "materialId": "MAT_ALV_BLOCO19" } }
+    { "codigo": "VIGA", "args": { "p1": { "x": 0, "y": 30 }, "p2": { "x": 5, "y": 30 }, "b": 0.2, "h": 0.5, "mat": "MAT.ESTRUTURAL.CONC_FCK25" }, "espera": { "criados": 1, "tipo": "VIGA", "materialId": "MAT.CONCRETO.C25" } },
+    { "codigo": "ALTERAR", "args": { "id": "$3", "props": { "mat": "MAT.ARQUITETURA.ALV_BLOCO14" } }, "espera": { "alterados": 1, "materialId": "MAT.ALVENARIA.CERAMICO_VEDACAO_14" } },
+    { "codigo": "PILAR", "args": { "centro": { "x": 30, "y": 30 }, "b": 0.2, "h": 0.4, "mat": "MAT_CONC_FCK30" }, "espera": { "criados": 1, "tipo": "PILAR", "materialId": "MAT.CONCRETO.C30" } },
+    { "codigo": "VIGA", "args": { "p1": { "x": 0, "y": 40 }, "p2": { "x": 5, "y": 40 }, "b": 0.2, "h": 0.5, "mat": "MAT.CONCRETO.C40" }, "espera": { "criados": 1, "tipo": "VIGA", "materialId": "MAT.CONCRETO.C40" } }
   ]
 }

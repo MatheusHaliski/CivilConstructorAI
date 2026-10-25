@@ -333,3 +333,11 @@ Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md))
 - **Corrigido:** IFC não leva a camada `ia-rascunho`; exportação para o S3 local corrigida (região e checksum).
 - **Evidência:** j3 CA-02/08, conteúdo IFC; EscritorIfcTest, ExportacaoIfcIT.
 - **Pendente:** IFC sem materiais; STEP citado no título, sem escritor no código.
+
+## Auditoria 2026-10 · 2ª rodada
+
+Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10_ESTRUTURA_INSTALACOES_MATERIAIS.md)).
+
+- **Corrigido:** IFC deixa de exportar "FireRating" como propriedade do material (depende do elemento) e passa a exportar a versão do catálogo.
+- **Evidência:** `EscritorIfcTest`, `ExportacaoIfcIT`.
+- **Pendente:** —

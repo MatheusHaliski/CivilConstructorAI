@@ -5,12 +5,12 @@
  * O id é estável e separado do rótulo; `versao` muda quando entradas mudam e `legado` mantém códigos antigos interpretáveis.
  * Cada ação declara entradas com unidade e limites, pré-condições, resultado, permissão e se pode ser desfeita.
  */
-import { TABELA_A, formatarVI, type Material } from "@cca/notacao-vi";
+import { formatarVI, itemMaterial, material, type Material } from "@cca/notacao-vi";
 
 export type TipoEntradaAcao = "ponto" | "comprimento" | "inteiro" | "material" | "parede" | "pilar" | "texto" | "fracao" | "pontos";
 export type EntradaAcao = {
   nome: string; rotulo: string; tipo: TipoEntradaAcao; unidade?: "m" | "un" | "%";
-  padrao?: number | string; min?: number; max?: number; categoriaMaterial?: Material["ontology"]["category"]; opcional?: boolean; ajuda?: string;
+  padrao?: number | string; min?: number; max?: number; /** tipo de elemento ao qual o material precisa se aplicar (catálogo: aplicacoes) */ aplicaA?: string; opcional?: boolean; ajuda?: string;
 };
 export type AcaoConstrutiva = {
   id: string; versao: number; legado?: string[]; codigoVi: string; rotulo: string; grupo: "Arquitetura" | "Estrutura" | "Fundação" | "Referência";
@@ -33,7 +33,7 @@ export const ACOES: AcaoConstrutiva[] = [
     dependencias: "Atualiza o nível de topo dos pilares do pavimento imediatamente abaixo." },
   { id: "MOD.CRIAR.PAREDE", versao: 1, legado: ["PAREDE"], codigoVi: "PAREDE", rotulo: "Parede", grupo: "Arquitetura", sinonimos: ["alvenaria", "muro", "vedação", "wall"],
     descricao: "Parede entre dois pontos com espessura, altura e material.",
-    entradas: [ponto("p1", "Início"), ponto("p2", "Fim"), comp("esp", "Espessura", 0.15, 0.05, 1), comp("h", "Altura", 2.8, 0.3, 20), { nome: "mat", rotulo: "Material", tipo: "material", categoriaMaterial: "arquitetura", padrao: "MAT_ALV_BLOCO14" }],
+    entradas: [ponto("p1", "Início"), ponto("p2", "Fim"), comp("esp", "Espessura", 0.15, 0.05, 1), comp("h", "Altura", 2.8, 0.3, 20), { nome: "mat", rotulo: "Material", tipo: "material", aplicaA: "PAREDE", padrao: "MAT.ALVENARIA.CERAMICO_VEDACAO_14" }],
     precondicoes: ["Comprimento maior que a ShortCurveTolerance.", "Espessura ≥ mínimo do material/restrições."], resultado: "Elemento PAREDE hospedeiro de portas e janelas.",
     erros: ["VI-002 segmento curto", "VI-003 espessura abaixo do mínimo"], permissao: "EDITAR_MODELO", desfazer: true, dependencias: "Portas e janelas hospedadas acompanham a parede." },
   { id: "MOD.CRIAR.PORTA", versao: 1, codigoVi: "PORTA", rotulo: "Porta", grupo: "Arquitetura", sinonimos: ["door", "abertura", "acesso"],
@@ -50,15 +50,15 @@ export const ACOES: AcaoConstrutiva[] = [
     precondicoes: [], resultado: "Elemento AMBIENTE (rótulo e área quando fechado).", erros: [], permissao: "EDITAR_MODELO", desfazer: true },
   { id: "MOD.CRIAR.PILAR", versao: 1, codigoVi: "PILAR", rotulo: "Pilar", grupo: "Estrutura", sinonimos: ["coluna", "column", "apoio"],
     descricao: "Pilar retangular do pavimento até o nível acima.",
-    entradas: [ponto("centro", "Centro"), comp("b", "Largura b", 0.2, 0.14, 2, "NBR 6118: lado ≥ 19 cm (14 cm com γn)."), comp("h", "Altura da seção h", 0.4, 0.14, 3), { nome: "mat", rotulo: "Material", tipo: "material", categoriaMaterial: "estrutural", padrao: "MAT_CONC_FCK30" }],
+    entradas: [ponto("centro", "Centro"), comp("b", "Largura b", 0.2, 0.14, 2, "NBR 6118: lado ≥ 19 cm (14 cm com γn)."), comp("h", "Altura da seção h", 0.4, 0.14, 3), { nome: "mat", rotulo: "Material", tipo: "material", aplicaA: "PILAR", padrao: "MAT.CONCRETO.C30" }],
     precondicoes: ["Seção ≥ mínimos (Tolerâncias e seções)."], resultado: "Elemento PILAR com nível base/topo.", erros: ["VI-003 seção abaixo do mínimo"], permissao: "EDITAR_MODELO", desfazer: true },
   { id: "MOD.CRIAR.VIGA", versao: 1, codigoVi: "VIGA", rotulo: "Viga", grupo: "Estrutura", sinonimos: ["beam", "travessa"],
     descricao: "Viga entre dois pontos; é discretizada nos apoios intermediários na análise.",
-    entradas: [ponto("p1", "Início"), ponto("p2", "Fim"), comp("b", "Largura b", 0.14, 0.12, 1.5), comp("h", "Altura h", 0.4, 0.2, 3), { nome: "mat", rotulo: "Material", tipo: "material", categoriaMaterial: "estrutural", padrao: "MAT_CONC_FCK30" }],
+    entradas: [ponto("p1", "Início"), ponto("p2", "Fim"), comp("b", "Largura b", 0.14, 0.12, 1.5), comp("h", "Altura h", 0.4, 0.2, 3), { nome: "mat", rotulo: "Material", tipo: "material", aplicaA: "VIGA", padrao: "MAT.CONCRETO.C30" }],
     precondicoes: ["b ≥ 12 cm (NBR 6118)."], resultado: "Elemento VIGA.", erros: ["VI-002 segmento curto"], permissao: "EDITAR_MODELO", desfazer: true },
   { id: "MOD.CRIAR.LAJE", versao: 1, codigoVi: "LAJE", rotulo: "Laje", grupo: "Estrutura", sinonimos: ["slab", "piso", "pano"],
     descricao: "Laje por contorno fechado (3+ vértices).",
-    entradas: [{ nome: "contorno", rotulo: "Vértices do contorno", tipo: "pontos", unidade: "m" }, comp("h", "Espessura h", 0.12, 0.07, 0.5), { nome: "mat", rotulo: "Material", tipo: "material", categoriaMaterial: "estrutural", padrao: "MAT_CONC_FCK30" }],
+    entradas: [{ nome: "contorno", rotulo: "Vértices do contorno", tipo: "pontos", unidade: "m" }, comp("h", "Espessura h", 0.12, 0.07, 0.5), { nome: "mat", rotulo: "Material", tipo: "material", aplicaA: "LAJE", padrao: "MAT.CONCRETO.C30" }],
     precondicoes: ["Contorno com 3+ vértices e sem autointerseção."], resultado: "Elemento LAJE.", erros: ["VI-002 contorno inválido"], permissao: "EDITAR_MODELO", desfazer: true },
   { id: "MOD.CRIAR.SAPATA", versao: 1, codigoVi: "SAPATA", rotulo: "Sapata", grupo: "Fundação", sinonimos: ["fundação", "footing", "base"],
     descricao: "Sapata sob um pilar (ou num centro).",
@@ -66,12 +66,12 @@ export const ACOES: AcaoConstrutiva[] = [
     precondicoes: ["Dimensionamento definitivo vem de Geotecnia › Fundações (NBR 6122)."], resultado: "Elemento SAPATA vinculado ao pilar.", erros: [], permissao: "EDITAR_MODELO", desfazer: true },
 ];
 
-/** MAT.<CATEGORIA>.<materialId sem prefixo> ↔ materialId legado da Tabela A. */
+/** código canônico do catálogo técnico (MAT.<FAMÍLIA>.<ITEM>); códigos legados (MAT_CONC_FCK30…) resolvem para ele */
 export function codigoMaterial(m: Material): string {
-  return `MAT.${m.ontology.category.toUpperCase()}.${m.materialId.replace(/^MAT_/, "")}`;
+  return m.materialId;
 }
 export function materialPorCodigo(codigo: string): Material | undefined {
-  return TABELA_A.find((m) => m.materialId === codigo || codigoMaterial(m) === codigo);
+  return material(codigo);
 }
 export function acaoPorCodigo(codigo: string): AcaoConstrutiva | undefined {
   const c = codigo.trim().toUpperCase();
@@ -107,7 +107,7 @@ export function montarArgs(acao: AcaoConstrutiva, v: ValoresAcao): { args: Recor
     } else if (e.tipo === "material") {
       const m = materialPorCodigo(String(bruto ?? e.padrao ?? ""));
       if (!m) erros.push({ campo: e.nome, mensagem: `${e.rotulo}: material desconhecido.` });
-      else if (e.categoriaMaterial && m.ontology.category !== e.categoriaMaterial) erros.push({ campo: e.nome, mensagem: `${m.name} não é da categoria ${e.categoriaMaterial}.` });
+      else if (e.aplicaA && !itemMaterial(m.materialId)?.aplicacoes.includes(e.aplicaA)) erros.push({ campo: e.nome, mensagem: `${m.name} não se aplica a ${e.aplicaA.toLowerCase()}.` });
       else args[e.nome] = m.materialId;
     } else if (e.tipo === "texto") {
       const s = String(bruto ?? e.padrao ?? "").trim();

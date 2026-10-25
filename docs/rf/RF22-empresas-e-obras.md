@@ -319,3 +319,11 @@ Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md))
 - **Corrigido:** Criar empresa a torna a ativa; troca de empresa por lista (`GET /me/empresas`); o menu esconde de quem não é DONO/ADMIN as telas que só a gestão usa.
 - **Evidência:** j1 CA-01/02/04/05; j4 UX-contexto.
 - **Pendente:** —
+
+## Auditoria 2026-10 · 2ª rodada
+
+Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10_ESTRUTURA_INSTALACOES_MATERIAIS.md)).
+
+- **Corrigido:** base de cálculo por obra (finalidade, sistema construtivo, CAA, agregado, versão do catálogo, referências com edição), validada, gravada em cada análise e dimensionamento; mudar a base desatualiza os resultados sem recalcular.
+- **Evidência:** `DimensionamentoIT.baseDeCalculoGravadaNoResultadoEMudancaDesatualiza`, `CoordenacaoMateriaisIT`, j5.
+- **Pendente:** exigências locais (código de obras, bombeiros) não implementadas.

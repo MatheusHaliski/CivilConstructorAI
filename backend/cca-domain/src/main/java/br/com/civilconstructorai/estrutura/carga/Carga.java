@@ -47,11 +47,20 @@ public class Carga extends EntidadeTenant {
     @Column(name = "caso_carga", nullable = false)
     private String casoCarga;
 
+    /** carga pontual em viga: distância (m) a partir do primeiro ponto (p1) da viga; nula nos demais casos */
+    @Column(name = "posicao_m")
+    private Double posicao;
+
     protected Carga() {
     }
 
     public Carga(UUID tenantId, UUID obraId, String pavimentoId, NaturezaAcao natureza, TipoCarga tipo, double valor,
                  String elementoAlvoId, String descricao, String casoCarga) {
+        this(tenantId, obraId, pavimentoId, natureza, tipo, valor, elementoAlvoId, descricao, casoCarga, null);
+    }
+
+    public Carga(UUID tenantId, UUID obraId, String pavimentoId, NaturezaAcao natureza, TipoCarga tipo, double valor,
+                 String elementoAlvoId, String descricao, String casoCarga, Double posicao) {
         super(tenantId);
         var erros = new ArrayList<ExcecaoDominio.Validacao.Erro>();
         if (pavimentoId == null || pavimentoId.isBlank()) {
@@ -69,9 +78,14 @@ public class Carga extends EntidadeTenant {
         if (descricao == null || descricao.isBlank()) {
             erros.add(new ExcecaoDominio.Validacao.Erro("descricao", "Descreva a carga."));
         }
+        if (posicao != null && (tipo != TipoCarga.PONTUAL || posicao < 0 || !Double.isFinite(posicao))) {
+            erros.add(new ExcecaoDominio.Validacao.Erro("posicao", tipo != TipoCarga.PONTUAL
+                    ? "Posição só se aplica a carga pontual." : "A posição deve ser uma distância em metros, maior ou igual a zero."));
+        }
         if (!erros.isEmpty()) {
             throw new ExcecaoDominio.Validacao(erros);
         }
+        this.posicao = posicao;
         this.obraId = obraId;
         this.pavimentoId = pavimentoId;
         this.natureza = natureza;
@@ -91,4 +105,5 @@ public class Carga extends EntidadeTenant {
     public String getElementoAlvoId() { return elementoAlvoId; }
     public String getDescricao() { return descricao; }
     public String getCasoCarga() { return casoCarga; }
+    public Double getPosicao() { return posicao; }
 }

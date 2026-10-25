@@ -293,3 +293,11 @@ flowchart LR
 | Banco | `V15__quantitativos.sql` (levantamento_quantitativo com linhas/totais JSON, hash FNV-1a, liberado_cliente) | ✅ |
 | Geometria | port fiel de `packages/notacao-vi/src/quantitativos.ts` em `cca-domain/quantitativo/Quantificador.java` (mesmo hash FNV-1a e prioridade pilar > viga > laje) | ✅ Java · ⏳ python |
 | Testes | `QuantificadorTest` (hash igual ao TS, rascunho IA não entra, aço aprovado substitui taxa), `OrcamentoIT.quantitativosDoModeloEExportacao` (CSV/XLSX, DN-02 para CLIENTE) | ✅ |
+
+## Auditoria 2026-10 · 2ª rodada
+
+Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10_ESTRUTURA_INSTALACOES_MATERIAIS.md)).
+
+- **Corrigido:** pilar circular quantificado por π·d²/4 e perímetro π·d; contraventamento com prefixo C; aço do dimensionamento = Σ massas das posições detalhadas.
+- **Evidência:** `QuantificadorTest`, `DimensionamentoReferenciaTest`.
+- **Pendente:** perdas de corte só no orçamento.

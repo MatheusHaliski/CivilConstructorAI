@@ -41,6 +41,11 @@ public class DependentesDoModeloJdbc implements DependentesDoModelo {
         jdbc.update("update lancamento_estrutural set estado = 'CARREGADO', atualizado_em = now() where obra_id = ? and pavimento_id = ? and estado = 'PRONTO_PARA_ANALISE'", obraId, pavimentoId);
     }
 
+    @Override
+    public void baseCalculoMudou(UUID obraId) {
+        obsoletarCalculos(obraId, Long.MAX_VALUE);
+    }
+
     private void obsoletarCalculos(UUID obraId, long versaoNova) {
         jdbc.update("update analise_estrutural set estado = 'OBSOLETO', atualizado_em = now() where obra_id = ? and versao_modelo < ? and estado in ('PENDENTE','CONCLUIDO')", obraId, versaoNova);
         jdbc.update("update dimensionamento set estado = 'OBSOLETO', atualizado_em = now() where obra_id = ? and versao_modelo < ? "

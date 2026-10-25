@@ -436,3 +436,11 @@ Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md))
 - **Corrigido:** `CONCORDAR` e `CHANFRAR` passaram a respeitar raio e distâncias; `LINHA_DETALHE` e `LINHA_QUEBRA` criavam nada e agora gravam; F2 expande o histórico; `ANEL` com raio interno igual nos dois motores; catálogo verificável: 73 de 85 comandos implementados e testados (eram 21 pelo mesmo critério).
 - **Evidência:** catálogo verificável 73/85; estado.test.ts; paridade 34 casos.
 - **Pendente:** `ESTILO_COTA`, `BLOCO`, `INSERIR`, `LOCALIZAR` só avisam; `BLOCO` é ambíguo com o bloco de fundação.
+
+## Auditoria 2026-10 · 2ª rodada
+
+Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10_ESTRUTURA_INSTALACOES_MATERIAIS.md)).
+
+- **Corrigido:** formulário de ações filtra materiais pela aplicação do catálogo (regressão da categoria antiga); seletor de material no painel de propriedades; códigos canônicos nos padrões.
+- **Evidência:** `acoes.test.ts` (36 testes do app), j5.
+- **Pendente:** —

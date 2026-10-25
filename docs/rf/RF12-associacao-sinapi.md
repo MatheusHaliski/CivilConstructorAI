@@ -362,3 +362,11 @@ Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md))
 - **Corrigido:** Tabela SINAPI de demonstração marcada (`origem`, V19) e nunca usada como real; sem tabela da UF/regime → 422; reimportar o mesmo mês → 409 explicado; item sem composição aparece com custo zero e bloqueia a aprovação; aviso de quantitativo desatualizado.
 - **Evidência:** j3 sem-tabela, importar, soma, sem-vinculo, CA-05/06; OrcamentoIT.
 - **Pendente:** —
+
+## Auditoria 2026-10 · 2ª rodada
+
+Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10_ESTRUTURA_INSTALACOES_MATERIAIS.md)).
+
+- **Corrigido:** orçamento lê o vínculo material → serviço do catálogo único (não há mais tabela própria no serviço).
+- **Evidência:** `OrcamentoIT`.
+- **Pendente:** códigos SINAPI herdados não conferidos na tabela vigente (marcados no catálogo).

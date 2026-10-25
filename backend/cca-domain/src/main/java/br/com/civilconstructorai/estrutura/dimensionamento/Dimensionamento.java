@@ -17,6 +17,10 @@ import java.util.UUID;
 @Table(name = "dimensionamento")
 public class Dimensionamento extends EntidadeTenant {
 
+    /** cópia da base de cálculo (CAA, agregado, catálogo, referências e edições) usada neste resultado */
+    @Column(name = "base_calculo_json")
+    private String baseCalculoJson;
+
     @Column(name = "obra_id", nullable = false)
     private UUID obraId;
 
@@ -123,4 +127,8 @@ public class Dimensionamento extends EntidadeTenant {
     public UUID getAprovadoPor() { return aprovadoPor; }
     public Instant getDecididoEm() { return decididoEm; }
     public String getArtRrt() { return artRrt; }
+
+    public String getBaseCalculoJson() { return baseCalculoJson; }
+
+    public void registrarBaseCalculo(String json) { this.baseCalculoJson = json; }
 }

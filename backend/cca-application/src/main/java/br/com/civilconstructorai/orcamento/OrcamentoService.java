@@ -32,15 +32,6 @@ import java.util.UUID;
 @Transactional
 public class OrcamentoService {
 
-    /** material da Tabela A → (serviço, código SINAPI, unidade do quantitativo) */
-    static final Map<String, String[]> TABELA_A = Map.of(
-            "MAT_CONC_FCK30", new String[]{"Concreto fck 30 MPa", "94965", "m3"},
-            "MAT_CONC_FCK25", new String[]{"Concreto fck 25 MPa", "94964", "m3"},
-            "MAT_ACO_CA50", new String[]{"Aço CA-50", "92779", "kg"},
-            "MAT_ALV_BLOCO14", new String[]{"Alvenaria bloco cerâmico 14 cm", "103323", "m2"},
-            "MAT_ALV_BLOCO19", new String[]{"Alvenaria estrutural 19 cm", "103355", "m2"},
-            "MAT_ACO_PERFIL_W", new String[]{"Perfil de aço W", "100777", "kg"});
-
     static final String SCHEMA = """
             {"type":"object","additionalProperties":false,"required":["associacoes"],
              "properties":{"associacoes":{"type":"array","items":{"type":"object","additionalProperties":false,
@@ -105,7 +96,7 @@ public class OrcamentoService {
         for (var l : q.linhas()) {
             acumular(servicos, "Estrutura", "Concreto " + l.tipo().name().toLowerCase(), "m3", materialCodigo(l.materialId(), "m3"), l.concretoM3());
             acumular(servicos, "Estrutura", "Fôrma " + l.tipo().name().toLowerCase(), "m2", null, l.formaM2());
-            acumular(servicos, "Estrutura", "Aço CA-50 " + l.tipo().name().toLowerCase(), "kg", "92779", l.acoKg());
+            acumular(servicos, "Estrutura", "Aço CA-50 " + l.tipo().name().toLowerCase(), "kg", materialCodigo("MAT.ACO_ARMADURA.CA50", "kg"), l.acoKg());
             acumular(servicos, "Vedações", "Alvenaria", "m2", materialCodigo(l.materialId(), "m2"), l.alvenariaM2());
         }
         var semVinculo = new ArrayList<String>();
@@ -185,9 +176,13 @@ public class OrcamentoService {
         mapa.merge(etapa + "|" + servico + "|" + unidade + "|" + (codigo == null ? "" : codigo), BigDecimal.valueOf(valor), BigDecimal::add);
     }
 
+    /**
+     * código SINAPI do serviço ligado ao material no catálogo técnico (fonte única; antes havia uma cópia aqui que
+     * podia divergir). Sem serviço cadastrado → sem código, e o item aparece "sem composição" no orçamento.
+     */
     private static String materialCodigo(String materialId, String unidade) {
-        var m = materialId == null ? null : TABELA_A.get(materialId);
-        return m != null && m[2].equals(unidade) ? m[1] : null;
+        return materialId == null ? null : br.com.civilconstructorai.notacao.CatalogoMateriais.padrao().servicoDo(materialId, unidade)
+                .map(br.com.civilconstructorai.notacao.CatalogoMateriais.Servico::sinapi).orElse(null);
     }
 
     private static BigDecimal total(List<ItemOrcamento> lista) {

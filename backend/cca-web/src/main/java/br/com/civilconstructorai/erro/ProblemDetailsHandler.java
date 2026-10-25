@@ -34,6 +34,7 @@ public class ProblemDetailsHandler {
             case CONFLICT -> "Conflito";
             case UNPROCESSABLE_CONTENT -> "Dados inválidos";
             case TOO_MANY_REQUESTS -> "Muitas tentativas";
+            case SERVICE_UNAVAILABLE -> "Serviço indisponível";
             default -> s.getReasonPhrase();
         };
     }
@@ -89,6 +90,11 @@ public class ProblemDetailsHandler {
     @ExceptionHandler(ExcecaoDominio.RegraDeNegocio.class)
     ProblemDetail regra(ExcecaoDominio.RegraDeNegocio e) {
         return problema(HttpStatus.UNPROCESSABLE_CONTENT, e.codigo(), e.getMessage());
+    }
+
+    @ExceptionHandler(ExcecaoDominio.Indisponivel.class)
+    public ProblemDetail indisponivel(ExcecaoDominio.Indisponivel e) {
+        return problema(HttpStatus.SERVICE_UNAVAILABLE, e.codigo(), e.getMessage());
     }
 
     @ExceptionHandler(ExcecaoDominio.LimiteExcedido.class)

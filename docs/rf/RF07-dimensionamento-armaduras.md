@@ -360,3 +360,11 @@ Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md))
 - **Corrigido:** Dimensionar análise obsoleta → 409 "Rode a análise estrutural da versão atual antes de dimensionar" (antes dimensionava sobre esforços de outra geometria).
 - **Evidência:** j2 CA-01 (409 obsoleta); DimensionamentoIT, Nbr6118Test.
 - **Pendente:** Armaduras não conferidas contra memória de cálculo independente.
+
+## Auditoria 2026-10 · 2ª rodada
+
+Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10_ESTRUTURA_INSTALACOES_MATERIAIS.md)).
+
+- **Corrigido (falha crítica):** vigas com As inferior e superior; pilares com momentos da análise (flexo-compressão oblíqua simplificada, pilar-padrão até λ ≤ 90); lajes com as cargas reais (Grashof); durabilidade por CAA; ELS; detalhamento por posição (número, comprimento e massa separados; ancoragem, traspasse, ganchos) com geometria 3D; sete estados padronizados por verificação; contraventamento em *Não verificado* (NBR 8800 não implementada); texto da tela não cita mais "perfis NBR 8800".
+- **Evidência:** `DimensionamentoReferenciaTest` (14, pórtico resolvido à mão), `DimensionamentoIT` (4), j5.
+- **Pendente:** torção, punção, pilar esbelto, proporção de barras emendadas.

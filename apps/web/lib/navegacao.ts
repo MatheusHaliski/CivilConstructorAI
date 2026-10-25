@@ -7,7 +7,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   Activity, BadgeCheck, Bot, Boxes, BrainCircuit, Building2, Calculator, ClipboardList, Cpu, Database, Download, FileBox, FileClock,
   FileSearch, FileText, FileUp, Fingerprint, FolderKanban, Gauge, HardHat, Inbox, KeyRound, Layers3, LayoutDashboard, ListChecks,
-  MousePointerClick, PencilRuler, PlusCircle, Receipt, Ruler, ScrollText, ShieldCheck, Sparkles, SquareStack, Trash2, UserCog, UserRound, Users, Wand2, Weight,
+  MousePointerClick, OctagonAlert, Package, PencilRuler, Scale, PlusCircle, Receipt, Ruler, ScrollText, ShieldCheck, Sparkles, SquareStack, Trash2, UserCog, UserRound, Users, Wand2, Weight,
 } from "lucide-react";
 
 export type ItemNav = { href: string; rotulo: string; Icone: LucideIcon; descricao?: string; palavras?: string; exato?: boolean };
@@ -70,9 +70,12 @@ export function gruposObra(obraId: string): GrupoNav[] {
     { id: "obra", titulo: "Obra", itens: [
       { href: b, rotulo: "Painel", Icone: LayoutDashboard, exato: true, descricao: "Resumo, estado e próximos passos" },
       { href: `${b}/membros`, rotulo: "Equipe da obra", Icone: UserCog, palavras: "membros papéis" },
+      { href: `${b}/base-calculo`, rotulo: "Base de cálculo", Icone: Scale, descricao: "Finalidade, CAA, agregado, normas e edições", palavras: "caa agressividade nbr edição referências normas" },
+      { href: `${b}/falhas`, rotulo: "Painel de falhas", Icone: OctagonAlert, descricao: "Verificações não atendidas, dados insuficientes e o que não é verificado", palavras: "erros pendências verificação conformidade" },
     ] },
     { id: "projeto", titulo: "Projeto", itens: [
       { href: `${b}/modelo`, rotulo: "Modelo BIM", Icone: HardHat, descricao: "Motor 2D/3D com comandos e Notação VI", palavras: "motor desenho cad revit autocad" },
+      { href: `${b}/materiais`, rotulo: "Materiais", Icone: Package, descricao: "Catálogo técnico, propriedades com origem e personalizados", palavras: "concreto aço bloco cimento argamassa fck" },
     ] },
     { id: "assistente", titulo: "Assistente IA", itens: [
       { href: `${b}/copilot`, rotulo: "Copilot", Icone: Sparkles, descricao: "Sugere a próxima ação; você confirma cada passo", palavras: "ia sugestão próxima ação" },

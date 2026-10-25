@@ -366,26 +366,26 @@ public class ModeloBim {
         switch (cmd.codigo()) {
             case "PAREDE" -> criar(diff, novo(cmd, pav, TipoElemento.PAREDE, Camada.arquitetura, props(
                     "p1", pt(a, "p1"), "p2", pt(a, "p2"), "espessura", num(a, "esp", 0.15), "altura", num(a, "h", 2.8),
-                    "materialId", str(a, "mat", "MAT_ALV_BLOCO14"), "externa", bool(a, "externa", true))));
+                    "materialId", str(a, "mat", "MAT.ALVENARIA.CERAMICO_VEDACAO_14"), "externa", bool(a, "externa", true))));
             case "PILAR" -> {
                 var topo = pavimentoAcima(pav).map(Pavimento::id).orElse(pav);
                 criar(diff, novo(cmd, pav, TipoElemento.PILAR, Camada.estrutura, props(
                         "centro", ptOpt(a, "centro", "p") != null ? ptOpt(a, "centro", "p") : pt(a, "centro"),
                         "b", num(a, "b", 0.19), "h", num(a, "h", 0.4), "secao", "CIRCULAR".equals(a.get("secao")) ? "CIRCULAR" : "RETANGULAR",
-                        "materialId", str(a, "mat", "MAT_CONC_FCK30"), "nivelBaseId", pav, "nivelTopoId", topo,
+                        "materialId", str(a, "mat", "MAT.CONCRETO.C30"), "nivelBaseId", pav, "nivelTopoId", topo,
                         "baseOffset", num(a, "baseOffset", 0.0), "topoOffset", num(a, "topoOffset", 0.0),
                         "continuo", bool(a, "continuo", false), "rotacao", num(a, "rot", 0.0))));
             }
             case "VIGA" -> criar(diff, novo(cmd, pav, TipoElemento.VIGA, Camada.estrutura, props(
-                    "p1", pt(a, "p1"), "p2", pt(a, "p2"), "b", num(a, "b", 0.12), "h", num(a, "h", 0.4), "materialId", str(a, "mat", "MAT_CONC_FCK30"))));
+                    "p1", pt(a, "p1"), "p2", pt(a, "p2"), "b", num(a, "b", 0.12), "h", num(a, "h", 0.4), "materialId", str(a, "mat", "MAT.CONCRETO.C30"))));
             case "CONTRAVENTAMENTO" -> criar(diff, novo(cmd, pav, TipoElemento.CONTRAVENTAMENTO, Camada.estrutura, props(
-                    "p1", pt(a, "p1"), "p2", pt(a, "p2"), "perfil", str(a, "perfil", "L 50x5"), "materialId", "MAT_ACO_PERFIL_W")));
+                    "p1", pt(a, "p1"), "p2", pt(a, "p2"), "perfil", str(a, "perfil", "L 50x5"), "materialId", str(a, "mat", "MAT.ACO_ESTRUTURAL.A572_G50"))));
             case "LAJE", "REGIAO" -> {
                 var contorno = pontos(a, "contorno", "pontos");
                 if (contorno == null || contorno.size() < 3) {
                     throw erro("VI-002", "Laje precisa de contorno com 3+ vértices.");
                 }
-                criar(diff, novo(cmd, pav, TipoElemento.LAJE, Camada.estrutura, props("contorno", new ArrayList<Object>(contorno), "h", num(a, "h", 0.12), "materialId", str(a, "mat", "MAT_CONC_FCK30"))));
+                criar(diff, novo(cmd, pav, TipoElemento.LAJE, Camada.estrutura, props("contorno", new ArrayList<Object>(contorno), "h", num(a, "h", 0.12), "materialId", str(a, "mat", "MAT.CONCRETO.C30"))));
             }
             case "PORTA", "JANELA" -> {
                 var parede = encontrarParede(a.get("parede") == null ? null : UUID.fromString(String.valueOf(a.get("parede"))), ptOpt(a, "pos"), pav);
@@ -396,7 +396,7 @@ public class ModeloBim {
                 boolean porta = cmd.codigo().equals("PORTA");
                 criar(diff, novo(cmd, pav, porta ? TipoElemento.PORTA : TipoElemento.JANELA, Camada.arquitetura, props(
                         "paredeId", parede.getId(), "posicao", posicao, "largura", num(a, "larg", porta ? 0.8 : 1.2), "altura", num(a, "alt", porta ? 2.1 : 1.2),
-                        "peitoril", porta ? 0.0 : num(a, "peitoril", 1.0), "materialId", porta ? "MAT_MADEIRA_PORTA" : "MAT_VIDRO_TEMP8")));
+                        "peitoril", porta ? 0.0 : num(a, "peitoril", 1.0), "materialId", porta ? "MAT.COMPONENTE.PORTA_MADEIRA_80x210" : "MAT.COMPONENTE.VIDRO_TEMPERADO_8")));
             }
             case "AMBIENTE" -> criar(diff, novo(cmd, pav, TipoElemento.AMBIENTE, Camada.arquitetura, props("ponto", pt(a, "ponto"), "nome", str(a, "nome", "Ambiente"))));
             case "LINHA", "PLANO_REF", "LINHA_DETALHE" -> criar(diff, novo(cmd, pav,
@@ -512,7 +512,7 @@ public class ModeloBim {
                 criar(diff, novo(cmd, pav, tipo, Camada.fundacao, props("pilarId", pilar == null ? null : pilar.getId(), "centro", centro,
                         "bx", num(a, "bx", 1.5), "by", num(a, "by", 1.5), "h", num(a, "h", 0.5),
                         "estacas", a.get("estacas") == null ? null : num(a, "estacas", null), "diametroEstaca", a.get("diam") == null ? null : num(a, "diam", null),
-                        "materialId", "MAT_CONC_FCK25")));
+                        "materialId", str(a, "mat", "MAT.CONCRETO.C25"))));
             }
             case "COTA_LINEAR", "COTA_ALINHADA", "COTA_NIVEL" -> {
                 var p1 = ptOpt(a, "p1", "p");

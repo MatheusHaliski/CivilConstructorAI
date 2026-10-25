@@ -1,0 +1,243 @@
+[
+  {
+    "rf": "RF01",
+    "id": "j5-modelo",
+    "descricao": "pilares com código canônico (MAT.CONCRETO.C30), parede e porta aceitos",
+    "ok": true,
+    "evidencia": {
+      "parede": 201,
+      "porta": 201
+    }
+  },
+  {
+    "rf": "RF04",
+    "id": "j5-defeitos",
+    "descricao": "defeitos introduzidos entram no modelo (viga alta sobre porta e viga com ponta solta)",
+    "ok": true,
+    "evidencia": {
+      "vBaixa": 201,
+      "vSolta": 201
+    }
+  },
+  {
+    "rf": "RF04",
+    "id": "j5-pontual",
+    "descricao": "carga pontual em viga sem posição → 422 explicando",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Há 1 problema(s) nos dados enviados.",
+      "e": [
+        {
+          "mensagem": "Informe a posição da carga pontual: distância em metros a partir do início da viga (0 a 5.00 m).",
+          "campo": "posicao"
+        }
+      ]
+    }
+  },
+  {
+    "rf": "RF04",
+    "id": "j5-pontual-ok",
+    "descricao": "com posição (1,50 m do início) a carga é aceita",
+    "ok": true,
+    "evidencia": {
+      "s": 201
+    }
+  },
+  {
+    "rf": "BASE",
+    "id": "j5-base-vazia",
+    "descricao": "base de cálculo nova lista o que não foi informado",
+    "ok": true,
+    "evidencia": [
+      "finalidade",
+      "sistema construtivo",
+      "classe de agressividade ambiental (CAA)",
+      "agregado graúdo"
+    ]
+  },
+  {
+    "rf": "RF05",
+    "id": "j5-analise",
+    "descricao": "análise conclui com base de cálculo gravada",
+    "ok": true,
+    "evidencia": {
+      "estado": "CONCLUIDO"
+    }
+  },
+  {
+    "rf": "RF05",
+    "id": "j5-metadados",
+    "descricao": "resultado declara natureza CALCULADO, método, unidades e convenção",
+    "ok": true,
+    "evidencia": "MEF linear elástico de 1ª ordem: pórtico espacial, barras de Euler-Bernoulli (6 GDL/nó) e treliça (só axial)"
+  },
+  {
+    "rf": "RF05",
+    "id": "j5-avisos",
+    "descricao": "viga com ponta solta aparece nos avisos do modelo analítico",
+    "ok": true,
+    "evidencia": [
+      "PREMISSA: V5: extremidade livre em (2.50; 3.00) — sem pilar nem viga; analisada como balanço. Confirme se é intencional (marquise, sacada) ou se falta um apoio."
+    ]
+  },
+  {
+    "rf": "RF05",
+    "id": "j5-equilibrio",
+    "descricao": "equilíbrio global conferido em todas as combinações",
+    "ok": true,
+    "evidencia": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  {
+    "rf": "RF07",
+    "id": "j5-dados-insuf",
+    "descricao": "sem CAA, nenhum elemento sai como 'atendido' por completo: cobrimento fica em dados insuficientes",
+    "ok": true,
+    "evidencia": [
+      "DADOS_INSUFICIENTES",
+      "DADOS_INSUFICIENTES",
+      "DADOS_INSUFICIENTES",
+      "DADOS_INSUFICIENTES",
+      "NAO_ATENDIDA",
+      "NAO_ATENDIDA",
+      "NAO_ATENDIDA",
+      "NAO_ATENDIDA",
+      "DADOS_INSUFICIENTES",
+      "DADOS_INSUFICIENTES"
+    ]
+  },
+  {
+    "rf": "RF07",
+    "id": "j5-detalhamento",
+    "descricao": "detalhamento por posição com número, comprimento e massa separados",
+    "ok": true,
+    "evidencia": [
+      "N1 8×Ø10 L=3.05m 15kg",
+      "N2 30×Ø5 L=1.06m 4.9kg",
+      "N1 8×Ø10 L=3.05m 15kg"
+    ]
+  },
+  {
+    "rf": "COORD",
+    "id": "j5-detecta",
+    "descricao": "detector acha viga abaixo do topo da porta (CON-02) e viga sem apoio (LIG-01)",
+    "ok": true,
+    "evidencia": [
+      "CON-02",
+      "LIG-01"
+    ]
+  },
+  {
+    "rf": "COORD",
+    "id": "j5-manual",
+    "descricao": "marcar Resolvido à mão é recusado (só a reverificação resolve)",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Um conflito só passa a Resolvido quando a reverificação do modelo deixa de encontrá-lo. Corrija o modelo e verifique de novo."
+    }
+  },
+  {
+    "rf": "COORD",
+    "id": "j5-aceito",
+    "descricao": "aceitar com justificativa registra quem decidiu",
+    "ok": true,
+    "evidencia": "ACEITO"
+  },
+  {
+    "rf": "COORD",
+    "id": "j5-reverifica",
+    "descricao": "após apoiar a viga, a reverificação marca LIG-01 como Resolvido na nova versão",
+    "ok": true,
+    "evidencia": {
+      "estado": "RESOLVIDO",
+      "versao": 15,
+      "modelo": 15
+    }
+  },
+  {
+    "rf": "RF07",
+    "id": "j5-desatualiza-modelo",
+    "descricao": "mudar o modelo deixa o dimensionamento como desatualizado (OBSOLETO)",
+    "ok": true,
+    "evidencia": "OBSOLETO"
+  },
+  {
+    "rf": "BASE",
+    "id": "j5-base",
+    "descricao": "base completa gravada (CAA II, granito)",
+    "ok": true,
+    "evidencia": []
+  },
+  {
+    "rf": "MAT",
+    "id": "j5-ecs",
+    "descricao": "Ecs do C30 com granito = 0,875·5600·√30 ≈ 26 838 MPa, origem estimado",
+    "ok": true,
+    "evidencia": {
+      "chave": "Ecs",
+      "rotulo": "Módulo de deformação secante (Ecs)",
+      "valor": 26838.4,
+      "unidade": "MPa",
+      "origem": "ESTIMADO",
+      "referencia": "NBR6118",
+      "nota": "usado na análise estrutural",
+      "metodo": "Ecs = αi·Eci, αi = 0,8 + 0,2·fck/80 = 0.875"
+    }
+  },
+  {
+    "rf": "UX",
+    "id": "j5-base-tela",
+    "descricao": "tela da base mostra referências com edição e situação",
+    "ok": true,
+    "evidencia": "Obras › Residência Integrada › Obra › Base de cálculo e referências Base de cálculo e referências Dados de projeto que os motores de cálculo usam. Cada resultado grava uma cópia desta base; mudar a ba"
+  },
+  {
+    "rf": "UX",
+    "id": "j5-materiais",
+    "descricao": "catálogo mostra suporte por família e origem dos valores (estimado/adotado)",
+    "ok": true,
+    "evidencia": "Obras › Residência Integrada › Projeto › Materiais e componentes Materiais e componentes Catálogo técnico 2026.10.1. Material (o que é), produto comercial (de quem e com qual documento), composição (c"
+  },
+  {
+    "rf": "UX",
+    "id": "j5-analise-tela",
+    "descricao": "resultados mostram grandeza com unidade, convenção, equilíbrio e deformada amplificada",
+    "ok": true,
+    "evidencia": ""
+  },
+  {
+    "rf": "UX",
+    "id": "j5-dim-tela",
+    "descricao": "dimensionamento mostra estados padronizados, verificações com referência e quadro de armaduras",
+    "ok": true,
+    "evidencia": "Obras › Residência Integrada › Estrutura › Dimensionamento Dimensionamento Verificação e dimensionamento de concreto armado (ABNT NBR 6118:2023) a partir de uma"
+  },
+  {
+    "rf": "UX",
+    "id": "j5-falhas",
+    "descricao": "painel de falhas traz origem, estado, regra e o que não é verificado; não diz 'sem falhas'",
+    "ok": true,
+    "evidencia": "Obras › Residência Integrada › Obra › Painel de falhas Painel de falhas Reúne o que os motores registraram: base de cálculo, montagem do modelo analítico, verificações do dimensionamento, alertas do m"
+  },
+  {
+    "rf": "UX",
+    "id": "j5-3d",
+    "descricao": "3D oferece raio X, corte e armaduras do último dimensionamento",
+    "ok": true,
+    "evidencia": "Cena 3D com 13 elementos e 457 barras de armadura"
+  },
+  {
+    "rf": "UX",
+    "id": "j5-erros-js",
+    "descricao": "nenhum erro de JavaScript nas telas visitadas",
+    "ok": true,
+    "evidencia": []
+  }
+]

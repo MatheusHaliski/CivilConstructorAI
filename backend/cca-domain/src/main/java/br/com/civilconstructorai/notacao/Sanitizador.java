@@ -22,6 +22,16 @@ public final class Sanitizador {
         return t.isEmpty() ? "ID" : t;
     }
 
+    /** códigos de catálogo (MAT.CONCRETO.C30): como {@link #identificador}, mas preserva o ponto separador */
+    public static String codigo(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        var t = Normalizer.normalize(texto.replace('º', 'o').replace('ª', 'a'), Normalizer.Form.NFD).replaceAll("\\p{M}+", "");
+        t = t.replaceAll("[^A-Za-z0-9_.\\-]", "_").replaceAll("_+", "_").replaceAll("^[_.]+|[_.]+$", "");
+        return t.isEmpty() ? "ID" : t;
+    }
+
     public static String texto(String texto) {
         if (texto == null) {
             return "";

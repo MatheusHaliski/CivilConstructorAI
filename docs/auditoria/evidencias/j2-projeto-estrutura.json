@@ -35,8 +35,8 @@
       "d": "Há 1 problema(s) nos dados enviados.",
       "e": [
         {
-          "mensagem": "O modelo já tem os eixos A, B, 1, 2. Para acrescentar eixos use EIXO; para refazer a malha, apague a atual primeiro.",
-          "campo": "VI-003"
+          "campo": "VI-003",
+          "mensagem": "O modelo já tem os eixos A, B, 1, 2. Para acrescentar eixos use EIXO; para refazer a malha, apague a atual primeiro."
         }
       ]
     }
@@ -51,8 +51,8 @@
       "d": "Há 1 problema(s) nos dados enviados.",
       "e": [
         {
-          "mensagem": "Espaçamento de eixo deve ser de pelo menos 0,05 m (ShortCurveTolerance).",
-          "campo": "VI-003"
+          "campo": "VI-003",
+          "mensagem": "Espaçamento de eixo deve ser de pelo menos 0,05 m (ShortCurveTolerance)."
         }
       ]
     }
@@ -84,8 +84,8 @@
       "d": "Há 1 problema(s) nos dados enviados.",
       "e": [
         {
-          "mensagem": "Pé-direito de 1,00 m fora do intervalo 2,20–12,00 m. Se for intencional (mezanino, reservatório), confirme com confirmar=true.",
-          "campo": "VI-003"
+          "campo": "VI-003",
+          "mensagem": "Pé-direito de 1,00 m fora do intervalo 2,20–12,00 m. Se for intencional (mezanino, reservatório), confirme com confirmar=true."
         }
       ]
     }
@@ -104,7 +104,7 @@
     "ok": true,
     "evidencia": {
       "s": 200,
-      "j": "{\"valido\":true,\"comandos\":[{\"conhecido\":true,\"codigo\":\"PAREDE\",\"linha\":1}],\"erros\":[]}"
+      "j": "{\"comandos\":[{\"linha\":1,\"conhecido\":true,\"codigo\":\"PAREDE\"}],\"erros\":[],\"valido\":true}"
     }
   },
   {
@@ -131,7 +131,7 @@
     "ok": true,
     "evidencia": {
       "s": 200,
-      "j": "{\"valido\":false,\"comandos\":[{\"conhecido\":true,\"codigo\":\"PAREDE\",\"linha\":1},{\"conhecido\":false,\"codigo\":\"VIGAA\",\"linha\":2}],\"erros\":[{\"coluna\":4,\"codigo\":\"VI-001\",\"linha\":2,\"mensagem\":\"Função desconhecida VIGAA.\"},{\"codigo\":\"VI-000\",\"mensagem\":\"Esperado VI(CODIGO, arg=valor, …)\",\"linha\":3,\"coluna\":1}]}"
+      "j": "{\"comandos\":[{\"linha\":1,\"conhecido\":true,\"codigo\":\"PAREDE\"},{\"linha\":2,\"conhecido\":false,\"codigo\":\"VIGAA\"}],\"erros\":[{\"linha\":2,\"mensagem\":\"Função desconhecida VIGAA.\",\"coluna\":4,\"codigo\":\"VI-001\"},{\"codigo\":\"VI-000\",\"mensagem\":\"Esperado VI(CODIGO, arg=valor, …)\",\"linha\":3,\"coluna\":1}],\"valido\":false}"
     }
   },
   {
@@ -142,30 +142,30 @@
     "evidencia": {
       "vi": {
         "p1": {
-          "x": 0,
-          "y": 0
+          "y": 0,
+          "x": 0
         },
         "p2": {
-          "x": 5,
-          "y": 0
+          "y": 0,
+          "x": 5
         },
         "espessura": 0.15,
         "altura": 2.8,
-        "materialId": "MAT_ALV_BLOCO14",
+        "materialId": "MAT.ALVENARIA.CERAMICO_VEDACAO_14",
         "externa": true
       },
       "json": {
         "p1": {
-          "x": 0,
-          "y": 6
+          "y": 6,
+          "x": 0
         },
         "p2": {
-          "x": 5,
-          "y": 6
+          "y": 6,
+          "x": 5
         },
         "espessura": 0.15,
         "altura": 2.8,
-        "materialId": "MAT_ALV_BLOCO14",
+        "materialId": "MAT.ALVENARIA.CERAMICO_VEDACAO_14",
         "externa": true
       }
     }
@@ -219,14 +219,14 @@
     "evidencia": {
       "n": 7,
       "ex": {
-        "id": "01a17450-176f-7705-9e76-b525bb87c54c",
+        "id": "01a174de-3eb2-7294-ba63-624ebd3776a9",
         "codigo": "DESFAZER",
-        "vi": "VI(DESFAZER, comando=\"01a17450-1715-7c42-8431-58ef9108c197\")",
+        "vi": "VI(DESFAZER, comando=\"01a174de-3e5f-75db-aec1-0d2b2a068ce2\")",
         "origem": "CANVAS",
-        "autorId": "01a17450-11bd-7355-940c-fc1bda2a1bb4",
+        "autorId": "01a174de-3894-739f-84fd-a280c0c7ecca",
         "versaoBase": 6,
         "versaoNova": 7,
-        "criadoEm": "2026-10-25T18:26:08.367461Z",
+        "criadoEm": "2026-10-25T21:01:24.530180Z",
         "correcoesAuditor": 0
       }
     }
@@ -251,12 +251,12 @@
       "d": "Comando reprovado pelo auditor: 2 violação(ões).",
       "e": [
         {
-          "mensagem": "Pilar 10x10 cm: menor lado deve ser ≥ 19 cm.",
-          "campo": "C-SECAO_MIN_PILAR"
+          "campo": "C-SECAO_MIN_PILAR",
+          "mensagem": "Pilar 10x10 cm: menor lado deve ser ≥ 19 cm."
         },
         {
-          "mensagem": "Área da seção do pilar deve ser ≥ 360 cm².",
-          "campo": "C-AREA_MIN_PILAR"
+          "campo": "C-AREA_MIN_PILAR",
+          "mensagem": "Área da seção do pilar deve ser ≥ 360 cm²."
         }
       ]
     }
@@ -479,7 +479,7 @@
     "ok": true,
     "evidencia": {
       "s": 200,
-      "j": "{\"nomePtBr\":\"LINHA\",\"roteiro\":[{\"nome\":\"p1\",\"mensagem\":\"Ponto inicial:\",\"tipo\":\"PONTO\",\"opcional\":false,\"opcoes\":[\"Desfa"
+      "j": "{\"categoria\":\"DESENHO\",\"nomePtBr\":\"LINHA\",\"roteiro\":[{\"nome\":\"p1\",\"mensagem\":\"Ponto inicial:\",\"tipo\":\"PONTO\",\"opcional\":"
     }
   }
 ]

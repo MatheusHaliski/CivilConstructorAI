@@ -115,4 +115,21 @@ class DimensionamentoIT extends AbstractIT {
             assertThat(corpo.toString()).contains("elementos_nao_verificam");
         }
     }
+
+    /** auditoria 2026-10: sem CAA o cobrimento fica "dados insuficientes"; mudar a base desatualiza, não recalcula */
+    @Test
+    void baseDeCalculoGravadaNoResultadoEMudancaDesatualiza() throws Exception {
+        var id = dimensionar();
+        var dim = json(mvc.perform(get(base() + "/dimensionamentos/" + id).with(authentication(TesteSeguranca.autenticacao(engenheiro)))).andReturn());
+        assertThat(dim.get("baseCalculoJson").asString()).contains("versaoCatalogo").contains("classe de agressividade");
+        var lista = json(mvc.perform(get(base() + "/dimensionamentos/" + id + "/resultados").with(authentication(TesteSeguranca.autenticacao(engenheiro)))).andReturn());
+        assertThat(lista.toString()).contains("DADOS_INSUFICIENTES");
+        var put = mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put(base() + "/base-calculo").with(authentication(TesteSeguranca.autenticacao(engenheiro))).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).content("{\"classeAgressividade\":\"II\"}")).andReturn();
+        assertThat(put.getResponse().getStatus()).as(put.getResponse().getContentAsString()).isEqualTo(200);
+        var depois = json(mvc.perform(get(base() + "/dimensionamentos/" + id).with(authentication(TesteSeguranca.autenticacao(engenheiro)))).andReturn());
+        assertThat(depois.get("estado").asString()).isEqualTo("OBSOLETO");
+        // o resultado emitido continua o mesmo (não foi recalculado em silêncio)
+        assertThat(depois.get("resultadosJson").asString()).isEqualTo(dim.get("resultadosJson").asString());
+    }
 }

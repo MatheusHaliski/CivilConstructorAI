@@ -22,4 +22,7 @@ public interface DependentesDoModelo {
 
     /** carga ou vento mudou sem mudar a versão do modelo: toda análise/dimensionamento/fundação da obra caduca (RF04 CA-08) */
     void cargasMudaram(UUID obraId, String pavimentoId);
+
+    /** a base de cálculo (CAA, agregado, referências) mudou: análises, dimensionamentos e fundações caducam */
+    void baseCalculoMudou(UUID obraId);
 }

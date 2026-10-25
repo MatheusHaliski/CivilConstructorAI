@@ -39,9 +39,12 @@ public class AuditorService {
     private final ObjectMapper mapper;
     private final double shortCurveTolerance;
     private final TransactionTemplate txNova;
+    private final br.com.civilconstructorai.material.MateriaisService materiais;
 
     public AuditorService(ServicoGeometria geometria, ModeloLinguagem llm, ModeloRepositorio repositorio, ObjectMapper mapper,
-                          @Value("${app.auditoria.short-curve-tolerance:0.05}") double shortCurveTolerance, PlatformTransactionManager tm) {
+                          @Value("${app.auditoria.short-curve-tolerance:0.05}") double shortCurveTolerance, PlatformTransactionManager tm,
+                          br.com.civilconstructorai.material.MateriaisService materiais) {
+        this.materiais = materiais;
         this.txNova = new TransactionTemplate(tm);
         this.txNova.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         this.geometria = geometria;
@@ -64,7 +67,7 @@ public class AuditorService {
         for (int iteracao = 0; iteracao <= MAX_ITERACOES_LLM; iteracao++) {
             var rascunho = atual.copia();
             var diff = rascunho.executar(cmd, pavimentoId);
-            relatorio = auditor.auditar(rascunho, diff, new Auditor.Opcoes(shortCurveTolerance, false, Auditor.PoliticaCaixa.RECORTAR)).comIteracoes(iteracao);
+            relatorio = auditor.auditar(rascunho, diff, new Auditor.Opcoes(shortCurveTolerance, false, Auditor.PoliticaCaixa.RECORTAR, materiais::personalizadoAplicavel)).comIteracoes(iteracao);
             historico.add(new CicloRegistro.Iteracao(iteracao, relatorio.laco1().aprovado() ? "LACO_GEOMETRIA" : "LACO_CODIGO", relatorio.todasAsViolacoes().size(), 0, 0, null, 0));
             if (relatorio.aprovado()) {
                 var ciclo = new CicloRegistro(Ids.novo(), obraId, cmd.id(), EstadoCiclo.APROVADO, iteracao, List.copyOf(historico), inicio, Instant.now());
@@ -90,7 +93,13 @@ public class AuditorService {
                 "codigo", v.codigo(), "elementoRef", v.elementoRef() == null ? "" : v.elementoRef().toString(), "regra", v.regra(),
                 "esperado", v.esperado() == null ? "" : v.esperado(), "obtido", v.obtido() == null ? "" : v.obtido())).toList();
         var entrada = mapper.writeValueAsString(Map.of("comando", FormatadorVi.formatar(cmd.codigo(), cmd.args()), "violacoes", violacoes));
-        var r = llm.gerarEstruturado(RotaIa.CORRECAO_AUDITORIA, PROMPT_CORRECAO, entrada, SCHEMA_COMANDO, Map.of("iteracao", String.valueOf(numero)));
+        ModeloLinguagem.Resposta r;
+        try {
+            r = llm.gerarEstruturado(RotaIa.CORRECAO_AUDITORIA, PROMPT_CORRECAO, entrada, SCHEMA_COMANDO, Map.of("iteracao", String.valueOf(numero)));
+        } catch (RuntimeException e) {
+            historico.add(new CicloRegistro.Iteracao(numero, "CORRIGINDO_COM_LLM", violacoes.size(), 0, 0, "erro_provedor", 0));
+            return null; // sem correção: o comando segue reprovado, nada é gravado
+        }
         historico.add(new CicloRegistro.Iteracao(numero, "CORRIGINDO_COM_LLM", violacoes.size(), r.inputTokens(), r.outputTokens(), r.stopReason(), r.latenciaMs()));
         if (!r.completa()) {
             return null;
@@ -102,6 +111,9 @@ public class AuditorService {
                 return null;
             }
             var primeiro = comandos.get(0);
+            if (!cmd.codigo().equalsIgnoreCase(primeiro.get("codigo").asString())) {
+                return null; // a correção não pode trocar o tipo do comando (ex.: PILAR → APAGAR)
+            }
             Map<String, Object> args = mapper.convertValue(primeiro.get("args"), new tools.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() { });
             return new ComandoVi(cmd.id(), primeiro.get("codigo").asString().toUpperCase(), ModeloBim.resolverCoordenadas(args), OrigemComando.IA, cmd.versaoBase(), cmd.autorId(), cmd.criadoEm());
         } catch (RuntimeException e) {

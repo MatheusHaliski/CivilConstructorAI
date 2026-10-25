@@ -359,3 +359,11 @@ Auditoria pelo uso real do app ([relatório](../auditoria/AUDITORIA_2026-10.md))
 - **Corrigido:** Lançar, remover carga ou mudar vento marca análise e lançamento como desatualizados; descrição da carga passa a ter valor padrão.
 - **Evidência:** j2 CA-02..05, carga-linear.
 - **Pendente:** —
+
+## Auditoria 2026-10 · 2ª rodada
+
+Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10_ESTRUTURA_INSTALACOES_MATERIAIS.md)).
+
+- **Corrigido:** carga pontual em viga exige posição (422 com a faixa válida); pilar com rotação e seção circular; contraventamento como elemento estrutural.
+- **Evidência:** `ReferenciaEstruturalTest`; j5 `j5-pontual`.
+- **Pendente:** cargas de uso não são comparadas com a ABNT NBR 6120:2019 (não verificado).
