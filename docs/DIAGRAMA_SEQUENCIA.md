@@ -122,6 +122,7 @@ sequenceDiagram
   participant W as Web
   participant API as core-api
   participant DB as PostgreSQL
+  participant KC as Cofre de chaves (KEK)
   participant VK as Valkey
   participant J as Job 03:15
   participant S3 as S3
@@ -139,7 +140,9 @@ sequenceDiagram
     J->>S3: remove objetos do usuário
     J->>CA: remove atividades e notificações
     J->>VK: remove chaves residuais
-    J->>DB: destrói DEK em user_key e marca ANONYMOUS_LGPD_DELETED
+    J->>DB: anonimiza e marca ANONYMOUS_LGPD_DELETED
+    J->>KC: apaga KEK do cofre de chaves e grava tombstone (crypto-shredding)
+    J->>DB: apaga user_key
     J->>J: recibo sem dado pessoal no log
   end
 ```
