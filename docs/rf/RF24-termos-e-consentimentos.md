@@ -362,5 +362,6 @@ flowchart LR
 | API | `lgpd/consentimento/ConsentimentoController.java`, `ConsentimentoService.java`, `PoliticaConsentimento.java` | ⏳ |
 | API | `lgpd/termos/LegalController.java`, `ReaceiteFilter.java` | ⏳ |
 | Banco | `V4__lgpd_consentimentos.sql` (consent_event, consentimento_atual, aceite_documento, texto_finalidade) | ⏳ |
-| Legal | `docs/legal/TERMOS_DE_USO.md`, `docs/legal/POLITICA_DE_PRIVACIDADE.md` | ⏳ |
+| Legal | `docs/legal/TERMOS_DE_USO.md` (texto-fonte com marcadores `{{…}}` e versão em `app.legal.termos.versao`, conforme DN-01) | 🟡 |
+| Legal | `docs/legal/POLITICA_DE_PRIVACIDADE.md`, `docs/legal/CHANGELOG.md` | ⏳ |
 | Testes | `ConsentimentoIT`, `ReaceiteIT`, `consentimentos.spec.ts` | ⏳ |
