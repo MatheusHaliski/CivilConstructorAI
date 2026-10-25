@@ -26,7 +26,7 @@ create table conta (
   cpf_hash        text,
   cnpj            text,
   registro_profissional text,           -- CREA/CAU
-  registro_uf     char(2),
+  registro_uf     varchar(2),
   selo_tipo       text check (selo_tipo in ('CREA','CAU','CNPJ')),
   selo_estado     text not null default 'NONE' check (selo_estado in ('NONE','PENDING','VERIFIED','REJECTED')),
   selo_verificado_em timestamptz,
@@ -103,7 +103,7 @@ create table obra (
   nome        text not null,
   endereco    text,
   municipio   text,
-  uf          char(2),
+  uf          varchar(2),
   perimetro   geometry(Polygon, 4674),            -- SIRGAS 2000
   localizacao geometry(Point, 4674),
   estado      text not null check (estado in ('PLANEJADA','EM_ANDAMENTO','PARALISADA','CONCLUIDA','ARQUIVADA')),
