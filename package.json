@@ -1,0 +1,27 @@
+{
+  "name": "civilconstructorai",
+  "private": true,
+  "version": "0.1.0",
+  "description": "CivilConstructorAI · CAD/BIM generativo com Notação VI e auditoria paramétrica",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "e2e": "turbo run e2e",
+    "docs:check": "python3 scripts/check_rf_docs.py"
+  },
+  "devDependencies": {
+    "turbo": "^2.11.10",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "npm@10.9.4",
+  "engines": {
+    "node": ">=22"
+  }
+}

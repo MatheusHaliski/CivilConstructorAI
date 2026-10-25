@@ -1,0 +1,120 @@
+spring:
+  application:
+    name: civilconstructorai
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: ${CCA_DB_URL:jdbc:postgresql://localhost:5432/cca}
+    username: ${CCA_DB_USER:cca_app}
+    password: ${CCA_DB_PASSWORD:cca_app}
+    hikari:
+      maximum-pool-size: 16
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc.time_zone: UTC
+        default_batch_fetch_size: 32
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    user: ${CCA_DB_MIGRATION_USER:cca_migracao}
+    password: ${CCA_DB_MIGRATION_PASSWORD:cca_migracao}
+  data:
+    redis:
+      url: ${CCA_VALKEY_URL:redis://localhost:6379}
+  session:
+    redis:
+      flush-mode: on_save
+  mail:
+    host: ${CCA_SMTP_HOST:localhost}
+    port: ${CCA_SMTP_PORT:1025}
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: 8080
+  servlet:
+    session:
+      cookie:
+        name: __Host-cca_session
+        http-only: true
+        secure: true
+        same-site: lax
+        path: /
+  error:
+    include-message: never
+    include-stacktrace: never
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+app:
+  seguranca:
+    app-secret: ${CCA_APP_SECRET:}
+  legal:
+    termos:
+      versao: ${CCA_TERMOS_VERSAO:1.0}
+    politica:
+      versao: ${CCA_POLITICA_VERSAO:1.0}
+  lgpd:
+    controladora-razao-social: ${CCA_CONTROLADORA:}
+    controladora-cnpj: ${CCA_CONTROLADORA_CNPJ:}
+    dpo-nome: ${CCA_DPO_NOME:}
+    dpo-email: ${CCA_DPO_EMAIL:}
+    eliminacao-cron: "0 15 3 * * *"
+    carencia-dias: 30
+  arquivos:
+    bucket: ${CCA_S3_BUCKET:cca}
+    endpoint: ${CCA_S3_ENDPOINT:}
+    regiao: ${CCA_S3_REGIAO:sa-east-1}
+    presign-minutos: 15
+  ia:
+    modelo: claude-opus-5-5
+    habilitada: ${CCA_IA_HABILITADA:false}
+  geometria:
+    url: ${CCA_GEOMETRIA_URL:http://localhost:8090}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  flyway:
+    user: ${CCA_DB_USER:cca_app}
+    password: ${CCA_DB_PASSWORD:cca_app}
+server:
+  servlet:
+    session:
+      cookie:
+        secure: false
+app:
+  arquivos:
+    endpoint: http://localhost:3900
+    acesso: ${CCA_S3_ACCESS_KEY:GK_dev}
+    segredo: ${CCA_S3_SECRET_KEY:dev_secret}
+logging:
+  level:
+    br.com.civilconstructorai: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: it
+server:
+  servlet:
+    session:
+      cookie:
+        secure: false

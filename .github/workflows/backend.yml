@@ -1,0 +1,38 @@
+name: Backend
+
+on:
+  push:
+    paths: ["backend/**", ".github/workflows/backend.yml"]
+  pull_request:
+    paths: ["backend/**", ".github/workflows/backend.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ["21", "25"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+      - name: Testes unitários e de integração (Testcontainers)
+        working-directory: backend
+        run: mvn -B -ntp verify
+      - name: SBOM (CycloneDX)
+        if: matrix.java == '21'
+        working-directory: backend
+        run: mvn -B -ntp -DskipTests package
+      - uses: actions/upload-artifact@v4
+        if: matrix.java == '21'
+        with:
+          name: sbom
+          path: backend/cca-web/target/bom.json
+          if-no-files-found: ignore
