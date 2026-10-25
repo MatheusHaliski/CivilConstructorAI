@@ -46,7 +46,11 @@ natural traduzido pelo Claude).
 2. `BRepCheck_Analyzer` válido; sem faces degeneradas; volume > 0.
 3. Sem auto-interseção e sem interpenetração indevida entre elementos (pilar×pilar, parede×parede; pilar×viga e
    viga×laje são juntas esperadas e tratadas pela regra de prioridade de corte).
-4. **Fechamento da envoltória**: as paredes externas formam um anel fechado por pavimento (tolerância 1 mm).
+4. **Fechamento da envoltória** (tolerância 1 mm): durante a edição incremental o modelo pode estar
+   **incompleto** (a primeira parede externa não forma anel), então aqui a regra gera só um **aviso**
+   `ENVOLTORIA_ABERTA` com o ponto e a folga, e o comando é aprovado. A mesma regra **reprova** (`422`) nas
+   **verificações de conclusão**, que rodam o laço 2 sobre o pavimento inteiro: análise estrutural (RF05),
+   emissão de prancha (RF14), exportação IFC/STEP (RF15) e passagem da obra para `EM_ANDAMENTO` (RF22).
 5. **Projeção vetorial de aberturas**: cada abertura é projetada na face da parede hospedeira (`NewOpening`); a
    abertura precisa caber inteira na face, com afastamento ≥ 0,10 m das bordas.
 
@@ -84,6 +88,10 @@ conteúdo** do prompt (que não contém dado pessoal, mas pode conter dado de pr
 - [ ] **CA-06** Auditoria idempotente: auditar de novo um comando aprovado não produz correções.
 - [ ] **CA-07** Laço 1 + laço 2 de um comando de até 50 elementos em ≤ 2 s (p95), sem contar a chamada ao LLM.
 - [ ] **CA-08** O relatório de auditoria lista cada correção automática com antes/depois e a regra da Tabela C.
+- [ ] **CA-09** Edição incremental nunca é bloqueada por envoltória aberta: desenhar paredes externas uma a uma
+  (ou abrir temporariamente uma delas) aprova cada comando com o aviso `ENVOLTORIA_ABERTA`; o aviso desaparece
+  quando o anel fecha. Análise, prancha, exportação e `EM_ANDAMENTO` com envoltória aberta → `422`
+  `ENVOLTORIA_ABERTA` listando pavimento, ponto e folga.
 
 ## 4. Regras de negócio
 
@@ -359,7 +367,8 @@ executada também no core-api com `FakeModeloLinguagem` determinístico:
 | E08 | Parede de 0,03 m | descartada por ShortCurveTolerance |
 | E09 | Pilar 15x15 cm | reprovado: seção mínima (RF08) |
 | E10 | Janela maior que a parede | reprovado no laço 2 |
-| E11 | Envoltória com folga de 2 cm | reprovado: envoltória aberta |
+| E11 | Envoltória com folga de 2 cm | aviso `ENVOLTORIA_ABERTA` na edição; reprovado ao emitir prancha ou rodar análise |
+| E11b | Desenhar o térreo parede a parede, uma por comando | todas aprovadas com aviso; aviso some quando o anel fecha |
 | E12 | Dois pilares sobrepostos | reprovado: interpenetração |
 | E13 | Comando com material inexistente | reprovado no laço 1 (gramática) |
 | E14 | Texto com `º`, `ª` e emojis nos identificadores | sanitizado; sem `UnicodeDecodeError` |

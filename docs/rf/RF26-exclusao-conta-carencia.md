@@ -51,8 +51,15 @@ executa os passos em ordem, cada um idempotente e marcado como concluído antes 
    exportações), por lista de chaves gravada no passo 1.
 3. **Limpar Cassandra** (registro de atividades e notificações com o id da pessoa; o TTL já cobre o resto).
 4. **Limpar Valkey** (índice de sessões do Spring Session, contadores de tentativa, cache de consentimento).
-5. **Destruir a DEK** (`user_key`) da pessoa: dados cifrados com ela — inclusive em backups — ficam
-   ilegíveis.
+5. **Destruir a chave da pessoa** (crypto-shredding de verdade, não só `DELETE`). A DEK fica em `user_key`
+   **cifrada por uma KEK por usuário**, e a KEK **não mora no PostgreSQL principal**: mora no **cofre de
+   chaves** (`chaves/CofreChaves`), um armazenamento separado com ciclo de vida próprio — réplica síncrona,
+   snapshots de no máximo 7 dias e **sem backups de longo prazo** —, com a KEK por sua vez cifrada pela
+   chave-mestra do KMS (AWS KMS `sa-east-1` em produção; cofre local nos perfis `dev`/`it`). O passo 5:
+   (a) apaga a KEK do cofre e grava um **tombstone** (`kek_revogada`: id da KEK, data) que o procedimento
+   de restauração do cofre aplica obrigatoriamente; (b) apaga a linha `user_key`. Restaurar um backup do
+   banco principal devolve `user_key` e os dados cifrados, mas a DEK só abre com a KEK, que não existe
+   mais em lugar nenhum — por isso os backups ficam ilegíveis.
 6. **Recibo**: grava `recibo_eliminacao` com id da saga, hash do id da conta, data, passos e bases legais
    do que ficou retido; **nenhum conteúdo pessoal** no recibo nem no log.
 
@@ -82,7 +89,9 @@ Falha em qualquer passo mantém a saga em `FALHOU_PASSO_n`; a próxima execuçã
   o mesmo estado final e um único recibo.
 - [ ] **CA-06** Objetos do S3 só são removidos depois do commit do passo 1 (teste injeta rollback e verifica que
   nada foi apagado).
-- [ ] **CA-07** Após a saga, a DEK não existe e um dado cifrado com ela (cópia simulando backup) não decifra.
+- [ ] **CA-07** Após a saga, a KEK não existe no cofre (nem num snapshot dele depois de aplicados os tombstones)
+  e um dado cifrado com a DEK não decifra **mesmo restaurando um backup do banco principal que contenha a
+  linha `user_key`** (o teste restaura dados + `user_key` num container limpo e tenta decifrar).
 - [ ] **CA-08** O que fica retido tem base legal registrada em `retencao_legal`; o recibo e os logs não contêm
   nome, e-mail, CPF nem IP.
 - [ ] **CA-09** `ANONYMOUS_LGPD_DELETED` é terminal: qualquer transição a partir dele lança
@@ -223,9 +232,18 @@ classDiagram
   class EmitirRecibo
   class UserKey {
     +UUID usuarioId
-    +byte[] dekCifrada
-    +destruir()
+    +UUID kekId
+    +int versao
+    +byte[] dekCifradaPelaKek
   }
+  class CofreChaves {
+    <<armazenamento separado>>
+    +gerarKek(usuarioId) UUID
+    +abrir(kekId) byte[]
+    +destruir(kekId)
+    +tombstones() List~UUID~
+  }
+  UserKey --> CofreChaves : kekId
   class RetencaoLegal {
     +String entidade
     +UUID registroId
@@ -267,6 +285,7 @@ sequenceDiagram
   participant SU as SudoGuard
   participant DB as PostgreSQL
   participant VK as Valkey (sessões)
+  participant KC as Cofre de chaves (KEK)
   participant J as EliminacaoJob 03:15
   participant S3 as S3
   participant CA as Cassandra
@@ -289,7 +308,8 @@ sequenceDiagram
   J->>S3: DELETE objetos (após o commit)
   J->>CA: DELETE atividades e notificações do usuário
   J->>VK: DEL índice de sessões, contadores, cache
-  J->>DB: DELETE user_key (destrói a DEK)
+  J->>KC: DELETE kek + INSERT kek_revogada (tombstone)
+  J->>DB: DELETE user_key
   J->>DB: INSERT recibo_eliminacao (sem conteúdo pessoal)
 ```
 
@@ -333,9 +353,14 @@ flowchart LR
     JB["EliminacaoJob (@Scheduled 03:15)"]
     SA["SagaEliminacao + 6 passos"]
     KM["UserKeyService (DEK / AES-256-GCM)"]
+    KC["CofreChaves (KEK por usuário)"]
     RG["RegistroOperacoes"]
   end
   DB[("PostgreSQL<br/>conta · saga · retencao_legal · user_key · recibo")]
+  KS[("Cofre de chaves<br/>kek · kek_revogada<br/>snapshots de 7 dias, sem backup longo")]
+  KMS[("KMS sa-east-1<br/>chave-mestra")]
+  KM --> KC --> KS
+  KC --> KMS
   S3[("S3 / Garage")]
   CA[("Cassandra")]
   VK[("Valkey")]
@@ -364,7 +389,7 @@ flowchart LR
 | Integração `*IT` | relógio avançado 30 dias → saga completa; rodar de novo → mesmo estado, um único recibo |
 | Integração `*IT` | falha injetada no passo 3 → `FALHOU_PASSO`; próxima execução conclui sem repetir os passos 1–2 |
 | Integração `*IT` | rollback no passo 1 → nenhum objeto removido do Garage |
-| Integração `*IT` | dado cifrado com a DEK antes da saga não decifra depois (simula backup) |
+| Integração `*IT` | `CryptoShreddingIT`: dump de dados + `user_key` antes da saga; após a saga, restaura o dump num container limpo e aplica os tombstones do cofre → decifrar lança `AEADBadTagException` / chave ausente |
 | Integração `*IT` | aprovação com ART mantém nome + CREA do responsável técnico e base legal em `retencao_legal` |
 | E2E (Playwright + axe) | `alertdialog` com foco correto, botão desabilitado até "Entendo", sem violação axe |
 
@@ -377,6 +402,6 @@ flowchart LR
 | Web | `apps/web/src/app/(app)/conta/privacidade/excluir/page.tsx`, `apps/web/src/app/(auth)/login/reativar/page.tsx` | ⏳ |
 | API | `lgpd/eliminacao/DeletionController.java`, `EliminacaoJob.java`, `SagaEliminacao.java`, passos | ⏳ |
 | Domínio | `identidade/conta/Conta.java` (máquina de estados) | ⏳ |
-| Cripto | `identidade/chave/UserKeyService.java` (DEK por usuário) | ⏳ |
+| Cripto | `identidade/chave/UserKeyService.java` (DEK por usuário), `chaves/CofreChaves.java` (KEK em armazenamento separado, KMS em prod) | ⏳ |
 | Banco | `V1__contas_empresas_obras.sql` (`user_key`), `V6__lgpd_eliminacao.sql` (saga, retencao_legal, recibo_eliminacao) | ⏳ |
 | Testes | `ExclusaoContaIT`, `SagaEliminacaoIT`, `CryptoShreddingIT`, `excluir-conta.spec.ts` | ⏳ |

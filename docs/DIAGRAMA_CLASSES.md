@@ -118,7 +118,8 @@ classDiagram
   }
   class UserKey {
     +UUID contaId
-    +byte[] dekCifrada
+    +UUID kekId
+    +byte[] dekCifradaPelaKek
     +destruir()
   }
   class PedidoTitular {

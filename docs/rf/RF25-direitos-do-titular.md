@@ -35,9 +35,11 @@ O RF cobre os direitos do Art. 18 em duas visões:
    trabalhador, função, presença) geram um **pedido de correção** para aquela empresa, porque ela é a
    controladora. Correção de nome ou registro em conta com selo `VERIFIED` volta o selo a `PENDING` (RF21).
 3. **Exportar** (Art. 18, V): job assíncrono gera `export.json` (schema versionado `cca-export/v1`) com todas as
-   categorias + os arquivos do titular, empacotados num **ZIP cifrado (AES-256)**; a senha aleatória é mostrada
-   **uma única vez** na tela, e o arquivo fica no S3 sob `exports/` por 24 h, baixado por URL pré-assinada de
-   15 min. Exige **modo sudo** (RF23).
+   categorias + os arquivos do titular, empacotados num **ZIP cifrado (AES-256)**. A senha aleatória é **gerada
+   pelo job no momento de cifrar** (não na requisição HTTP, que já terminou quando o job roda), guardada
+   **cifrada com a DEK do titular** até a primeira exibição, mostrada **uma única vez** na tela "Exportação
+   pronta" e então apagada (fica só o hash, para provar que o servidor não a tem). O arquivo fica no S3 sob
+   `exports/` por 24 h, baixado por URL pré-assinada de 15 min. Exige **modo sudo** (RF23).
 4. **Compartilhamentos** (Art. 18, VII): lista das entidades com quem os dados foram compartilhados — empresas
    e obras onde a pessoa é membro, operadores (provedor de nuvem, provedor de e-mail, Anthropic para a camada
    de IA — com indicação de transferência internacional, Art. 33) — e o histórico de exportações feitas pela
@@ -78,8 +80,9 @@ veem o conteúdo (RF21). Nunca entra em URL, log, analytics, notificação push 
   `PedidoTitular(tipo=CORRECAO)` para aquela empresa, visível na fila dela.
 - [ ] **CA-03** Exportar exige modo sudo (sem sudo: `403 sudo_required`); o job gera ZIP cifrado com
   `export.json` válido contra o JSON Schema `cca-export/v1` e os arquivos do titular.
-- [ ] **CA-04** A senha do ZIP aparece uma única vez; o servidor guarda só o hash; a URL pré-assinada vale
-  15 min; o objeto expira em 24 h por lifecycle do bucket.
+- [ ] **CA-04** A senha do ZIP é gerada pelo job, fica cifrada com a DEK do titular só até a primeira consulta
+  de `GET /me/exportacoes/{id}` após `PRONTA`, aparece uma única vez e depois o servidor guarda só o hash; a
+  URL pré-assinada vale 15 min; o objeto expira em 24 h por lifecycle do bucket.
 - [ ] **CA-05** Exportação, download e atendimento de pedido vão para o registro de operações (Art. 37) **sem**
   valores pessoais (só ids, tipo, data, resultado).
 - [ ] **CA-06** Pedido de titular tem prazo de 15 dias; faltando 3 dias, o Encarregado e o admin da empresa
@@ -129,8 +132,8 @@ veem o conteúdo (RF21). Nunca entra em URL, log, analytics, notificação push 
 | `PATCH /api/v1/me/perfil` | Correção direta de perfil | 200, 422 |
 | `POST /api/v1/me/pedidos` | `{tipo, empresaId?, categoria, descricao}` | 201, 422 |
 | `GET /api/v1/me/pedidos` | Meus pedidos e estado | 200 |
-| `POST /api/v1/me/exportacoes` | Inicia exportação (modo sudo) → `{id, senhaZip}` (uma vez) | 202, 403 `sudo_required`, 429 |
-| `GET /api/v1/me/exportacoes/{id}` | Estado do job; quando pronto, `urlDownload` (15 min) | 200, 404 |
+| `POST /api/v1/me/exportacoes` | Inicia exportação (modo sudo) → `{id}` | 202, 403 `sudo_required`, 429 |
+| `GET /api/v1/me/exportacoes/{id}` | Estado do job; quando `PRONTA`, `urlDownload` (15 min) e, **só na primeira consulta**, `senhaZip` | 200, 404 |
 | `GET /api/v1/me/compartilhamentos` | Empresas, operadores, transferências | 200 |
 | `GET /api/v1/empresas/{empresaId}/privacidade/inventario` | Inventário por categoria (admin) | 200, 403, 404 |
 | `PUT /api/v1/empresas/{empresaId}/privacidade/retencao/{categoria}` | Configurar retenção | 200, 422 |
@@ -189,17 +192,18 @@ flowchart TD
   d1 -- não --> a2["Pedir senha + código TOTP (RF23)"] --> d1
   d1 -- sim --> d2{"Já há exportação em andamento<br/>ou limite diário atingido?"}
   d2 -- sim --> e1["429 com Retry-After"] --> fim((fim))
-  d2 -- não --> a3["Criar Exportacao SOLICITADA<br/>gerar senha do ZIP e guardar só o hash"]
-  a3 --> a4["Responder 202 + senha (exibida uma vez)"]
+  d2 -- não --> a3["Criar Exportacao SOLICITADA"]
+  a3 --> a4["Responder 202 com o id"]
   a4 --> a5["Job coleta categorias do titular"]
   a5 --> a6["Pseudonimizar dados de terceiros"]
   a6 --> a7["Montar export.json cca-export/v1<br/>e validar no JSON Schema"]
   a7 --> d3{"Válido?"}
   d3 -- não --> e2["Exportacao FALHOU<br/>alerta para o Encarregado"] --> fim
-  d3 -- sim --> a8["Empacotar ZIP AES-256 com os arquivos"]
+  d3 -- sim --> a8["Gerar senha aleatória, cifrar ZIP AES-256<br/>guardar senha cifrada com a DEK do titular"]
   a8 --> a9["PUT no S3 em exports/ com lifecycle de 24 h"]
   a9 --> a10["Exportacao PRONTA + registro de operações"]
-  a10 --> a11["Titular baixa por URL pré-assinada de 15 min"]
+  a10 --> a11["Primeira consulta após PRONTA: senha exibida uma vez<br/>servidor apaga a senha e guarda só o hash"]
+  a11 --> a12["Titular baixa por URL pré-assinada de 15 min"]
   a11 --> fim
 ```
 
@@ -242,6 +246,8 @@ classDiagram
     +UUID id
     +UUID titularId
     +EstadoExportacao estado
+    +byte[] senhaZipCifradaDek
+    +Instant senhaExibidaEm
     +String hashSenhaZip
     +String chaveS3
     +Instant expiraEm
@@ -293,18 +299,20 @@ sequenceDiagram
   W->>API: POST /me/exportacoes
   API->>SU: exigirSudo(sessão)
   SU-->>API: ok (sudo válido por 10 min)
-  API->>DB: INSERT exportacao (SOLICITADA, hash da senha)
-  API-->>W: 202 {id, senhaZip}
-  W-->>T: mostra a senha uma única vez
+  API->>DB: INSERT exportacao (SOLICITADA)
+  API-->>W: 202 {id}
   J->>DB: SELECT exportacao SOLICITADA FOR UPDATE SKIP LOCKED
   J->>DB: coletar categorias do titular
-  J->>J: pseudonimizar terceiros, validar cca-export/v1, ZIP AES-256
+  J->>J: pseudonimizar terceiros, validar cca-export/v1
+  J->>J: gerar senha aleatória e cifrar o ZIP (AES-256)
   J->>S3: PUT exports/{id}.zip
-  J->>DB: UPDATE exportacao PRONTA
+  J->>DB: UPDATE exportacao PRONTA, senha cifrada com a DEK do titular
   J->>REG: EXPORTACAO_GERADA (ids, sem valores pessoais)
   W->>API: GET /me/exportacoes/{id}
   API->>S3: presign GET (15 min)
-  API-->>W: 200 {estado: PRONTA, urlDownload}
+  API->>DB: decifrar senha com a DEK, apagar, guardar só o hash
+  API-->>W: 200 {estado: PRONTA, urlDownload, senhaZip}
+  W-->>T: mostra a senha uma única vez
   T->>S3: download do ZIP
 ```
 

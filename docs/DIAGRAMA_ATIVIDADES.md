@@ -40,7 +40,7 @@ flowchart TD
     d1 -- sim --> a1["Auditor: Caixa Cartesiana Sanitizada - RF06"]
     a1 --> a2["ShortCurveTolerance e seções mínimas - RF08"]
     a2 --> a3["Disciplina Z - RF17"]
-    a3 --> l2["Laço 2 · geometria: BRep válido, sem auto-interseção,<br/>envoltória fechada, NewOpening projetado"]
+    a3 --> l2["Laço 2 · geometria: BRep válido, sem auto-interseção,<br/>envoltória (aviso na edição, reprova na emissão), NewOpening projetado"]
     l2 --> d2{"Sólido válido?"}
     d2 -- não --> r1
   end
@@ -118,7 +118,7 @@ flowchart TD
     s1 --> s2["Manter registros com obrigação legal + base legal"]
     s2 --> s3["Após commit: remover objetos S3"]
     s3 --> s4["Limpar Cassandra e Valkey"]
-    s4 --> s5["Destruir DEK do usuário - crypto-shredding"]
+    s4 --> s5["Apagar KEK no cofre de chaves + tombstone - crypto-shredding"]
     s5 --> s6["Recibo sem dado pessoal"]
   end
   s6 --> z["Conta ANONYMOUS_LGPD_DELETED - terminal"]
