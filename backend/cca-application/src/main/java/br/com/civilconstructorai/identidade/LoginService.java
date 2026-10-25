@@ -60,16 +60,30 @@ public class LoginService {
         this.tx = tx;
     }
 
+    /** gerado uma vez na inicialização: se fosse na 1ª tentativa, ela custaria o dobro e ainda daria pista */
+    private String hashFicticio;
+
+    @jakarta.annotation.PostConstruct
+    void prepararHashFicticio() {
+        hashFicticio = senhas.encode("senha-ficticia-para-custo-constante");
+    }
+
+    private String hashFicticio() {
+        return hashFicticio;
+    }
+
     /** etapa 1: e-mail + senha */
     public Resposta senha(String emailInformado, String senha, String ip) {
         var e = emailInformado == null ? "" : emailInformado.trim().toLowerCase();
         limites.registrar("login:ip:" + ip, 30, Duration.ofMinutes(15));
         limites.registrar("login:conta:" + e, 10, Duration.ofMinutes(15));
         var conta = contas.findByEmailIgnoreCase(e).orElse(null);
-        boolean ok = conta != null && senhas.matches(senha == null ? "" : senha, conta.getSenhaHash()) && conta.getEstado().podeEntrar();
+        // custo constante (RF19 CA-01): com conta inexistente o Argon2id roda contra um hash fictício, senão o tempo
+        // de resposta (≈15 ms × ≈500 ms medidos na auditoria) revelaria quais e-mails têm conta
+        boolean senhaOk = senhas.matches(senha == null ? "" : senha, conta != null ? conta.getSenhaHash() : hashFicticio());
+        boolean ok = conta != null && senhaOk && conta.getEstado().podeEntrar();
         if (!ok) {
-            // custo constante: mesmo com conta inexistente a resposta é a mesma
-            throw new ExcecaoDominio.AcessoNegado("E-mail ou senha incorretos.");
+            throw new ExcecaoDominio.NaoAutenticado("E-mail ou senha incorretos.");
         }
         limites.limpar("login:conta:" + e);
         sessao.remover(CHAVE_ESTADO);
@@ -84,7 +98,7 @@ public class LoginService {
         var conta = contas.findById(estado.contaId()).orElseThrow(() -> new ExcecaoDominio.AcessoNegado("Entre novamente."));
         limites.registrar("mfa:conta:" + conta.getId(), 5, Duration.ofMinutes(15));
         if (!mfa.verificar(conta, codigo)) {
-            throw new ExcecaoDominio.AcessoNegado("Código inválido.");
+            throw new ExcecaoDominio.NaoAutenticado("Código inválido ou já usado. Aguarde o próximo código do aplicativo.");
         }
         var novo = new EstadoLogin(estado.contaId(), true, true, estado.reativacaoResolvida(), estado.empresas());
         sessao.gravar(CHAVE_ESTADO, novo);
@@ -124,8 +138,15 @@ public class LoginService {
             throw new ExcecaoDominio.RecursoNaoEncontrado("Empresa");
         }
         boolean mfaOk = estado != null ? estado.mfaOk() : principalAtual().map(PrincipalSessao::mfaVerificado).orElse(false);
-        concluir(conta, empresaId, mfaOk);
+        // aviso de "novo acesso" só no login; trocar de empresa depois de entrar não é acesso novo
+        concluir(conta, empresaId, mfaOk, estado != null);
         return new Resposta(Etapa.AUTENTICADO, empresas);
+    }
+
+    /** depois do login (ex.: ao aceitar um convite): troca a empresa ativa e recarrega papéis, sem aviso por e-mail */
+    public Resposta trocarEmpresaAtiva(UUID empresaId) {
+        sessao.remover(CHAVE_ESTADO);
+        return escolherEmpresa(empresaId);
     }
 
     public void sair() {
@@ -153,22 +174,24 @@ public class LoginService {
             sessao.gravar(CHAVE_ESTADO, new EstadoLogin(estado.contaId(), true, estado.mfaOk(), estado.reativacaoResolvida(), new ArrayList<>(empresas)));
             return new Resposta(Etapa.ESCOLHER_EMPRESA, empresas);
         }
-        concluir(conta, empresas.isEmpty() ? null : empresas.getFirst(), estado.mfaOk());
+        concluir(conta, empresas.isEmpty() ? null : empresas.getFirst(), estado.mfaOk(), true);
         return new Resposta(Etapa.AUTENTICADO, empresas);
     }
 
     private void concluirParcial(Conta conta, EstadoLogin estado) {
         var empresas = fabrica.empresasDaPessoa(conta.getId());
-        concluir(conta, empresas.size() == 1 ? empresas.getFirst() : null, false);
+        concluir(conta, empresas.size() == 1 ? empresas.getFirst() : null, false, true);
     }
 
-    private void concluir(Conta conta, UUID empresaId, boolean mfaOk) {
+    private void concluir(Conta conta, UUID empresaId, boolean mfaOk, boolean avisarNovoAcesso) {
         var vinculo = empresaId == null ? null : fabrica.vinculoNaEmpresa(conta.getId(), empresaId);
         sessao.remover(CHAVE_ESTADO);
         sessao.trocarId();
         sessao.autenticar(fabrica.principal(conta, vinculo, mfaOk));
         tx.executeWithoutResult(st -> contas.findById(conta.getId()).ifPresent(c -> c.registrarLogin(relogio.agora())));
-        email.enviar(conta.getEmail(), "Novo acesso à sua conta", "Detectamos um novo acesso à sua conta do CivilConstructorAI. Se não foi você, troque a senha e encerre as outras sessões em Conta › Segurança.");
+        if (avisarNovoAcesso) {
+            email.enviar(conta.getEmail(), "Novo acesso à sua conta", "Detectamos um novo acesso à sua conta do CivilConstructorAI. Se não foi você, troque a senha e encerre as outras sessões em Conta › Segurança.");
+        }
     }
 
     private EstadoLogin estadoOuErro() {

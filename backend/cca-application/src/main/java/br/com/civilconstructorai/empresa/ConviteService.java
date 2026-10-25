@@ -88,9 +88,12 @@ public class ConviteService {
             }
             return PapelObra.ENGENHEIRO;
         });
-        // 2) regra do RF20 antes do escopo: um convite nunca promove acima de quem convida (422)
+        // 2) regra do RF20 antes do escopo: ninguém vira DONO por convite e nada acima de quem convida (403, RF20 CA-04)
+        if (papel == PapelObra.DONO) {
+            throw new ExcecaoDominio.AcessoNegado("convite_dono", "Ninguém entra como dono por convite; a posse da empresa não se transfere por aqui.");
+        }
         if (!papelDoConvidante.podeConvidar(papel)) {
-            throw new ExcecaoDominio.RegraDeNegocio("convite_acima_do_convidante", "Um convite nunca promove alguém acima do papel de quem convida (" + papelDoConvidante + ").");
+            throw new ExcecaoDominio.AcessoNegado("convite_acima_do_convidante", "Um convite nunca dá um papel acima do seu (" + papelDoConvidante.rotulo() + ").");
         }
         // 3) escopo: engenheiro(a) só convida para obra em que é engenheiro(a)
         if (!papelDoConvidante.escopoEmpresa() && (obraId == null || !u.temPapelNaObra(obraId, PapelObra.ENGENHEIRO))) {
@@ -103,8 +106,11 @@ public class ConviteService {
         var token = novoToken();
         var convite = Convite.novo(empresaId, obraId, emailConvidado, papel, u.contaId(), papelDoConvidante, hmac.hmacHex("convite", token), relogio.agora());
         var salvo = tx.execute(st -> {
-            if (convites.countByTenantIdAndEmailIgnoreCaseAndEstado(empresaId, convite.getEmail(), EstadoConvite.PENDENTE) > 0) {
-                throw new ExcecaoDominio.Conflito("Já existe um convite pendente para este e-mail nesta empresa.");
+            // RF20 CA-08: o convite novo substitui o pendente para o mesmo e-mail (o anterior fica REVOGADO); antes
+            // devolvia 409 e obrigava a revogar à mão para corrigir um papel ou obra errados
+            for (var anterior : convites.findByTenantIdAndEmailIgnoreCaseAndEstado(empresaId, convite.getEmail(), EstadoConvite.PENDENTE)) {
+                anterior.revogar();
+                registro.registrar(RegistroOperacoes.Operacao.de("CONVITE_SUBSTITUIDO", u.contaId(), empresaId, anterior.getObraId(), "Convite", anterior.getId()));
             }
             var c = convites.save(convite);
             registro.registrar(new RegistroOperacoes.Operacao("CONVITE_CRIADO", u.contaId(), empresaId, obraId, "Convite", c.getId(), Map.of("papel", papel.name())));
@@ -153,8 +159,11 @@ public class ConviteService {
         }));
     }
 
+    public record Aceite(UUID empresaId, UUID obraId) {
+    }
+
     /** aceite pela conta autenticada: cria o vínculo (empresa ou obra) no tenant do convite */
-    public UUID aceitar(String token) {
+    public Aceite aceitar(String token) {
         var u = contexto.exigir();
         var conta = contas.findById(u.contaId()).orElseThrow(() -> new ExcecaoDominio.AcessoNegado("Entre novamente."));
         var conv = comoSistema(() -> tx.execute(st -> porToken(token)));
@@ -177,7 +186,7 @@ public class ConviteService {
                 }
             }
             registro.registrar(new RegistroOperacoes.Operacao("CONVITE_ACEITO", conta.getId(), c.getTenantId(), c.getObraId(), "Convite", c.getId(), Map.of("papel", c.getPapel().name())));
-            return c.getTenantId();
+            return new Aceite(c.getTenantId(), c.getObraId());
         }));
     }
 
@@ -194,10 +203,24 @@ public class ConviteService {
                 .orElseThrow(() -> new ExcecaoDominio.RegraDeNegocio("convite_indisponivel", "Convite não encontrado, expirado ou já usado."));
     }
 
+    private static final java.time.format.DateTimeFormatter DATA_LONGA =
+            java.time.format.DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy, HH:mm", java.util.Locale.of("pt", "BR")).withZone(java.time.ZoneId.of("America/Sao_Paulo"));
+
+    /**
+     * O link usa a URL pública configurada ({@code app.web.url}) e a rota {@code /convite/{token}} do app web.
+     * Auditoria 2026-10: o e-mail apontava para {@code /convites/...} (rota inexistente no app) montada a partir do
+     * cabeçalho Origin — link quebrado e domínio controlado pelo cliente.
+     */
     private void enviarEmail(Convite c, String token, String urlBase) {
-        var link = (urlBase == null ? "" : urlBase) + "/convites/" + token;
-        email.enviar(c.getEmail(), "Você foi convidado(a) para o CivilConstructorAI",
-                "Você recebeu um convite como " + c.getPapel() + ". Ele vale até " + c.getExpiraEm() + " e só pode ser usado uma vez: " + link);
+        var base = urlBase == null || urlBase.isBlank() ? "" : urlBase.replaceAll("/+$", "");
+        var link = base + "/convite/" + token;
+        var empresa = empresas.findById(c.getTenantId()).map(e -> e.getNomeFantasia() != null && !e.getNomeFantasia().isBlank() ? e.getNomeFantasia() : e.getRazaoSocial()).orElse("uma empresa");
+        var obra = c.getObraId() == null ? null : obras.findById(c.getObraId()).map(o -> o.getNome()).orElse(null);
+        email.enviar(c.getEmail(), empresa + " convidou você para o CivilConstructorAI",
+                empresa + " convidou você para " + (obra == null ? "a equipe da empresa" : "a obra \"" + obra + "\"") + " com o papel de " + c.getPapel().rotulo() + ".\n\n"
+                        + "Para aceitar, abra o link abaixo e entre (ou crie a conta) com este mesmo e-mail:\n" + link + "\n\n"
+                        + "O convite vale até " + DATA_LONGA.format(c.getExpiraEm()) + " (horário de Brasília) e só pode ser usado uma vez. "
+                        + "Se você não esperava este convite, ignore esta mensagem.");
     }
 
     private Resumo resumo(Convite c) {

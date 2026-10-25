@@ -61,8 +61,12 @@ public class Convite extends EntidadeTenant {
     }
 
     public static Convite novo(UUID empresaId, UUID obraId, String email, PapelObra papel, UUID convidadoPor, PapelObra papelDoConvidante, String tokenHash, Instant agora) {
+        // RF20 CA-04: ninguém entra como DONO por convite (antes um DONO conseguia convidar outro DONO)
+        if (papel == PapelObra.DONO) {
+            throw new ExcecaoDominio.AcessoNegado("convite_dono", "Ninguém entra como dono por convite; a posse da empresa não se transfere por aqui.");
+        }
         if (!papelDoConvidante.podeConvidar(papel)) {
-            throw new ExcecaoDominio.RegraDeNegocio("convite_acima_do_convidante", "Um convite nunca promove alguém acima do papel de quem convida (" + papelDoConvidante + ").");
+            throw new ExcecaoDominio.AcessoNegado("convite_acima_do_convidante", "Um convite nunca dá um papel acima do seu (" + papelDoConvidante.rotulo() + ").");
         }
         if (papel.escopoEmpresa() && obraId != null) {
             throw new ExcecaoDominio.Validacao("obraId", "Convite para DONO/ADMIN é de empresa, sem obra.");

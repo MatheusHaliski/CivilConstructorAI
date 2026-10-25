@@ -10,3 +10,8 @@ export const metros = (v?: number | null, casas = 2) => (v === undefined || v ==
 export const bytes = (v?: number | null) => (v === undefined || v === null ? "—" : v > 1e6 ? `${(v / 1e6).toFixed(1)} MB` : `${Math.round(v / 1e3)} kB`);
 export const mascararCnpj = (v: string) => v.replace(/\D/g, "").replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2}).*/, "$1.$2.$3/$4-$5");
 export const estadoHumano = (e?: string) => (e ?? "").replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+
+/** destino interno seguro para ?voltar= (só caminhos relativos do app; evita redirecionamento aberto) */
+export function destinoSeguro(v: string | null | undefined, padrao = "/obras"): string {
+  return v && v.startsWith("/") && !v.startsWith("//") && !v.includes("\\") ? v : padrao;
+}

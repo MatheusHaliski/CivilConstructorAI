@@ -1,17 +1,18 @@
 "use client";
-import { useState, type FormEvent } from "react";
+import { Suspense, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ErroApi, get, mensagemDeErro, post } from "@/lib/api";
 import type { TipoConta, TipoSelo } from "@/lib/tipos";
-import { Aviso, Botao, Caixa, Cartao, Entrada, Selecao } from "@/components/ui";
+import { Carregando, Aviso, Botao, Caixa, Cartao, Entrada, Selecao } from "@/components/ui";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"].map((u) => ({ valor: u, rotulo: u }));
 
 /** RF18 · Cadastro de pessoa ou empresa com aceite versionado (caixas desmarcadas por padrão). */
-export default function PaginaCadastrar() {
+function PaginaCadastrarConteudo() {
   const router = useRouter();
+  const voltar = useSearchParams().get("voltar");
   const versoes = useQuery({ queryKey: ["legal-versoes"], queryFn: () => get<{ termos: string; politica: string }>("/auth/legal/versoes") });
   const [tipo, setTipo] = useState<TipoConta>("PESSOA");
   const [f, setF] = useState({ nome: "", email: "", senha: "", dataNascimento: "", cnpj: "", razaoSocial: "", seloTipo: "" as "" | TipoSelo, registroProfissional: "", registroUf: "", aceitaTermos: false, aceitaPolitica: false });
@@ -29,7 +30,7 @@ export default function PaginaCadastrar() {
         seloTipo: f.seloTipo || null, registroProfissional: f.registroProfissional || null, registroUf: f.registroUf || null,
         aceitaTermos: f.aceitaTermos, aceitaPolitica: f.aceitaPolitica, versaoTermos: versoes.data?.termos, versaoPolitica: versoes.data?.politica,
       });
-      router.push("/verificar-email");
+      router.push(`/verificar-email${voltar ? `?voltar=${encodeURIComponent(voltar)}` : ""}`);
     } catch (x) { setErro(x as Error); } finally { setOcupado(false); }
   }
 
@@ -66,8 +67,12 @@ export default function PaginaCadastrar() {
           {(campo("aceitaTermos") || campo("aceitaPolitica")) && <p role="alert" className="text-xs text-danger">{campo("aceitaTermos") ?? campo("aceitaPolitica")}</p>}
         </div>
         <Botao type="submit" carregando={ocupado}>Criar conta</Botao>
-        <p className="text-sm text-text-3">Já tem conta? <Link className="text-brand-text underline underline-offset-4" href="/entrar">Entrar</Link></p>
+        <p className="text-sm text-text-3">Já tem conta? <Link className="text-brand-text underline underline-offset-4" href={voltar ? `/entrar?voltar=${encodeURIComponent(voltar)}` : "/entrar"}>Entrar</Link></p>
       </form>
     </Cartao>
   );
+}
+
+export default function PaginaCadastrar() {
+  return <Suspense fallback={<Carregando />}><PaginaCadastrarConteudo /></Suspense>;
 }

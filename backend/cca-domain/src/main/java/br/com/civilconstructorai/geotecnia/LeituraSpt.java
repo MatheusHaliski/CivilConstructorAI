@@ -6,13 +6,9 @@ package br.com.civilconstructorai.geotecnia;
  */
 public record LeituraSpt(double profundidade, int nspt, boolean impenetravel) {
 
-    public LeituraSpt {
-        if (profundidade < 0) {
-            throw new IllegalArgumentException("Profundidade negativa.");
-        }
-        if (nspt < 0) {
-            throw new IllegalArgumentException("Nspt deve ser inteiro ≥ 0.");
-        }
+    /** profundidade ≥ 0 e Nspt ≥ 0 são validados por quem recebe a entrada, juntando todos os erros do furo (RF09 CA-03) */
+    public boolean valida() {
+        return profundidade >= 0 && nspt >= 0;
     }
 
     public int nsptCalculo() {

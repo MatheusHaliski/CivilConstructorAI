@@ -1,5 +1,6 @@
 package br.com.civilconstructorai.ia;
 
+import br.com.civilconstructorai.acesso.AcessoObra;
 import br.com.civilconstructorai.comum.ContextoUsuario;
 import br.com.civilconstructorai.comum.ExcecaoDominio;
 import br.com.civilconstructorai.comum.Relogio;
@@ -26,8 +27,13 @@ public class RascunhoIaService {
     private final ContextoUsuario contexto;
     private final RegistroOperacoes registro;
     private final Relogio relogio;
+    private final AcessoObra acesso;
+    private final org.springframework.beans.factory.ObjectProvider<EfeitoDoRascunho> efeitos;
 
-    public RascunhoIaService(RascunhoIaRepository rascunhos, PedidoRevisaoHumanaRepository revisoes, ContextoUsuario contexto, RegistroOperacoes registro, Relogio relogio) {
+    public RascunhoIaService(RascunhoIaRepository rascunhos, PedidoRevisaoHumanaRepository revisoes, ContextoUsuario contexto, RegistroOperacoes registro, Relogio relogio, AcessoObra acesso,
+                             org.springframework.beans.factory.ObjectProvider<EfeitoDoRascunho> efeitos) {
+        this.efeitos = efeitos;
+        this.acesso = acesso;
         this.rascunhos = rascunhos;
         this.revisoes = revisoes;
         this.contexto = contexto;
@@ -52,13 +58,20 @@ public class RascunhoIaService {
 
     @Transactional(readOnly = true)
     public List<RascunhoIa> listar(UUID obraId, EstadoRascunhoIa estado) {
-        exigirMembro(obraId);
+        var u = exigirMembro(obraId);
+        // DN-02: cliente e fornecedor nunca veem rascunho de IA (auditoria 2026-10: a lista aparecia para o cliente)
+        if (soClienteOuFornecedor(u, obraId)) {
+            return List.of();
+        }
         return estado == null ? rascunhos.findByObraIdOrderByCriadoEmDesc(obraId) : rascunhos.findByObraIdAndEstadoOrderByCriadoEmDesc(obraId, estado);
     }
 
     @Transactional(readOnly = true)
     public RascunhoIa obter(UUID obraId, UUID id) {
-        exigirMembro(obraId);
+        var u = exigirMembro(obraId);
+        if (soClienteOuFornecedor(u, obraId)) {
+            throw new ExcecaoDominio.RecursoNaoEncontrado("Rascunho");
+        }
         return rascunhos.findByIdAndObraId(id, obraId).orElseThrow(() -> new ExcecaoDominio.RecursoNaoEncontrado("Rascunho"));
     }
 
@@ -83,7 +96,9 @@ public class RascunhoIaService {
         }
         r.aprovar(u.contaId(), artRrt, relogio.agora());
         registro.registrar(new RegistroOperacoes.Operacao("RASCUNHO_IA_APROVADO", u.contaId(), u.empresaAtivaId(), obraId, "rascunho_ia", id, Map.of("artRrt", "informada")));
-        return rascunhos.save(r);
+        var salvo = rascunhos.save(r);
+        efeitos.orderedStream().filter(e -> e.tipo().equals(r.getTipo())).forEach(e -> e.aoAprovar(obraId, salvo));
+        return salvo;
     }
 
     @Transactional
@@ -95,7 +110,9 @@ public class RascunhoIaService {
         var r = obter(obraId, id);
         r.rejeitar(u.contaId(), motivo);
         registro.registrar(RegistroOperacoes.Operacao.de("RASCUNHO_IA_REJEITADO", u.contaId(), u.empresaAtivaId(), obraId, "rascunho_ia", id));
-        return rascunhos.save(r);
+        var salvo = rascunhos.save(r);
+        efeitos.orderedStream().filter(e -> e.tipo().equals(r.getTipo())).forEach(e -> e.aoRejeitar(obraId, salvo));
+        return salvo;
     }
 
     @Transactional
@@ -139,11 +156,13 @@ public class RascunhoIaService {
     }
 
     private UsuarioAtual exigirMembro(UUID obraId) {
-        var u = contexto.exigir();
-        if (!u.membroDaObra(obraId)) {
-            throw new ExcecaoDominio.RecursoNaoEncontrado("Obra");
-        }
-        return u;
+        acesso.exigirMembro(obraId);
+        return contexto.exigir();
+    }
+
+    private static boolean soClienteOuFornecedor(UsuarioAtual u, UUID obraId) {
+        var papeis = u.papeisNaObra(obraId);
+        return !papeis.isEmpty() && papeis.stream().allMatch(p -> p == br.com.civilconstructorai.acesso.PapelObra.CLIENTE || p == br.com.civilconstructorai.acesso.PapelObra.FORNECEDOR);
     }
 
     private static String motivoNaoAprova(UsuarioAtual u, UUID obraId) {

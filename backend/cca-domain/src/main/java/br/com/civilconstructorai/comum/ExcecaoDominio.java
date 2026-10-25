@@ -8,7 +8,7 @@ import java.util.Map;
  * pt-BR. O {@code codigo} vai no campo {@code type} para o cliente tratar sem depender do texto.
  */
 public abstract sealed class ExcecaoDominio extends RuntimeException
-        permits ExcecaoDominio.RecursoNaoEncontrado, ExcecaoDominio.AcessoNegado, ExcecaoDominio.TransicaoInvalida,
+        permits ExcecaoDominio.RecursoNaoEncontrado, ExcecaoDominio.NaoAutenticado, ExcecaoDominio.AcessoNegado, ExcecaoDominio.TransicaoInvalida,
         ExcecaoDominio.Validacao, ExcecaoDominio.Conflito, ExcecaoDominio.LimiteExcedido, ExcecaoDominio.SudoNecessario,
         ExcecaoDominio.ReaceiteNecessario, ExcecaoDominio.RegraDeNegocio {
 
@@ -30,10 +30,22 @@ public abstract sealed class ExcecaoDominio extends RuntimeException
         }
     }
 
+    /** 401: credencial inválida ou etapa de login incompleta; a mensagem nunca diz qual dado falhou. */
+    public static final class NaoAutenticado extends ExcecaoDominio {
+        public NaoAutenticado(String motivo) {
+            super("nao_autenticado", motivo);
+        }
+    }
+
     /** 403: papel insuficiente na obra certa; o motivo vai em pt-BR. */
     public static final class AcessoNegado extends ExcecaoDominio {
         public AcessoNegado(String motivo) {
             super("acesso_negado", motivo);
+        }
+
+        /** 403 com tipo específico no Problem Details (ex.: convite_acima_do_convidante) */
+        public AcessoNegado(String codigo, String motivo) {
+            super(codigo, motivo);
         }
     }
 

@@ -38,6 +38,9 @@ public interface ModeloRepositorio {
 
     Optional<ModeloBim.Estado> estadoNaVersao(UUID obraId, long versao);
 
+    /** marca elementos recém-criados pela IA com o rascunho que os originou (metadado, não muda a versão) */
+    void vincularRascunho(UUID obraId, java.util.Collection<UUID> elementos, UUID rascunhoId);
+
     void liberarCliente(UUID obraId, boolean liberar, long versao);
 
     void salvarCiclo(CicloRegistro ciclo);

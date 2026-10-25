@@ -45,8 +45,13 @@ public class MfaService {
     private final AssinadorHmac hmac;
     private final ArmazemSessao sessao;
     private final Relogio relogio;
+    private final Portas.LimitadorTentativas usos;
+    private final SessaoUsuarioFabrica fabrica;
 
-    public MfaService(ContaRepository contas, CodigoRecuperacaoMfaRepository recuperacao, Totp totp, CifradorSegredoTotp cifrador, AssinadorHmac hmac, ArmazemSessao sessao, Relogio relogio) {
+    public MfaService(ContaRepository contas, CodigoRecuperacaoMfaRepository recuperacao, Totp totp, CifradorSegredoTotp cifrador, AssinadorHmac hmac, ArmazemSessao sessao, Relogio relogio,
+                      Portas.LimitadorTentativas usos, SessaoUsuarioFabrica fabrica) {
+        this.usos = usos;
+        this.fabrica = fabrica;
         this.contas = contas;
         this.recuperacao = recuperacao;
         this.totp = totp;
@@ -71,9 +76,15 @@ public class MfaService {
         if (!totp.verificar(segredo, codigo == null ? "" : codigo.trim())) {
             throw new ExcecaoDominio.Validacao("codigo", "Código inválido. Confira o relógio do aparelho e tente de novo.");
         }
+        usos.primeiroUso(chaveUso(contaId, codigo.trim()), JANELA_USO);
         var conta = contas.findById(contaId).orElseThrow(() -> new ExcecaoDominio.RecursoNaoEncontrado("Conta"));
         conta.ativarMfa(cifrador.cifrar(contaId, segredo));
         sessao.remover(CHAVE_SETUP);
+        // a sessão atual comprovou o segundo fator: sai do bloqueio de 2FA pendente sem novo login
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof PrincipalSessao p && p.contaId().equals(contaId)) {
+            sessao.autenticar(p.comMfaConfigurado());
+        }
         return regenerarCodigos(contaId);
     }
 
@@ -93,6 +104,10 @@ public class MfaService {
     @Transactional
     public void desativar(UUID contaId) {
         var conta = contas.findById(contaId).orElseThrow(() -> new ExcecaoDominio.RecursoNaoEncontrado("Conta"));
+        // RF23 CA-07: dono/admin/aprovador não desliga o 2FA obrigatório (a auditoria encontrou 204 aqui)
+        if (conta.isMfaObrigatorio() || fabrica.exigeMfa(contaId)) {
+            throw new ExcecaoDominio.Conflito("O 2FA é obrigatório para o seu papel (dono, administrador ou aprovador); troque o aparelho gerando um novo código em vez de desativar.");
+        }
         conta.desativarMfa();
         recuperacao.deleteByContaId(contaId);
     }
@@ -106,7 +121,8 @@ public class MfaService {
         var c = codigo.trim().toUpperCase().replace("-", "").replace(" ", "");
         if (c.matches("^\\d{6}$")) {
             var segredo = cifrador.decifrar(conta.getId(), conta.getMfaSegredoCifrado());
-            return totp.verificar(segredo, c);
+            // RF19 CA-05: o mesmo código não vale duas vezes (replay dentro da janela de ±1 passo)
+            return totp.verificar(segredo, c) && usos.primeiroUso(chaveUso(conta.getId(), c), JANELA_USO);
         }
         var esperado = hmac.hmacHex("recuperacao", conta.getId() + ":" + c);
         for (var r : recuperacao.findByContaIdAndUsadoEmIsNull(conta.getId())) {
@@ -116,6 +132,12 @@ public class MfaService {
             }
         }
         return false;
+    }
+
+    private static final java.time.Duration JANELA_USO = java.time.Duration.ofSeconds(120);
+
+    private static String chaveUso(UUID contaId, String codigo) {
+        return "totp:" + contaId + ":" + codigo;
     }
 
     public long codigosRestantes(UUID contaId) {

@@ -1,0 +1,812 @@
+[
+  {
+    "rf": "RF11",
+    "id": "CA-01",
+    "descricao": "mesmo modelo → mesmo hash",
+    "ok": true,
+    "evidencia": {
+      "hash": "f5000aad",
+      "versao": 13
+    }
+  },
+  {
+    "rf": "RF11",
+    "id": "laje",
+    "descricao": "concreto da laje = 5 × 4 × 0,10 = 2,000 m³ (descontando o que já é de pilar/viga, se for o critério)",
+    "ok": true,
+    "evidencia": {
+      "lajeM3": 1.748,
+      "criterio": "verificar se há desconto de interseção"
+    }
+  },
+  {
+    "rf": "RF11",
+    "id": "CA-03",
+    "descricao": "alvenaria = 5 × 2,8 − janela 2,0 × 1,5 = 11,00 m² (abertura > 2 m² descontada)",
+    "ok": true,
+    "evidencia": {
+      "alvenariaM2": 11,
+      "linhas": [
+        {
+          "pavimentoId": "0b7f6451-7cdf-316a-95ce-64d94fcc969a",
+          "elementoId": "01a1743d-24dc-78c2-8cfd-d984b1e83824",
+          "tipo": "PAREDE",
+          "rotulo": "PAR1",
+          "materialId": "MAT_ALV_BLOCO14",
+          "concretoM3": 0,
+          "formaM2": 0,
+          "acoKg": 0,
+          "alvenariaM2": 11,
+          "origemAco": "taxa"
+        }
+      ]
+    }
+  },
+  {
+    "rf": "RF11",
+    "id": "pilar",
+    "descricao": "concreto de cada pilar = 0,2 × 0,4 × 3,0 = 0,240 m³ (ou líquido de interseções)",
+    "ok": true,
+    "evidencia": [
+      0.24,
+      0.24,
+      0.24,
+      0.24
+    ]
+  },
+  {
+    "rf": "RF11",
+    "id": "totais",
+    "descricao": "total geral = soma das linhas (rastreável por elemento)",
+    "ok": true,
+    "evidencia": {
+      "soma": 3.628,
+      "total": 3.628
+    }
+  },
+  {
+    "rf": "RF11",
+    "id": "CA-04",
+    "descricao": "aço sem dimensionamento aparece como estimativa por taxa",
+    "ok": true,
+    "evidencia": [
+      "taxa"
+    ]
+  },
+  {
+    "rf": "RF11",
+    "id": "CA-05",
+    "descricao": "CSV com pavimento, elemento, material, unidade e quantidade",
+    "ok": true,
+    "evidencia": "pavimento;elemento;tipo;rotulo;material;concreto_m3;forma_m2;aco_kg;alvenaria_m2;origem_aco"
+  },
+  {
+    "rf": "RF12",
+    "id": "sem-tabela",
+    "descricao": "sem tabela SINAPI da UF/regime: explica o que falta (não usa tabela de outro estado)",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Não há tabela SINAPI de AC desonerada. Importe a tabela da Caixa para a UF e o regime da obra antes de orçar."
+    }
+  },
+  {
+    "rf": "RF12",
+    "id": "importar",
+    "descricao": "importa tabela SINAPI PR 2020-06 não desonerada",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "j": "01a1743d-25be-729a-8891-331f0c239192"
+    }
+  },
+  {
+    "rf": "RF12",
+    "id": "reimportar",
+    "descricao": "reimportar o mesmo mês → 409 explicando",
+    "ok": true,
+    "evidencia": "Já existe a tabela SINAPI PR 6/2020 não desonerada. Orçamentos já feitos guardam a versão usada; importe outro mês de referência."
+  },
+  {
+    "rf": "RF12",
+    "id": "gerar",
+    "descricao": "orçamento gerado a partir do quantitativo",
+    "ok": true,
+    "evidencia": {
+      "s": 201
+    }
+  },
+  {
+    "rf": "RF12",
+    "id": "fonte",
+    "descricao": "orçamento usa a tabela importada da UF (não a de demonstração)",
+    "ok": true,
+    "evidencia": {
+      "dataBase": "SINAPI PR 8/2026 não desonerado",
+      "demo": false
+    }
+  },
+  {
+    "rf": "RF12",
+    "id": "CA-01",
+    "descricao": "itens com código, unidade, quantidade, custo unitário, total, UF, mês e regime",
+    "ok": true,
+    "evidencia": {
+      "n": 10,
+      "ex": {
+        "atualizadoEm": "2026-10-25T18:05:26.928557Z",
+        "codigoSinapi": "",
+        "criadoEm": "2026-10-25T18:05:26.928557Z",
+        "custoUnitario": 0,
+        "descricao": "Sem composição SINAPI vinculada: o código 92779 não existe em SINAPI PR 8/2026 não desonerado",
+        "etapa": "Estrutura",
+        "geradoPorIa": false,
+        "id": "01a1743d-260b-7c6e-99d6-9f6372d45d05",
+        "orcamentoId": "01a1743d-25fe-7d1a-a74d-c3f749309b8e",
+        "quantidade": 122.36,
+        "servico": "Aço CA-50 laje",
+        "tenantId": "01a1743d-202b-7582-ac73-e6cb49633b3d",
+        "total": 0,
+        "unidade": "kg",
+        "versao": 0
+      },
+      "mes": "SINAPI PR 8/2026 não desonerado"
+    }
+  },
+  {
+    "rf": "RF12",
+    "id": "soma",
+    "descricao": "total do orçamento = soma dos itens (conferência independente)",
+    "ok": true,
+    "evidencia": {
+      "soma": 2221.61,
+      "total": 2221.61,
+      "totaisPorEtapa": {
+        "Estrutura": 2221.61,
+        "Vedações": 0
+      }
+    }
+  },
+  {
+    "rf": "RF12",
+    "id": "sem-vinculo",
+    "descricao": "serviços sem composição (fôrma, alvenaria) aparecem com custo zero e contagem",
+    "ok": true,
+    "evidencia": {
+      "semVinculo": [
+        "Aço CA-50 laje: Sem composição SINAPI vinculada: o código 92779 não existe em SINAPI PR 8/2026 não desonerado",
+        "Aço CA-50 pilar: Sem composição SINAPI vinculada: o código 92779 não existe em SINAPI PR 8/2026 não desonerado",
+        "Aço CA-50 viga: Sem composição SINAPI vinculada: o código 92779 não existe em SINAPI PR 8/2026 não desonerado",
+        "Fôrma laje: Sem composição SINAPI vinculada: o serviço não tem código na Tabela A; associe uma composição",
+        "Fôrma pilar: Sem composição SINAPI vinculada: o serviço não tem código na Tabela A; associe uma composição",
+        "Fôrma viga: Sem composição SINAPI vinculada: o serviço não tem código na Tabela A; associe uma composição",
+        "Alvenaria: Sem composição SINAPI vinculada: o código 103323 não existe em SINAPI PR 8/2026 não desonerado"
+      ],
+      "contagem": 7
+    }
+  },
+  {
+    "rf": "RF12",
+    "id": "CA-05",
+    "descricao": "aprovar sem selo VERIFIED → 403 explicado",
+    "ok": true,
+    "evidencia": {
+      "s": 403,
+      "d": "Aprovar um orçamento exige papel aprovador, selo profissional verificado e 2FA ativo."
+    }
+  },
+  {
+    "rf": "RF11",
+    "id": "CA-06",
+    "descricao": "mudança no modelo gera novo levantamento com hash diferente",
+    "ok": true,
+    "evidencia": {
+      "antes": 13,
+      "depois": 14
+    }
+  },
+  {
+    "rf": "RF12",
+    "id": "CA-06",
+    "descricao": "orçamento antigo sinaliza quantitativo desatualizado",
+    "ok": true,
+    "evidencia": {
+      "estado": "CALCULADO",
+      "quantitativoDesatualizado": true,
+      "versao": 13
+    }
+  },
+  {
+    "rf": "RF09",
+    "id": "CA-02/03",
+    "descricao": "camadas com lacuna e Nspt negativo → 422 com todos os erros",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "errs": [
+        {
+          "mensagem": "Nspt deve ser inteiro ≥ 0.",
+          "campo": "leituras[0]"
+        },
+        {
+          "mensagem": "Camadas devem ser contíguas, sem sobreposição nem vazio.",
+          "campo": "camadas[1]"
+        }
+      ]
+    }
+  },
+  {
+    "rf": "RF09",
+    "id": "cadastro",
+    "descricao": "furo SP-01 cadastrado como RASCUNHO",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "estado": "RASCUNHO"
+    }
+  },
+  {
+    "rf": "RF09",
+    "id": "confirmar",
+    "descricao": "furo confirmado pelo engenheiro",
+    "ok": true,
+    "evidencia": "CONFIRMADO"
+  },
+  {
+    "rf": "RF09",
+    "id": "perfil",
+    "descricao": "perfil interpolado identifica o furo de origem (rastreável)",
+    "ok": true,
+    "evidencia": "{\"x\":2.5,\"y\":2,\"camadas\":[{\"cotaTopo\":0,\"cotaBase\":-4,\"tipo\":\"ARGILA\",\"descricao\":\"argila siltosa\"},{\"cotaTopo\":-4,\"cotaBase\":-10,\"tipo\":\"AREIA\",\"descricao\":\"areia média\"}],\"leituras\":[{\"profundidade\""
+  },
+  {
+    "rf": "RF09",
+    "id": "CA-05",
+    "descricao": "upload do boletim por URL pré-assinada (S3)",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "url": "http://localhost:3900/cca/obras/01a1743d-2300-7c19-9834-e7ed"
+    }
+  },
+  {
+    "rf": "RF05",
+    "id": "fluxo",
+    "descricao": "análise após pronto",
+    "ok": true,
+    "evidencia": {
+      "s": 202,
+      "estado": "CONCLUIDO"
+    }
+  },
+  {
+    "rf": "RF10",
+    "id": "dimensionar",
+    "descricao": "dimensionamento de fundações com análise concluída + furo confirmado",
+    "ok": true,
+    "evidencia": {
+      "s": 202,
+      "estado": "CALCULADO"
+    }
+  },
+  {
+    "rf": "RF10",
+    "id": "CA-02/04",
+    "descricao": "cada proposta traz tipo, dimensões, carga e memória (método e fatores)",
+    "ok": true,
+    "evidencia": {
+      "estado": "CALCULADO",
+      "n": 5,
+      "ex": {
+        "tipo": "SAPATA",
+        "carga": 50,
+        "memoria": "[\"Nspt médio no bulbo (1.5 a 2.7 m) = 8.0 → σadm = 20·Nspt = 160 kPa (≤ 400)\",\"A = 1,1·Nk/σadm = 0.34 m² → B = 0.60 m; h ≥ (B − b)/3 → 0.30 m (sapata rígida, NB"
+      }
+    }
+  },
+  {
+    "rf": "RF10",
+    "id": "CA-05-linha",
+    "descricao": "linha auxiliar não invalida fundações",
+    "ok": true,
+    "evidencia": {
+      "antes": "CALCULADO",
+      "depois": "CALCULADO"
+    }
+  },
+  {
+    "rf": "RF10",
+    "id": "CA-05",
+    "descricao": "pilar novo marca fundações OBSOLETO",
+    "ok": true,
+    "evidencia": "OBSOLETO"
+  },
+  {
+    "rf": "RF14",
+    "id": "CA-05",
+    "descricao": "prancha gerada em job e com estado acompanhável",
+    "ok": true,
+    "evidencia": {
+      "estado": "GERADA",
+      "versao": 16
+    }
+  },
+  {
+    "rf": "RF14",
+    "id": "CA-07",
+    "descricao": "DXF com camadas EIXOS, COTAS, CORTADO, VISTA, TEXTO",
+    "ok": true,
+    "evidencia": {
+      "camadas": [
+        "EIXOS",
+        "TEXTO",
+        "CORTADO",
+        "OCULTO",
+        "VISTA",
+        "COTAS"
+      ],
+      "tamanho": 3721
+    }
+  },
+  {
+    "rf": "RF14",
+    "id": "conteudo",
+    "descricao": "SVG da planta com escala 1:50 e identificação de rascunho/versão",
+    "ok": true,
+    "evidencia": {
+      "tamanho": 4665,
+      "temEscala": true,
+      "temRascunho": true,
+      "dl": 200
+    }
+  },
+  {
+    "rf": "RF14",
+    "id": "CA-04",
+    "descricao": "marca d'água de rascunho sem cálculo aprovado",
+    "ok": true,
+    "evidencia": null
+  },
+  {
+    "rf": "RF14",
+    "id": "CA-03",
+    "descricao": "mudança no modelo marca a prancha como OBSOLETA",
+    "ok": true,
+    "evidencia": "OBSOLETA"
+  },
+  {
+    "rf": "RF15",
+    "id": "CA-08",
+    "descricao": "exportação IFC é job assíncrono",
+    "ok": true,
+    "evidencia": {
+      "estado": "CONCLUIDO"
+    }
+  },
+  {
+    "rf": "RF15",
+    "id": "conteudo",
+    "descricao": "IFC4X3: cabeçalho, pilares, vigas, laje e parede com GlobalId",
+    "ok": true,
+    "evidencia": {
+      "schema": "IFC4X3_ADD2",
+      "colunas": 6,
+      "vigas": 4,
+      "lajes": 1,
+      "paredes": 1,
+      "janelas": 1,
+      "materiais": 0,
+      "unidades": true
+    }
+  },
+  {
+    "rf": "RF15",
+    "id": "CA-02",
+    "descricao": "GlobalId estável entre duas exportações da mesma versão",
+    "ok": true,
+    "evidencia": {
+      "a": "0Q5qFIDuSK6pKZBnoF0Mq0,0Q5qFIEWVmIgPgpFr$Orsm,0Q5q",
+      "b": "0Q5qFIDuSK6pKZBnoF0Mq0,0Q5qFIEWVmIgPgpFr$Orsm,0Q5q"
+    }
+  },
+  {
+    "rf": "RF02",
+    "id": "CA-04",
+    "descricao": "texto natural vira rascunho de IA (não aplica direto)",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "aviso": "Rascunho gerado por IA: confirme para aprovar (RF27).",
+      "vi": [
+        "VI(PAREDE, p1=[0,0], p2=[5,0], esp=0.15, h=2.8, mat=MAT_ALV_BLOCO14)"
+      ]
+    }
+  },
+  {
+    "rf": "RF27",
+    "id": "CA-01",
+    "descricao": "elementos da IA ficam marcados (camada ia-rascunho/origem IA) até aprovação",
+    "ok": true,
+    "evidencia": {
+      "n": 1,
+      "camadas": [
+        "ia-rascunho"
+      ]
+    }
+  },
+  {
+    "rf": "RF27",
+    "id": "lista",
+    "descricao": "rascunhos de IA listados com estado",
+    "ok": true,
+    "evidencia": [
+      "COMANDO_VI:GERADO_POR_IA"
+    ]
+  },
+  {
+    "rf": "RF27",
+    "id": "CA-03",
+    "descricao": "aprovar rascunho sem selo VERIFIED → 403 selo",
+    "ok": true,
+    "evidencia": {
+      "s": 403,
+      "d": "Seu registro profissional (CREA/CAU) ainda não foi verificado; sem o selo não é possível aprovar."
+    }
+  },
+  {
+    "rf": "RF27",
+    "id": "CA-08",
+    "descricao": "pedido de revisão humana gera solicitação rastreável com prazo",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "j": {
+        "id": "01a1743d-4718-7622-a013-292cd83a01d2",
+        "rascunhoId": "01a1743d-46aa-78c9-9adf-9ccd02bd51f1",
+        "estado": "ABERTO",
+        "motivo": "Quero que uma pessoa confira a decisão automática.",
+        "prazoEm": "2026-11-09T18:05:35.384376346Z"
+      }
+    }
+  },
+  {
+    "rf": "RF27",
+    "id": "CA-10",
+    "descricao": "tela Uso de IA lista as rotas com finalidade, base legal e retenção",
+    "ok": true,
+    "evidencia": [
+      "comando-vi",
+      "lancamento-estrutural",
+      "extracao-boletim-spt",
+      "associacao-sinapi",
+      "correcao-auditoria"
+    ]
+  },
+  {
+    "rf": "RF27",
+    "id": "CA-06",
+    "descricao": "consumo por rota só com metadados (tokens, sem conteúdo)",
+    "ok": true,
+    "evidencia": "[]"
+  },
+  {
+    "rf": "RF21",
+    "id": "selo-pedido",
+    "descricao": "pedido de selo devolve URL de upload e estado PENDING",
+    "ok": true,
+    "evidencia": {
+      "s": 202
+    }
+  },
+  {
+    "rf": "RF21",
+    "id": "fila",
+    "descricao": "suporte vê a fila de selos pendentes",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "n": 2
+    }
+  },
+  {
+    "rf": "RF21",
+    "id": "rejeicao",
+    "descricao": "rejeição mostra o motivo para o profissional",
+    "ok": true,
+    "evidencia": {
+      "uf": "PR",
+      "registro": "PR-123456/D",
+      "motivo": "Documento ilegível",
+      "estado": "REJECTED",
+      "tipo": "CREA"
+    }
+  },
+  {
+    "rf": "RF21",
+    "id": "aprovacao",
+    "descricao": "suporte aprova o selo",
+    "ok": true,
+    "evidencia": 204
+  },
+  {
+    "rf": "RF21",
+    "id": "sessao-selo",
+    "descricao": "sessão nova reflete selo verificado",
+    "ok": true,
+    "evidencia": {
+      "sudoAtivo": false,
+      "mfaPendente": false,
+      "mfaVerificado": true,
+      "contaId": "01a1743d-201d-7e4b-ab32-5d8632173820",
+      "seloVerificado": true,
+      "papeisPorObra": {},
+      "papelEmpresa": "DONO",
+      "empresaAtivaId": "01a1743d-202b-7582-ac73-e6cb49633b3d"
+    }
+  },
+  {
+    "rf": "RF27",
+    "id": "CA-03b",
+    "descricao": "aprovar sem ART/RRT → 422",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Há 1 problema(s) nos dados enviados."
+    }
+  },
+  {
+    "rf": "RF27",
+    "id": "CA-04",
+    "descricao": "aprovação registra aprovador, data e ART",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "campos": [
+        "id",
+        "obraId",
+        "tipo",
+        "rota",
+        "estado",
+        "geradoPorIa",
+        "conteudo",
+        "criadoEm",
+        "aprovadoEm",
+        "aprovadoPor",
+        "artRrt"
+      ]
+    }
+  },
+  {
+    "rf": "RF27",
+    "id": "promocao",
+    "descricao": "aprovar o rascunho promove os elementos à camada da disciplina (com versão no histórico)",
+    "ok": true,
+    "evidencia": [
+      "PAREDE:arquitetura"
+    ]
+  },
+  {
+    "rf": "RF20",
+    "id": "cliente-aceite",
+    "descricao": "cliente aceita e cai direto na obra",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "j": {
+        "empresaId": "01a1743d-202b-7582-ac73-e6cb49633b3d",
+        "obraId": "01a1743d-2300-7c19-9834-e7edbce091af",
+        "mensagem": "Convite aceito: a obra já aparece para você."
+      }
+    }
+  },
+  {
+    "rf": "RF13",
+    "id": "CA-08",
+    "descricao": "cliente não vê modelo não liberado",
+    "ok": true,
+    "evidencia": {
+      "s": 404,
+      "d": "Versão do modelo não encontrado(a)."
+    }
+  },
+  {
+    "rf": "DN-02",
+    "id": "quantitativos",
+    "descricao": "cliente não vê quantitativos não liberados",
+    "ok": true,
+    "evidencia": 404
+  },
+  {
+    "rf": "DN-02",
+    "id": "rascunhos",
+    "descricao": "cliente nunca vê rascunho de IA",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "n": 0
+    }
+  },
+  {
+    "rf": "RF13",
+    "id": "liberado",
+    "descricao": "após liberar, cliente vê só a versão liberada e sem rascunho de IA",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "versao": 19,
+      "ia": 0
+    }
+  },
+  {
+    "rf": "RF21",
+    "id": "CA-02-cliente",
+    "descricao": "cliente não edita o modelo (403 explicado)",
+    "ok": true,
+    "evidencia": {
+      "s": 403,
+      "d": "Só arquiteto(a), engenheiro(a) ou administrador(a) da obra pode editar o modelo."
+    }
+  },
+  {
+    "rf": "RF24",
+    "id": "CA-03",
+    "descricao": "finalidades opcionais começam desligadas",
+    "ok": true,
+    "evidencia": [
+      "LOCALIZACAO_CANTEIRO:NAO_CONCEDIDO",
+      "FOTOS_TREINAMENTO:NAO_CONCEDIDO",
+      "MARKETING:NAO_CONCEDIDO"
+    ]
+  },
+  {
+    "rf": "RF24",
+    "id": "CA-04/07",
+    "descricao": "histórico com as duas ações, data e versão do texto (mais recente primeiro)",
+    "ok": true,
+    "evidencia": [
+      "REVOGAR@2026-10-25T18:05:39.044185Z",
+      "CONCEDER@2026-10-25T18:05:39.010493Z"
+    ]
+  },
+  {
+    "rf": "RF25",
+    "id": "CA-01",
+    "descricao": "Seus dados lista categorias com finalidade, base legal e retenção",
+    "ok": true,
+    "evidencia": [
+      "CONTA",
+      "PERFIL_PROFISSIONAL",
+      "CONSENTIMENTOS",
+      "SESSOES_SEGURANCA",
+      "CONTATO_OPERACIONAL"
+    ]
+  },
+  {
+    "rf": "RF25",
+    "id": "CA-02",
+    "descricao": "corrigir nome grava e devolve 200",
+    "ok": true,
+    "evidencia": 204
+  },
+  {
+    "rf": "RF25",
+    "id": "CA-08",
+    "descricao": "compartilhamentos mostram transferência internacional com base do Art. 33",
+    "ok": true,
+    "evidencia": [
+      "CivilConstructorAI:Art. 7º, V",
+      "Anthropic (camada de IA):Art. 33, IX",
+      "AWS sa-east-1 (arquivos):Art. 7º, V"
+    ]
+  },
+  {
+    "rf": "RF25",
+    "id": "CA-03",
+    "descricao": "exportar sem sudo → 403 sudo_required",
+    "ok": true,
+    "evidencia": 403
+  },
+  {
+    "rf": "RF23",
+    "id": "sudo-email",
+    "descricao": "modo seguro por senha + código de e-mail (conta sem 2FA)",
+    "ok": true,
+    "evidencia": {
+      "s": 204
+    }
+  },
+  {
+    "rf": "RF25",
+    "id": "CA-04",
+    "descricao": "ZIP pronto, senha mostrada uma única vez",
+    "ok": true,
+    "evidencia": {
+      "s": 202,
+      "estado": "CONCLUIDO",
+      "senha1": true,
+      "senha2": false,
+      "chaves": [
+        "id",
+        "estado",
+        "urlDownload",
+        "senhaZip",
+        "tamanhoBytes",
+        "expiraEm"
+      ]
+    }
+  },
+  {
+    "rf": "RF25",
+    "id": "CA-06",
+    "descricao": "pedido ao encarregado com prazo de 15 dias",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "prazo": "2026-11-09T18:05:42.902399075Z",
+      "estado": "ABERTO"
+    }
+  },
+  {
+    "rf": "RF26",
+    "id": "consequencias",
+    "descricao": "antes de excluir, mostra data final e o que fica/sai",
+    "ok": true,
+    "evidencia": {
+      "dataFinal": "2026-11-24T18:05:42.918130469Z",
+      "carenciaDias": 30,
+      "oQueFica": [
+        "Registros que a construtora é obrigada a guardar (documentos trabalhistas e de segurança) pelos prazos legais, com base legal registrada.",
+        "Histórico de consentimentos, pseudonimizado."
+      ],
+      "oQueSai": [
+        "Perfil, e-mail, foto, preferências e sessões.",
+        "Vínculos com empresas e obras.",
+        "Sua chave de dados é destruída: o que ficou cifrado vira ilegível, inclusive em backups."
+      ]
+    }
+  },
+  {
+    "rf": "RF26",
+    "id": "CA-02",
+    "descricao": "exclusão com sudo → 202 e sessões encerradas",
+    "ok": true,
+    "evidencia": {
+      "s": 202,
+      "sessao": 401,
+      "j": {
+        "dataFinal": "2026-11-24T18:05:42.940989920Z",
+        "carenciaDias": 30,
+        "oQueFica": [
+          "Registros que a construtora é obrigada a guardar (documentos trabalhistas e de segurança) pelos prazos legais, com base legal registrada.",
+          "Histórico de consentimentos, pseudonimizado."
+        ],
+        "oQueSai": [
+          "Perfil, e-mail, foto, preferências e sessões.",
+          "Vínculos com empresas e obras.",
+          "Sua chave de dados é destruída: o que ficou cifrado vira ilegível, inclusive em backups."
+        ]
+      }
+    }
+  },
+  {
+    "rf": "RF26",
+    "id": "CA-03a",
+    "descricao": "login na carência oferece reativação",
+    "ok": true,
+    "evidencia": {
+      "empresas": [],
+      "proximaEtapa": "OFERTA_REATIVACAO"
+    }
+  },
+  {
+    "rf": "RF26",
+    "id": "CA-03b",
+    "descricao": "reativar devolve a conta e abre a sessão",
+    "ok": true,
+    "evidencia": {
+      "reativar": 200,
+      "sessao": 200,
+      "etapa": "AUTENTICADO"
+    }
+  }
+]

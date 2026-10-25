@@ -35,13 +35,16 @@ class ConviteEAcessoIT extends AbstractIdentidadeIT {
         return new ApiClient(porta, e -> EmailDeTeste.ultimoCodigo(emails, e));
     }
 
-    /** cria uma empresa com dono já autenticado (sem 2FA configurado: fica em CONFIGURAR_MFA mas com sessão) */
+    /** cria uma empresa com dono autenticado e 2FA configurado (sem 2FA só a própria conta responde — RF19 CA-06) */
     private ApiClient dono(String cnpj) {
         var email = "dono-" + UUID.randomUUID() + "@teste.cca";
         var c = cliente();
         var r = c.registrarEAtivar(email, "Dono " + cnpj, Map.of("tipo", "EMPRESA", "cnpj", cnpj, "razaoSocial", "Construtora " + cnpj));
         assertThat(r.status()).as("%s", r).isEqualTo(201);
         assertThat(c.empresaAtiva()).isNotBlank();
+        // antes do 2FA a empresa fica bloqueada para o dono
+        assertThat(c.post("/obras", Map.of("nome", "Antes do 2FA")).status()).isEqualTo(403);
+        c.ativarMfa();
         return c;
     }
 
@@ -69,9 +72,16 @@ class ConviteEAcessoIT extends AbstractIdentidadeIT {
         convidado.registrarEAtivar(email, "Pessoa " + papel, Map.of());
         var aceite = convidado.post("/invites/" + token + "/accept", null);
         assertThat(aceite.status()).as("%s", aceite).isEqualTo(200);
+        // o aceite já troca a empresa ativa e devolve a obra (antes a pessoa caía em "sem empresa ativa")
+        assertThat(convidado.empresaAtiva()).isEqualTo(dono.empresaAtiva());
+        if (obraId != null) {
+            assertThat(aceite.texto("obraId")).isEqualTo(obraId);
+        }
         // uso único
         assertThat(convidado.post("/invites/" + token + "/accept", null).status()).isEqualTo(410);
-        convidado.escolherEmpresa(dono.empresaAtiva());
+        if (br.com.civilconstructorai.acesso.PapelObra.valueOf(papel).exigeMfa()) {
+            convidado.ativarMfa();
+        }
         return convidado;
     }
 
@@ -82,7 +92,7 @@ class ConviteEAcessoIT extends AbstractIdentidadeIT {
         var eng = convidarEAceitar(dono, obra, "ENGENHEIRO");
         // engenheiro convida para a obra, mas não pode criar ADMIN
         var acima = eng.post("/companies/" + dono.empresaAtiva() + "/invites", Map.of("email", "x-" + UUID.randomUUID() + "@teste.cca", "papel", "ADMIN"));
-        assertThat(acima.status()).isEqualTo(422);
+        assertThat(acima.status()).isEqualTo(403);
         assertThat(acima.corpo().get("type").asString()).endsWith("/convite_acima_do_convidante");
         // convite para outro e-mail não pode ser aceito por esta conta
         var emailAlvo = "alvo-" + UUID.randomUUID() + "@teste.cca";

@@ -23,9 +23,12 @@ public class SessaoUsuarioFabrica {
     private final MembroObraRepository membrosObra;
     private final TransactionTemplate tx;
     private final java.util.Set<String> suporte;
+    private final br.com.civilconstructorai.empresa.Repositorios.EmpresaRepository empresas;
 
     public SessaoUsuarioFabrica(MembroEmpresaRepository membrosEmpresa, MembroObraRepository membrosObra, TransactionTemplate tx,
-                                @org.springframework.beans.factory.annotation.Value("${app.plataforma.suporte:}") java.util.List<String> suporteEmails) {
+                                @org.springframework.beans.factory.annotation.Value("${app.plataforma.suporte:}") java.util.List<String> suporteEmails,
+                                br.com.civilconstructorai.empresa.Repositorios.EmpresaRepository empresas) {
+        this.empresas = empresas;
         this.membrosEmpresa = membrosEmpresa;
         this.membrosObra = membrosObra;
         this.tx = tx;
@@ -43,6 +46,19 @@ public class SessaoUsuarioFabrica {
             membrosObra.findByContaId(contaId).forEach(m -> ids.add(m.getTenantId()));
             return List.copyOf(ids);
         });
+    }
+
+    public record EmpresaDaPessoa(UUID id, String nome, String papelEmpresa, int obras) {
+    }
+
+    /** empresas em que a pessoa atua, com nome e papel, para escolher na tela (antes era preciso digitar o id) */
+    public List<EmpresaDaPessoa> empresasComNome(UUID contaId) {
+        return comoSistema(() -> empresasDaPessoa(contaId).stream().map(id -> {
+            var nome = empresas.findById(id).map(e -> e.getNomeFantasia() != null && !e.getNomeFantasia().isBlank() ? e.getNomeFantasia() : e.getRazaoSocial()).orElse("Empresa");
+            var papel = membrosEmpresa.findByTenantIdAndContaId(id, contaId).map(m -> m.getPapel().name()).orElse(null);
+            int obras = (int) membrosObra.findByContaId(contaId).stream().filter(m -> m.getTenantId().equals(id)).map(m -> m.getObraId()).distinct().count();
+            return new EmpresaDaPessoa(id, nome, papel, obras);
+        }).toList());
     }
 
     public Vinculo vinculoNaEmpresa(UUID contaId, UUID empresaId) {
@@ -65,7 +81,8 @@ public class SessaoUsuarioFabrica {
     public PrincipalSessao principal(Conta conta, Vinculo v, boolean mfaVerificado) {
         return new PrincipalSessao(conta.getId(), v == null ? null : v.empresaId(), v == null ? null : v.papelEmpresa(),
                 v == null ? new HashMap<>() : v.papeisPorObra(), mfaVerificado, conta.seloVerificado(), 0L, suporte.contains(conta.getEmail()),
-                conta.getEstado() != EstadoConta.PENDING_VERIFICATION);
+                conta.getEstado() != EstadoConta.PENDING_VERIFICATION,
+                !conta.isMfaAtivo() && (conta.isMfaObrigatorio() || exigeMfa(conta.getId())));
     }
 
     private <T> T comoSistema(java.util.concurrent.Callable<T> acao) {

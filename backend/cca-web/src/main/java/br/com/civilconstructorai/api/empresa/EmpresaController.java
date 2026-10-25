@@ -32,8 +32,10 @@ public class EmpresaController {
 
     private final EmpresaService empresas;
     private final ConviteService convites;
+    private final br.com.civilconstructorai.identidade.LoginService login;
 
-    public EmpresaController(EmpresaService empresas, ConviteService convites) {
+    public EmpresaController(EmpresaService empresas, ConviteService convites, br.com.civilconstructorai.identidade.LoginService login) {
+        this.login = login;
         this.empresas = empresas;
         this.convites = convites;
     }
@@ -43,7 +45,10 @@ public class EmpresaController {
 
     @PostMapping
     public ResponseEntity<EmpresaService.Resumo> criar(@RequestBody CriarEmpresa r) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(empresas.criar(r.razaoSocial(), r.nomeFantasia(), r.cnpj()));
+        var criada = empresas.criar(r.razaoSocial(), r.nomeFantasia(), r.cnpj());
+        // a empresa recém-criada vira a ativa: a sessão já é de DONO e, sem 2FA, só a própria conta responde (RF19 CA-06)
+        login.trocarEmpresaAtiva(criada.id());
+        return ResponseEntity.status(HttpStatus.CREATED).body(criada);
     }
 
     @GetMapping("/{empresaId}")
@@ -99,9 +104,12 @@ public class EmpresaController {
         convites.revogar(empresaId, conviteId);
     }
 
-    static String urlBase(HttpServletRequest req) {
-        var origem = req.getHeader("Origin");
-        return origem == null ? "" : origem;
+    @org.springframework.beans.factory.annotation.Value("${app.web.url:http://localhost:3000}")
+    private String urlPublica;
+
+    /** URL pública do app web (configuração), nunca o cabeçalho Origin enviado pelo cliente */
+    String urlBase(HttpServletRequest req) {
+        return urlPublica;
     }
 
     static Map<String, Object> mapa(ConviteService.Publico p) {

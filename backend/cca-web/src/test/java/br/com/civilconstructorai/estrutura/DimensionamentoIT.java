@@ -61,6 +61,9 @@ class DimensionamentoIT extends AbstractIT {
     }
 
     private String dimensionar() throws Exception {
+        // RF05 RN-03: carga lançada e pavimento marcado como pronto para análise
+        postJson(engenheiro, "/estrutura/cargas", Map.of("pavimentoId", CenarioEstrutural.TIPO, "natureza", "ACIDENTAL", "tipo", "AREA", "valor", 2.0));
+        assertThat(postJson(engenheiro, "/estrutura/lancamentos/" + CenarioEstrutural.TIPO + "/pronto", null).getResponse().getStatus()).isEqualTo(200);
         var analise = postJson(engenheiro, "/analises", null);
         assertThat(json(analise).get("estado").asString()).isEqualTo("CONCLUIDO");
         var dim = postJson(engenheiro, "/dimensionamentos", Map.of("analiseId", json(analise).get("id").asString()));

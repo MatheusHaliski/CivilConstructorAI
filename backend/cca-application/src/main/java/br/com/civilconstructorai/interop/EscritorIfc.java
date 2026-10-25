@@ -106,8 +106,8 @@ public final class EscritorIfc {
             storeys.add(storey);
             var produtos = new ArrayList<Integer>();
             for (Elemento e : m.elementosDo(pav.id())) {
-                if (e.getRascunhoIaId() != null) {
-                    continue; // rascunho de IA não exporta
+                if (e.getRascunhoIaId() != null || e.getCamada() == br.com.civilconstructorai.modelo.Enums.Camada.ia_rascunho) {
+                    continue; // rascunho de IA não exporta (nem o elemento na camada ia-rascunho sem vínculo)
                 }
                 Integer id = produto(b, e, m, hist, lp, dirZ, dirX, pav);
                 if (id != null) {

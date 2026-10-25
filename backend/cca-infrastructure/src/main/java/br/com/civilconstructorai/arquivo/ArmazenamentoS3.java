@@ -46,8 +46,12 @@ public class ArmazenamentoS3 implements ArmazenamentoArquivos, DisposableBean {
                 ? DefaultCredentialsProvider.builder().build()
                 : StaticCredentialsProvider.create(AwsBasicCredentials.create(acesso, segredo));
         var caminho = S3Configuration.builder().pathStyleAccessEnabled(!endpoint.isBlank()).build();
+        // checksum só quando a operação exige: os checksums "flexíveis" padrão do SDK (CRC32 com payload em trechos)
+        // não são aceitos por S3 compatíveis como o Garage — todo upload falhava com "Invalid payload signature"
         var cliente = S3Client.builder().httpClient(UrlConnectionHttpClient.create()).region(Region.of(regiao))
-                .credentialsProvider(credenciais).serviceConfiguration(caminho);
+                .credentialsProvider(credenciais).serviceConfiguration(caminho)
+                .requestChecksumCalculation(software.amazon.awssdk.core.checksums.RequestChecksumCalculation.WHEN_REQUIRED)
+                .responseChecksumValidation(software.amazon.awssdk.core.checksums.ResponseChecksumValidation.WHEN_REQUIRED);
         var assinador = S3Presigner.builder().region(Region.of(regiao)).credentialsProvider(credenciais).serviceConfiguration(caminho);
         if (!endpoint.isBlank()) {
             cliente.endpointOverride(URI.create(endpoint));

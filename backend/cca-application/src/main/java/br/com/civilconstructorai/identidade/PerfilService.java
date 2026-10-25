@@ -46,8 +46,12 @@ public class PerfilService {
     private final RegistroOperacoes registro;
     private final Relogio relogio;
 
+    private final br.com.civilconstructorai.email.EnviadorEmail email;
+
     public PerfilService(ContaRepository contas, PreferenciaRepository preferencias, PasswordEncoder senhas, SudoService sudo, ContextoUsuario contexto,
-                         RepositorioSessoes sessoes, ArmazemSessao sessao, AssinadorHmac hmac, ArmazenamentoArquivos arquivos, RegistroOperacoes registro, Relogio relogio) {
+                         RepositorioSessoes sessoes, ArmazemSessao sessao, AssinadorHmac hmac, ArmazenamentoArquivos arquivos, RegistroOperacoes registro, Relogio relogio,
+                         br.com.civilconstructorai.email.EnviadorEmail email) {
+        this.email = email;
         this.contas = contas;
         this.preferencias = preferencias;
         this.senhas = senhas;
@@ -166,7 +170,8 @@ public class PerfilService {
     public Map<String, Object> selo() {
         var c = contaAtual();
         return Map.of("tipo", c.getSeloTipo() == null ? "" : c.getSeloTipo().name(), "estado", c.getSeloEstado().name(),
-                "registro", c.getRegistroProfissional() == null ? "" : c.getRegistroProfissional(), "uf", c.getRegistroUf() == null ? "" : c.getRegistroUf());
+                "registro", c.getRegistroProfissional() == null ? "" : c.getRegistroProfissional(), "uf", c.getRegistroUf() == null ? "" : c.getRegistroUf(),
+                "motivo", c.getSeloMotivo() == null ? "" : c.getSeloMotivo());
     }
 
     public URI solicitarSelo(TipoSelo tipo, String registro, String uf, String contentTypeDocumento) {
@@ -184,9 +189,12 @@ public class PerfilService {
         return contas.findBySeloEstado(estado).stream().map(c -> Map.<String, Object>of("contaId", c.getId(), "tipo", c.getSeloTipo() == null ? "" : c.getSeloTipo().name(), "uf", c.getRegistroUf() == null ? "" : c.getRegistroUf())).toList();
     }
 
-    public void decidirSelo(UUID contaId, boolean aprovado) {
+    public void decidirSelo(UUID contaId, boolean aprovado, String motivo) {
         var c = contas.findById(contaId).orElseThrow(() -> new ExcecaoDominio.RecursoNaoEncontrado("Conta"));
-        c.decidirSelo(aprovado, relogio.agora());
+        c.decidirSelo(aprovado, motivo, relogio.agora());
+        email.enviar(c.getEmail(), aprovado ? "Seu selo profissional foi verificado" : "Seu selo profissional não foi aprovado",
+                aprovado ? "Seu registro foi conferido. Entre de novo para que as aprovações técnicas fiquem disponíveis (com 2FA e ART/RRT da obra)."
+                        : "Motivo: " + motivo.trim() + ". Corrija e envie de novo em Minha conta › Perfil e selo.");
         registro.registrar(new RegistroOperacoes.Operacao("SELO_DECIDIDO", contexto.exigir().contaId(), null, null, "Conta", contaId, Map.of("resultado", aprovado ? "VERIFIED" : "REJECTED")));
     }
 

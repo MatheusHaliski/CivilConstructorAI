@@ -143,7 +143,7 @@ public final class GeradorPrancha {
                 case PORTA, JANELA -> {
                     var p = m.pontoRepresentativo(e);
                     double largAb = e.num("largura", 0.8) * k;
-                    sb.append(String.format(Locale.ROOT, "<rect x=\"%.1f\" y=\"%.1f\" width=\"%.1f\" height=\"%.1f\" fill=\"#FFFFFF\" stroke=\"%s\" stroke-width=\"0.8\"/>\n", X.applyAsDouble(p.x()) - largAb / 2, Y.applyAsDouble(p.y()) - 2, largAb, 4, e.getTipo() == TipoElemento.PORTA ? "#A16207" : "#0EA5E9"));
+                    sb.append(String.format(Locale.ROOT, "<rect x=\"%.1f\" y=\"%.1f\" width=\"%.1f\" height=\"%.1f\" fill=\"#FFFFFF\" stroke=\"%s\" stroke-width=\"0.8\"/>\n", X.applyAsDouble(p.x()) - largAb / 2, Y.applyAsDouble(p.y()) - 2, largAb, 4.0, e.getTipo() == TipoElemento.PORTA ? "#A16207" : "#0EA5E9"));
                 }
                 case SAPATA, BLOCO, RADIER -> {
                     var c = e.ponto("centro");

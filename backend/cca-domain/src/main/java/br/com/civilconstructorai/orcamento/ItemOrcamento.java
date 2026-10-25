@@ -57,6 +57,10 @@ public class ItemOrcamento extends EntidadeTenant {
     protected ItemOrcamento() {
     }
 
+    private ItemOrcamento(UUID tenantId) {
+        super(tenantId);
+    }
+
     public ItemOrcamento(UUID tenantId, UUID orcamentoId, String etapa, String servico, String elementoTipo, ComposicaoSinapi comp,
                          String unidadeQuantitativo, BigDecimal quantidade, boolean geradoPorIa, String justificativaIa) {
         super(tenantId);
@@ -79,6 +83,28 @@ public class ItemOrcamento extends EntidadeTenant {
         this.total = this.quantidade.multiply(custoUnitario).setScale(2, RoundingMode.HALF_UP);
         this.geradoPorIa = geradoPorIa;
         this.justificativaIa = justificativaIa;
+    }
+
+    /**
+     * Serviço do quantitativo sem composição na tabela (sem código ou código ausente): entra com custo zero e fica
+     * visível, em vez de sumir do orçamento (auditoria 2026-10: a fôrma desaparecia quando a IA estava desligada).
+     */
+    public static ItemOrcamento semComposicao(UUID tenantId, UUID orcamentoId, String etapa, String servico, String unidade, BigDecimal quantidade, String motivo) {
+        var i = new ItemOrcamento(tenantId);
+        i.orcamentoId = orcamentoId;
+        i.etapa = etapa;
+        i.servico = servico;
+        i.codigoSinapi = "";
+        i.descricao = "Sem composição SINAPI vinculada: " + motivo;
+        i.unidade = unidade;
+        i.quantidade = quantidade.setScale(3, RoundingMode.HALF_UP);
+        i.custoUnitario = BigDecimal.ZERO.setScale(2);
+        i.total = BigDecimal.ZERO.setScale(2);
+        return i;
+    }
+
+    public boolean semVinculo() {
+        return codigoSinapi == null || codigoSinapi.isBlank();
     }
 
     public void confirmar(UUID quem) {

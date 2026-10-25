@@ -38,8 +38,11 @@ public class MeController {
     private final MfaService mfa;
     private final LoginService login;
     private final ContextoUsuario contexto;
+    private final br.com.civilconstructorai.identidade.SessaoUsuarioFabrica fabrica;
 
-    public MeController(CadastroService cadastro, PerfilService perfil, SudoService sudo, MfaService mfa, LoginService login, ContextoUsuario contexto) {
+    public MeController(CadastroService cadastro, PerfilService perfil, SudoService sudo, MfaService mfa, LoginService login, ContextoUsuario contexto,
+                        br.com.civilconstructorai.identidade.SessaoUsuarioFabrica fabrica) {
+        this.fabrica = fabrica;
         this.cadastro = cadastro;
         this.perfil = perfil;
         this.sudo = sudo;
@@ -154,6 +157,12 @@ public class MeController {
     public record EmpresaRequest(@NotNull UUID empresaId) {
     }
 
+    /** empresas em que a pessoa atua, com nome e papel, para trocar a empresa ativa sem digitar ids */
+    @GetMapping("/me/empresas")
+    public java.util.List<br.com.civilconstructorai.identidade.SessaoUsuarioFabrica.EmpresaDaPessoa> minhasEmpresas() {
+        return fabrica.empresasComNome(contexto.exigir().contaId());
+    }
+
     @PostMapping("/session/empresa")
     public Map<String, Object> trocarEmpresa(@RequestBody EmpresaRequest r) {
         var res = login.escolherEmpresa(r.empresaId());
@@ -213,6 +222,6 @@ public class MeController {
     @PreAuthorize("hasRole('PLATAFORMA')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void decidirSelo(@PathVariable UUID contaId, @RequestBody DecisaoSelo d) {
-        perfil.decidirSelo(contaId, d.aprovado());
+        perfil.decidirSelo(contaId, d.aprovado(), d.motivo());
     }
 }

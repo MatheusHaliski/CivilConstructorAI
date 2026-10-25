@@ -459,7 +459,7 @@ create table elemento (
   tipo           text not null,
   camada         text not null check (camada in ('arquitetura','estrutura','fundacao','desenho','anotacao','ia-rascunho')),
   material_id    text,
-  origem         text not null check (origem in ('CANVAS','CONSOLE_VI','FORMULARIO','IA','SISTEMA')),
+  origem         text not null check (origem in ('CANVAS','CONSOLE_VI','IA','SISTEMA')),
   rascunho_ia_id uuid,
   rotulo         text,
   geometria      jsonb not null,
@@ -1020,3 +1020,20 @@ create table aditivo (
 call app_aplicar_rls('orcamento');
 call app_aplicar_rls('item_orcamento');
 call app_aplicar_rls('aditivo');
+-- V18__origem_formulario.sql
+
+-- V18 · RF29 comandos montados pela aba Ações construtivas (formulário guiado) ficam rastreáveis com origem própria
+
+alter table elemento drop constraint elemento_origem_check;
+alter table elemento add constraint elemento_origem_check check (origem in ('CANVAS','CONSOLE_VI','FORMULARIO','IA','SISTEMA'));
+-- V19__sinapi_origem.sql
+
+-- V19 · RF12 tabela SINAPI com origem: a tabela semeada pela V16 tem valores ilustrativos e não pode passar por preço oficial
+
+alter table tabela_sinapi add column origem text not null default 'IMPORTADA' check (origem in ('IMPORTADA','DEMONSTRACAO'));
+update tabela_sinapi set origem = 'DEMONSTRACAO' where id = '019a0000-0000-7000-8000-000000000001';
+-- V20__selo_motivo.sql
+
+-- V20 · RF21 motivo da rejeição do selo profissional, mostrado ao profissional (antes era descartado)
+
+alter table conta add column selo_motivo text;

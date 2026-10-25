@@ -29,9 +29,11 @@ public class CargasService {
     private final AcessoObra acesso;
     private final ContextoUsuario contexto;
     private final Json json;
+    private final br.com.civilconstructorai.modelo.DependentesDoModelo dependentes;
 
     public CargasService(Repositorios.Cargas cargas, Repositorios.Lancamentos lancamentos, ModeloEstruturalFonte modelo,
-                         AcessoObra acesso, ContextoUsuario contexto, Json json) {
+                         AcessoObra acesso, ContextoUsuario contexto, Json json, br.com.civilconstructorai.modelo.DependentesDoModelo dependentes) {
+        this.dependentes = dependentes;
         this.cargas = cargas;
         this.lancamentos = lancamentos;
         this.modelo = modelo;
@@ -60,7 +62,12 @@ public class CargasService {
         if (n.elementoAlvoId() != null && m.elemento(n.elementoAlvoId()).isEmpty()) {
             throw new ExcecaoDominio.Validacao("elementoAlvoId", "Elemento alvo não existe no modelo.");
         }
-        var c = cargas.save(new Carga(u.empresaAtivaId(), obraId, n.pavimentoId(), n.natureza(), n.tipo(), n.valor(), n.elementoAlvoId(), n.descricao(), n.casoCarga()));
+        // descrição é opcional na tela; sem ela, um rótulo legível pela natureza e unidade
+        var descricao = n.descricao() == null || n.descricao().isBlank()
+                ? "Carga " + n.natureza().name().toLowerCase() + " " + switch (n.tipo()) { case AREA -> "(kN/m²)"; case LINEAR -> "(kN/m)"; default -> "(kN)"; }
+                : n.descricao().trim();
+        var c = cargas.save(new Carga(u.empresaAtivaId(), obraId, n.pavimentoId(), n.natureza(), n.tipo(), n.valor(), n.elementoAlvoId(), descricao, n.casoCarga()));
+        dependentes.cargasMudaram(obraId, n.pavimentoId());
         var l = lancamento(obraId, n.pavimentoId(), u.empresaAtivaId());
         if (l.getEstado() == EstadoLancamento.VAZIO || l.getEstado() == EstadoLancamento.SUGESTAO_IA) {
             l.transicionar(EstadoLancamento.EM_LANCAMENTO);
@@ -75,6 +82,7 @@ public class CargasService {
         acesso.exigirPapel(obraId, PapelObra.ENGENHEIRO, PapelObra.DONO, PapelObra.ADMIN);
         var c = cargas.findByIdAndObraId(cargaId, obraId).orElseThrow(() -> new ExcecaoDominio.RecursoNaoEncontrado("Carga"));
         cargas.delete(c);
+        dependentes.cargasMudaram(obraId, c.getPavimentoId());
         lancamentos.findByObraIdAndPavimentoId(obraId, c.getPavimentoId()).ifPresent(l -> regerarCombinacoes(obraId, l));
     }
 
@@ -83,6 +91,7 @@ public class CargasService {
         acesso.exigirPapel(obraId, PapelObra.ENGENHEIRO, PapelObra.DONO, PapelObra.ADMIN);
         var l = lancamento(obraId, pavimentoId, contexto.exigir().empresaAtivaId());
         l.setVentoJson(json.escrever(vento));
+        dependentes.cargasMudaram(obraId, pavimentoId);
         if (l.getEstado() == EstadoLancamento.VAZIO || l.getEstado() == EstadoLancamento.SUGESTAO_IA) {
             l.transicionar(EstadoLancamento.EM_LANCAMENTO);
         }

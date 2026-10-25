@@ -98,7 +98,10 @@ public class AuthController {
     @GetMapping("/session")
     public Map<String, Object> session() {
         var u = contexto.atual().orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Entre para continuar."));
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        boolean mfaPendente = auth != null && auth.getPrincipal() instanceof br.com.civilconstructorai.identidade.PrincipalSessao p && p.mfaPendente();
         return Map.of(
+                "mfaPendente", mfaPendente,
                 "contaId", u.contaId(),
                 "empresaAtivaId", u.empresaAtivaId() == null ? "" : u.empresaAtivaId().toString(),
                 "papelEmpresa", u.papelEmpresa().map(Enum::name).orElse(""),

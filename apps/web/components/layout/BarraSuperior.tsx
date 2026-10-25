@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useId, useMemo, useRef, useState } from "react";
-import { Menu, PanelLeftClose, PanelLeftOpen, Search, X } from "lucide-react";
+import { Building2, Menu, PanelLeftClose, PanelLeftOpen, Search, X } from "lucide-react";
 import { useSessao } from "@/lib/sessao";
 import { useDados } from "@/lib/dados";
 import type { Perfil } from "@/lib/tipos";
@@ -15,6 +15,8 @@ export function BarraSuperior({ menuAberto, recolhida, alternarMenu, alternarRec
   const { sessao } = useSessao();
   const perfil = useDados<Perfil>(["perfil"], "/me/profile", { ativo: !!sessao });
   const nome = perfil.data?.nome ?? "";
+  const empresas = useDados<{ id: string; nome: string }[]>(["minhas-empresas"], "/me/empresas", { ativo: !!sessao && !sessao.mfaPendente });
+  const empresaAtiva = empresas.data?.find((e) => e.id === sessao?.empresaAtivaId)?.nome;
   const iniciais = nome.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]!.toUpperCase()).join("") || "?";
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-2 border-b border-line-soft bg-bg/95 px-3 backdrop-blur sm:gap-3 sm:px-4">
@@ -29,7 +31,8 @@ export function BarraSuperior({ menuAberto, recolhida, alternarMenu, alternarRec
         <span className="hidden leading-tight sm:block">CivilConstructor<span className="text-obra-andamento">AI</span></span>
       </Link>
       <BuscaGlobal />
-      <Link href="/conta" className="tap ml-auto flex shrink-0 items-center gap-2 rounded-full py-1 pl-1 pr-1 hover:bg-surface sm:pr-3" aria-label={nome ? `Minha conta: ${nome}` : "Minha conta"}>
+      {empresaAtiva && <Link href="/empresa/dados" title="Empresa ativa (troque em Empresa › Dados)" className="tap ml-auto hidden shrink-0 items-center gap-2 rounded-full border border-line-soft px-3 text-sm text-text-2 hover:bg-surface lg:inline-flex"><Building2 className="size-4" aria-hidden /><span className="max-w-48 truncate">{empresaAtiva}</span></Link>}
+      <Link href="/conta" className={cx("tap flex shrink-0 items-center gap-2 rounded-full py-1 pl-1 pr-1 hover:bg-surface sm:pr-3", empresaAtiva ? "ml-auto lg:ml-0" : "ml-auto")} aria-label={nome ? `Minha conta: ${nome}` : "Minha conta"}>
         <span className="grid size-9 place-items-center overflow-hidden rounded-full bg-marca-grafite text-sm font-semibold text-white">
           {perfil.data?.fotoUrl ? <img src={perfil.data.fotoUrl} alt="" className="size-full object-cover" /> : iniciais}
         </span>

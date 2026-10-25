@@ -1,0 +1,485 @@
+[
+  {
+    "rf": "RF03",
+    "id": "malha",
+    "descricao": "malha 3×2 cria 5 eixos nomeados A–C e 1–2",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "nomes": [
+        "A",
+        "B",
+        "C",
+        "1",
+        "2"
+      ]
+    }
+  },
+  {
+    "rf": "RF03",
+    "id": "CA-01",
+    "descricao": "eixo com nome repetido → 422",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Há 1 problema(s) nos dados enviados."
+    }
+  },
+  {
+    "rf": "RF03",
+    "id": "malha-dupla",
+    "descricao": "segunda malha com nomes repetidos → 422 explicando (não 500)",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Há 1 problema(s) nos dados enviados.",
+      "e": [
+        {
+          "mensagem": "O modelo já tem os eixos A, B, 1, 2. Para acrescentar eixos use EIXO; para refazer a malha, apague a atual primeiro.",
+          "campo": "VI-003"
+        }
+      ]
+    }
+  },
+  {
+    "rf": "RF03",
+    "id": "CA-02",
+    "descricao": "espaçamento < 0,05 m rejeitado (422)",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Há 1 problema(s) nos dados enviados.",
+      "e": [
+        {
+          "mensagem": "Espaçamento de eixo deve ser de pelo menos 0,05 m (ShortCurveTolerance).",
+          "campo": "VI-003"
+        }
+      ]
+    }
+  },
+  {
+    "rf": "RF03",
+    "id": "pavimento",
+    "descricao": "cria pavimento a +3,00 m",
+    "ok": true,
+    "evidencia": 201
+  },
+  {
+    "rf": "RF03",
+    "id": "CA-03",
+    "descricao": "pavimento na mesma elevação → 422",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Há 1 problema(s) nos dados enviados."
+    }
+  },
+  {
+    "rf": "RF03",
+    "id": "CA-04",
+    "descricao": "pé-direito de 1,00 m (fora de 2,20–12,00) exige confirmação explícita",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Há 1 problema(s) nos dados enviados.",
+      "e": [
+        {
+          "mensagem": "Pé-direito de 1,00 m fora do intervalo 2,20–12,00 m. Se for intencional (mezanino, reservatório), confirme com confirmar=true.",
+          "campo": "VI-003"
+        }
+      ]
+    }
+  },
+  {
+    "rf": "RF03",
+    "id": "CA-04b",
+    "descricao": "com confirmar=true o mezanino é criado",
+    "ok": true,
+    "evidencia": 201
+  },
+  {
+    "rf": "RF02",
+    "id": "CA-01a",
+    "descricao": "VI válido é aceito pelo validador",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "j": "{\"valido\":true,\"erros\":[],\"comandos\":[{\"conhecido\":true,\"linha\":1,\"codigo\":\"PAREDE\"}]}"
+    }
+  },
+  {
+    "rf": "RF02",
+    "id": "CA-01b",
+    "descricao": "VI incompleto: erro com linha, coluna e mensagem pt-BR",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "err": [
+        {
+          "codigo": "VI-000",
+          "mensagem": "Esperado VI(CODIGO, arg=valor, …)",
+          "linha": 1,
+          "coluna": 1
+        }
+      ]
+    }
+  },
+  {
+    "rf": "RF02",
+    "id": "CA-02",
+    "descricao": "lote com vários erros devolve todos",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "j": "{\"valido\":false,\"erros\":[{\"coluna\":4,\"mensagem\":\"Função desconhecida VIGAA.\",\"linha\":2,\"codigo\":\"VI-001\"},{\"codigo\":\"VI-000\",\"mensagem\":\"Esperado VI(CODIGO, arg=valor, …)\",\"linha\":3,\"coluna\":1}],\"comandos\":[{\"conhecido\":true,\"linha\":1,\"codigo\":\"PAREDE\"},{\"conhecido\":false,\"linha\":2,\"codigo\":\"VIGAA\"}]}"
+    }
+  },
+  {
+    "rf": "RF02",
+    "id": "equivalencia",
+    "descricao": "comando textual e JSON geram a mesma parede (espessura, altura, material, comprimento)",
+    "ok": true,
+    "evidencia": {
+      "vi": {
+        "p1": {
+          "y": 0,
+          "x": 0
+        },
+        "p2": {
+          "y": 0,
+          "x": 5
+        },
+        "espessura": 0.15,
+        "altura": 2.8,
+        "materialId": "MAT_ALV_BLOCO14",
+        "externa": true
+      },
+      "json": {
+        "p1": {
+          "y": 6,
+          "x": 0
+        },
+        "p2": {
+          "y": 6,
+          "x": 5
+        },
+        "espessura": 0.15,
+        "altura": 2.8,
+        "materialId": "MAT_ALV_BLOCO14",
+        "externa": true
+      }
+    }
+  },
+  {
+    "rf": "RF02",
+    "id": "ambiguo",
+    "descricao": "porta sem parede hospedeira é recusada com motivo (não cria nada)",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Há 1 problema(s) nos dados enviados."
+    }
+  },
+  {
+    "rf": "RF01",
+    "id": "CA-03",
+    "descricao": "edição gera ComandoVI com versão resultante",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "versao": 6,
+      "vi": "VI(PAREDE, p1=[0,0], p2=[0,6], esp=0.15)"
+    }
+  },
+  {
+    "rf": "RF01",
+    "id": "CA-05",
+    "descricao": "versaoBase desatualizada → 409",
+    "ok": true,
+    "evidencia": {
+      "s": 409,
+      "d": "Modelo avançou para a versão 6 (base 5). Recarregue o diff."
+    }
+  },
+  {
+    "rf": "RF01",
+    "id": "CA-04",
+    "descricao": "desfazer gera comando inverso e remove o elemento (histórico preservado)",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "versao": 7
+    }
+  },
+  {
+    "rf": "RF01",
+    "id": "historico",
+    "descricao": "histórico mantém o comando original e o inverso, com autor",
+    "ok": true,
+    "evidencia": {
+      "n": 7,
+      "ex": {
+        "id": "01a1743d-1401-720c-895e-165c5e98c89e",
+        "codigo": "DESFAZER",
+        "vi": "VI(DESFAZER, comando=\"01a1743d-13a5-776e-8ef7-65fcb113951a\")",
+        "origem": "CANVAS",
+        "autorId": "01a1743d-0de2-71e6-a439-bc7976c319ba",
+        "versaoBase": 6,
+        "versaoNova": 7,
+        "criadoEm": "2026-10-25T18:05:22.305145Z",
+        "correcoesAuditor": 0
+      }
+    }
+  },
+  {
+    "rf": "RF01",
+    "id": "reabrir",
+    "descricao": "modelo reaberto em outra sessão tem os mesmos ids, versão e propriedades",
+    "ok": true,
+    "evidencia": {
+      "versao": 7,
+      "n": 2
+    }
+  },
+  {
+    "rf": "RF08",
+    "id": "CA-03",
+    "descricao": "pilar 10×10 cm → 422 com dimensão, valor, mínimo e item da norma",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Comando reprovado pelo auditor: 2 violação(ões).",
+      "e": [
+        {
+          "mensagem": "Pilar 10x10 cm: menor lado deve ser ≥ 19 cm.",
+          "campo": "C-SECAO_MIN_PILAR"
+        },
+        {
+          "mensagem": "Área da seção do pilar deve ser ≥ 360 cm².",
+          "campo": "C-AREA_MIN_PILAR"
+        }
+      ]
+    }
+  },
+  {
+    "rf": "RF08",
+    "id": "CA-01",
+    "descricao": "vetor de comprimento nulo rejeitado (422)",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Comando reprovado pelo auditor: 1 violação(ões)."
+    }
+  },
+  {
+    "rf": "RF04",
+    "id": "CA-02",
+    "descricao": "viga sem apoio nos extremos é rejeitada ou sinalizada",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "avisos": [
+        "ENVOLTORIA_ABERTA"
+      ]
+    }
+  },
+  {
+    "rf": "RF04",
+    "id": "laje",
+    "descricao": "laje 10×6 m por contorno",
+    "ok": true,
+    "evidencia": 201
+  },
+  {
+    "rf": "RF04",
+    "id": "CA-03",
+    "descricao": "laje com contorno auto-interceptante → 422",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Comando reprovado pelo auditor: 1 violação(ões)."
+    }
+  },
+  {
+    "rf": "RF06",
+    "id": "CA-02",
+    "descricao": "auditoria de vãos: apoios = vãos + 1 nas linhas de vigas",
+    "ok": true,
+    "evidencia": {
+      "linhas": [
+        "y:2v/3a",
+        "y:2v/3a"
+      ]
+    }
+  },
+  {
+    "rf": "RF06",
+    "id": "caixa",
+    "descricao": "caixa real reportada (0–10 × 0–6)",
+    "ok": true,
+    "evidencia": {
+      "xMin": 0,
+      "xMax": 10,
+      "yMin": 0,
+      "yMax": 6
+    }
+  },
+  {
+    "rf": "RF04",
+    "id": "CA-04",
+    "descricao": "carga gravitacional negativa rejeitada",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Há 1 problema(s) nos dados enviados."
+    }
+  },
+  {
+    "rf": "RF04",
+    "id": "UX-descricao",
+    "descricao": "carga sem descrição (campo opcional na tela) é aceita",
+    "ok": true,
+    "evidencia": {
+      "s": 201
+    }
+  },
+  {
+    "rf": "RF04",
+    "id": "carga-linear",
+    "descricao": "carga linear de 10 kN/m na viga do eixo 1",
+    "ok": true,
+    "evidencia": {
+      "s": 201
+    }
+  },
+  {
+    "rf": "RF04",
+    "id": "CA-05",
+    "descricao": "combinações ELU e ELS geradas",
+    "ok": true,
+    "evidencia": [
+      "ELU 1 · 1,4G",
+      "ELU 2 · 1,4G + 1,4Q",
+      "ELS QP · G + 0,3Q",
+      "ELS F · G + 0,4Q + 0,3W",
+      "ELS R · G + Q + 0,6W"
+    ]
+  },
+  {
+    "rf": "RF05",
+    "id": "pre-condicao",
+    "descricao": "análise sem lançamento marcado como pronto é recusada",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Marque como pronto para análise o lançamento de: Térreo."
+    }
+  },
+  {
+    "rf": "RF04",
+    "id": "pronto",
+    "descricao": "marcar lançamento do térreo como pronto para análise",
+    "ok": true,
+    "evidencia": {
+      "s": 200
+    }
+  },
+  {
+    "rf": "RF05",
+    "id": "CA-01",
+    "descricao": "análise é job assíncrono e conclui",
+    "ok": true,
+    "evidencia": {
+      "s": 202,
+      "estado": "CONCLUIDO"
+    }
+  },
+  {
+    "rf": "RF05",
+    "id": "equilibrio",
+    "descricao": "ΣRz = Σ cargas na combinação ELU 1 · 1,4G (erro < 1 %)",
+    "ok": true,
+    "evidencia": {
+      "somaRz": 565.6,
+      "esperado": 565.6,
+      "fatores": {
+        "PERMANENTE": 1.4
+      },
+      "nos": 12,
+      "barras": 10
+    }
+  },
+  {
+    "rf": "RF05",
+    "id": "CA-05",
+    "descricao": "diagramas por barra com N, V, M e flecha",
+    "ok": true,
+    "evidencia": [
+      {
+        "r": "V-01a174.1",
+        "L": 5,
+        "M": 34.125,
+        "V": 81.9
+      },
+      {
+        "r": "V-01a174.2",
+        "L": 5,
+        "M": 34.125,
+        "V": 81.9
+      }
+    ]
+  },
+  {
+    "rf": "RF05",
+    "id": "CA-02",
+    "descricao": "linha auxiliar (não estrutural) não invalida a análise",
+    "ok": true,
+    "evidencia": "CONCLUIDO"
+  },
+  {
+    "rf": "RF04",
+    "id": "CA-08",
+    "descricao": "pilar novo marca a análise como OBSOLETO",
+    "ok": true,
+    "evidencia": "OBSOLETO"
+  },
+  {
+    "rf": "RF07",
+    "id": "CA-01",
+    "descricao": "dimensionar análise obsoleta → 409 com orientação",
+    "ok": true,
+    "evidencia": {
+      "s": 409,
+      "d": "O modelo ou as cargas mudaram depois desta análise. Rode a análise estrutural da versão atual antes de dimensionar."
+    }
+  },
+  {
+    "rf": "RF28",
+    "id": "catalogo",
+    "descricao": "catálogo de comandos servido pela API",
+    "ok": true,
+    "evidencia": {
+      "n": 85
+    }
+  },
+  {
+    "rf": "RF28",
+    "id": "erro-400",
+    "descricao": "parâmetro ausente → 400 explicado (não 500)",
+    "ok": true,
+    "evidencia": {
+      "s": 400,
+      "d": "Falta o parâmetro \"alias\"."
+    }
+  },
+  {
+    "rf": "RF28",
+    "id": "CA-01",
+    "descricao": "alias L resolve LINHA no perfil AutoCAD",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "j": "{\"roteiro\":[{\"nome\":\"p1\",\"mensagem\":\"Ponto inicial:\",\"tipo\":\"PONTO\",\"opcional\":false,\"opcoes\":[\"Desfazer\"],\"repetir\":fal"
+    }
+  }
+]

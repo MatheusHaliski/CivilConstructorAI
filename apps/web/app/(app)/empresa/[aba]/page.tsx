@@ -122,7 +122,19 @@ export default function PaginaEmpresa({ params }: { params: Promise<{ aba: strin
   );
 }
 
+type EmpresaDaPessoa = { id: string; nome: string; papelEmpresa?: string | null; obras: number };
+
+/** lista as empresas da pessoa pelo nome (antes era preciso digitar o id da outra empresa) */
 function TrocaEmpresa({ atual, trocar }: { atual: string; trocar: (id: string) => void }) {
+  const lista = useDados<EmpresaDaPessoa[]>(["minhas-empresas"], "/me/empresas");
   const [alvo, setAlvo] = useState("");
-  return <div className="flex gap-2 items-end"><Entrada rotulo="Id da outra empresa" className="mono text-xs" value={alvo} onChange={(e) => setAlvo(e.target.value)} placeholder={atual} /><Botao pequeno variante="secundario" icone={<Repeat className="size-4" aria-hidden />} disabled={!alvo || alvo === atual} onClick={() => trocar(alvo)}>Trocar</Botao></div>;
+  const outras = (lista.data ?? []).filter((e) => e.id !== atual);
+  if (lista.data && !outras.length) return <p className="text-sm text-text-3">Você atua só nesta empresa.</p>;
+  return (
+    <div className="flex gap-2 items-end">
+      <Selecao rotulo="Trocar para" value={alvo} onChange={(e) => setAlvo(e.target.value)} vazio="Escolher empresa…"
+        opcoes={outras.map((e) => ({ valor: e.id, rotulo: `${e.nome} · ${e.papelEmpresa ? rotuloPapel(e.papelEmpresa) : `${e.obras} obra(s)`}` }))} />
+      <Botao pequeno variante="secundario" icone={<Repeat className="size-4" aria-hidden />} disabled={!alvo} onClick={() => trocar(alvo)}>Trocar</Botao>
+    </div>
+  );
 }

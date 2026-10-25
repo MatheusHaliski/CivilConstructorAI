@@ -74,13 +74,21 @@ public class SondagemService {
                 if (l.nspt() < 0) {
                     erros.add(new ExcecaoDominio.Validacao.Erro("leituras[" + i + "]", "Nspt deve ser inteiro ≥ 0."));
                 }
+                if (l.profundidade() < 0) {
+                    erros.add(new ExcecaoDominio.Validacao.Erro("leituras[" + i + "]", "Profundidade deve ser ≥ 0 m."));
+                }
+            }
+        }
+        // camadas e leituras voltam juntas num só 422 (antes as camadas só eram conferidas depois das leituras)
+        if (n.camadas() != null) {
+            try {
+                FuroSondagem.validarCamadas(n.camadas());
+            } catch (ExcecaoDominio.Validacao v) {
+                erros.addAll(v.erros());
             }
         }
         if (!erros.isEmpty()) {
             throw new ExcecaoDominio.Validacao(erros);
-        }
-        if (n.camadas() != null) {
-            FuroSondagem.validarCamadas(n.camadas());
         }
         var furo = new FuroSondagem(u.empresaAtivaId(), obraId, n.codigo(), n.x(), n.y(), n.longitude(), n.latitude(), n.cotaBoca(), n.nivelAgua());
         furo.setCamadasJson(json.escrever(n.camadas() == null ? List.of() : n.camadas()));

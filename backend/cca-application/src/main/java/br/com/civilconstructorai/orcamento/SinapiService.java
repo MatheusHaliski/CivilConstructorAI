@@ -45,6 +45,11 @@ public class SinapiService {
         if (imp.uf() == null || !imp.uf().matches("[A-Za-z]{2}")) {
             throw new ExcecaoDominio.Validacao("uf", "Informe a UF com duas letras.");
         }
+        var mes = imp.mesReferencia().withDayOfMonth(1);
+        if (tabelas.findByUfAndDesoneradoOrderByMesReferenciaDesc(imp.uf().toUpperCase(), imp.desonerado()).stream().anyMatch(t -> t.getMesReferencia().equals(mes))) {
+            throw new ExcecaoDominio.Conflito("Já existe a tabela SINAPI " + imp.uf().toUpperCase() + " " + mes.getMonthValue() + "/" + mes.getYear()
+                    + (imp.desonerado() ? " desonerada" : " não desonerada") + ". Orçamentos já feitos guardam a versão usada; importe outro mês de referência.");
+        }
         var tabela = tabelas.save(new TabelaSinapi(imp.uf(), imp.mesReferencia(), imp.desonerado()));
         var lote = new ArrayList<ComposicaoSinapi>();
         var erros = new ArrayList<ExcecaoDominio.Validacao.Erro>();
@@ -89,9 +94,13 @@ public class SinapiService {
 
     @Transactional(readOnly = true)
     public TabelaSinapi vigente(String uf, boolean desonerado) {
-        return tabelas.findFirstByUfAndDesoneradoOrderByMesReferenciaDesc(uf.toUpperCase(), desonerado)
-                .or(() -> tabelas.findAllByOrderByMesReferenciaDesc().stream().findFirst())
-                .orElseThrow(() -> new ExcecaoDominio.RegraDeNegocio("sem_tabela_sinapi", "Nenhuma tabela SINAPI importada."));
+        // tabela importada da UF e do regime da obra tem precedência; a de demonstração só entra se não houver outra, e o
+        // rótulo diz isso. Auditoria 2026-10: a semeada (09/2026) passava à frente da importada e, sem tabela da UF, valia
+        // a de qualquer outro estado — preços errados em silêncio.
+        var daUf = tabelas.findByUfAndDesoneradoOrderByMesReferenciaDesc(uf.toUpperCase(), desonerado);
+        return daUf.stream().filter(t -> !t.isDemonstracao()).findFirst().or(() -> daUf.stream().findFirst())
+                .orElseThrow(() -> new ExcecaoDominio.RegraDeNegocio("sem_tabela_sinapi", "Não há tabela SINAPI de " + uf.toUpperCase()
+                        + (desonerado ? " desonerada" : " não desonerada") + ". Importe a tabela da Caixa para a UF e o regime da obra antes de orçar."));
     }
 
     @Transactional(readOnly = true)

@@ -1,0 +1,181 @@
+// Jornada pela interface (Playwright): visitante → cadastro → verificação → empresa → 2FA → obra → ações → convite →
+// aceite → URL direta, sessão perdida e celular. Prints em docs/auditoria/evidencias/telas.
+import { chromium } from "playwright";
+import fs from "node:fs";
+import { BASE, cnpj, codigoEmail, emailsPara, espera, registrar, salvar, SENHA, totp } from "./cliente.mjs";
+
+const OUT = new URL("../../docs/auditoria/evidencias/telas/", import.meta.url).pathname;
+fs.mkdirSync(OUT, { recursive: true });
+const b = await chromium.launch({ executablePath: process.env.PW_CHROMIUM || undefined, args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
+const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, locale: "pt-BR" });
+const p = await ctx.newPage();
+const erros = [];
+p.on("pageerror", (e) => erros.push(e.message));
+const shot = async (nome) => { await espera(700); await p.screenshot({ path: `${OUT}${nome}.png` }); };
+const texto = async () => (await p.locator("main").innerText().catch(() => "")).replace(/\s+/g, " ");
+
+// 1. visitante
+await p.goto(`${BASE}/`);
+await p.waitForURL(/entrar/);
+await shot("01-visitante-entrar");
+const t1 = (await p.locator("body").innerText()).replace(/\s+/g, " ");
+registrar("UX", "visitante", "a primeira tela explica o que é o produto e como começar", /\bBIM\b/.test(t1) && /pranchas|orçamento|quantitativos/i.test(t1) && /Cadastre-se/.test(t1), t1.slice(0, 220));
+
+// 2. cadastro com erros e depois válido
+await p.goto(`${BASE}/cadastrar`);
+await p.getByRole("button", { name: "Criar conta" }).click();
+await shot("02-cadastro-erros");
+const t2 = await texto();
+registrar("RF18", "UX-erros", "enviar vazio mostra os erros por campo, em pt-BR", /obrigat|informe|inválid/i.test(t2), t2.slice(0, 300));
+const email = `ui-${Date.now()}@exemplo.cca`;
+await p.getByLabel("Nome", { exact: false }).first().fill("Bruna Prado");
+await p.getByLabel("E-mail").fill(email);
+await p.getByLabel("Senha").fill(SENHA);
+await p.getByLabel("Data de nascimento").fill("1990-07-21");
+await p.getByText("Li e aceito os").click();
+await p.getByText("Li e aceito a").click();
+await p.getByRole("button", { name: "Criar conta" }).click();
+await p.getByRole("heading", { name: /Confirme seu e-mail/ }).waitFor({ timeout: 15000 });
+await shot("03-verificar-email");
+const t3 = await texto();
+registrar("RF18", "UX-corrigir-email", "na verificação dá para corrigir o e-mail digitado errado", /alterar e-mail|corrigir e-mail|outro e-mail|e-mail errado/i.test(t3), t3.slice(0, 250));
+await p.getByLabel("Código").fill("000000");
+await p.getByRole("button", { name: "Ativar conta" }).click();
+await espera(800);
+await shot("04-codigo-errado");
+const t4 = await texto();
+registrar("RF18", "UX-codigo-errado", "código errado explica e informa tentativas restantes", /tentativa|inválid|incorret/i.test(t4), t4.slice(0, 250));
+await p.getByLabel("Código").fill(await codigoEmail(email));
+await p.getByRole("button", { name: "Ativar conta" }).click();
+await p.waitForURL(/obras/, { timeout: 15000 });
+await shot("05-obras-sem-empresa");
+const t5 = await texto();
+registrar("UX", "proximo-passo", "sem empresa, a tela diz o próximo passo (criar empresa ou aceitar convite)", /empresa/i.test(t5) && /cri|convite/i.test(t5), t5.slice(0, 200));
+
+// 3. criar empresa → 2FA obrigatório
+await p.goto(`${BASE}/empresa/dados`);
+await p.getByLabel("Razão social").fill("Prado Engenharia Ltda");
+await p.getByLabel("Nome fantasia").fill("Prado Engenharia");
+await p.getByLabel("CNPJ").fill(cnpj());
+await p.getByRole("button", { name: "Criar empresa" }).click();
+await espera(2500);
+await shot("06-empresa-criada");
+const url6 = p.url();
+const t6 = await texto();
+registrar("RF19", "UX-mfa", "ao virar dona, o app leva à configuração do 2FA e explica por quê", /seguranca/.test(url6) || /2FA|duas etapas/i.test(t6), { url: url6, t: t6.slice(0, 200) });
+await p.goto(`${BASE}/conta/seguranca?configurar-mfa=1`);
+await p.getByRole("button", { name: "Ativar 2FA" }).click();
+await espera(1000);
+const segredo = (await p.locator("p.mono.select-all").first().innerText()).trim();
+await shot("07-configurar-2fa");
+await p.getByLabel("Código").fill(totp(segredo, -1));
+await p.getByRole("button", { name: "Confirmar" }).click();
+await espera(1200);
+await shot("08-codigos-recuperacao");
+const t8 = await texto();
+registrar("RF23", "UX-recuperacao", "códigos de recuperação mostrados uma vez, com orientação de guardar", /recupera/i.test(t8), t8.slice(0, 200));
+
+// 4. obra e ações sem digitar código
+await p.goto(`${BASE}/obras/nova`);
+await p.getByLabel("Nome da obra").fill("Edifício Jacarandá");
+await p.getByLabel("Município").fill("Curitiba").catch(() => {});
+await p.getByLabel("UF").fill("PR").catch(() => {});
+await p.getByRole("button", { name: /Criar obra|Criar/ }).click();
+await p.waitForURL(/obras\/[0-9a-f-]{36}/, { timeout: 15000 });
+const obraUrl = p.url().replace(/\/$/, "");
+await shot("09-painel-obra");
+registrar("RF22", "UX-contexto", "a lateral mostra a obra atual e todas as abas dela", (await p.getByText("Obra atual").count()) > 0 && (await p.getByRole("link", { name: "Ações construtivas" }).count()) > 0, obraUrl);
+await p.goto(`${obraUrl}/acoes?acao=MOD.CRIAR.MALHA`);
+await p.getByRole("button", { name: "Ver prévia" }).click();
+await espera(600);
+await shot("10-acoes-previa-malha");
+registrar("RF29", "previa", "a prévia mostra o código gerado e os elementos antes de gravar", /VI\(MALHA/.test(await texto()), null);
+await p.getByRole("button", { name: "Aplicar no modelo" }).click();
+await espera(1500);
+await p.goto(`${obraUrl}/acoes?acao=MOD.CRIAR.PAREDE`);
+await espera(1200);
+await p.getByLabel("Início: interseção de eixos").selectOption({ index: 1 });
+await p.getByLabel("Fim: interseção de eixos").selectOption({ index: 2 });
+await p.getByRole("button", { name: "Aplicar no modelo" }).click();
+await espera(1500);
+await shot("11-acoes-parede-aplicada");
+const t11 = await texto();
+registrar("RF29", "aplicar", "parede criada por listas (sem digitar coordenadas nem código) e desfazer disponível", /Desfazer/.test(t11) && /VI\(PAREDE/.test(t11), t11.slice(0, 200));
+await p.getByRole("button", { name: "Desfazer" }).click();
+await espera(1200);
+registrar("RF29", "desfazer", "desfazer a ação remove a parede (comando inverso)", /Nada aplicado/.test(await texto()), null);
+await p.goto(`${obraUrl}/copilot`);
+await espera(1500);
+await shot("12-copilot");
+registrar("RF29", "copilot", "Copilot sugere a próxima ação com evidência", /Próxima ação sugerida/.test(await texto()) && /evidência/.test(await texto()), (await texto()).slice(0, 200));
+
+// 5. convite pela tela e aceite em outro navegador
+const arqEmail = `ui-arq-${Date.now()}@exemplo.cca`;
+await p.goto(`${BASE}/empresa/membros`);
+await p.getByLabel("E-mail").fill(arqEmail);
+await p.getByLabel("Papel").selectOption("ARQUITETO");
+await p.getByLabel("Obra (opcional)").selectOption({ index: 1 }).catch(() => {});
+await p.getByRole("button", { name: "Enviar convite" }).click();
+await espera(1500);
+await shot("13-convite-enviado");
+const corpo = emailsPara(arqEmail).at(-1) ?? "";
+const link = /(https?:\/\/\S+\/convite\/[A-Za-z0-9_-]+)/.exec(corpo)?.[1];
+registrar("RF20", "UX-email", "e-mail diz quem convidou, a obra, o papel legível e a validade em pt-BR", !!link && /Prado/.test(corpo) && /arquitet/i.test(corpo) && /de novembro de|de outubro de|de \w+ de 20/.test(corpo), corpo.split("\n").slice(-8).join(" ").slice(0, 300));
+const ctx2 = await b.newContext({ viewport: { width: 1280, height: 860 }, locale: "pt-BR" });
+const q = await ctx2.newPage();
+if (link) {
+  await q.goto(link);
+  await espera(1500);
+  await q.screenshot({ path: `${OUT}14-convite-sem-conta.png` });
+  const tq = (await q.locator("main").innerText()).replace(/\s+/g, " ");
+  registrar("RF20", "UX-convite", "página do convite mostra empresa, obra e papel e orienta a criar conta/entrar", /Prado|Jacarand/.test(tq) && /criar conta|entrar/i.test(tq), tq.slice(0, 250));
+  const criar = q.getByRole("link", { name: /Criar conta/i }).first();
+  if (await criar.count()) await criar.click(); else await q.goto(`${BASE}/cadastrar`);
+  await q.getByLabel("Nome", { exact: false }).first().fill("Caio Arquiteto");
+  const campoEmail = q.getByLabel("E-mail");
+  if (!(await campoEmail.inputValue())) await campoEmail.fill(arqEmail);
+  await q.getByLabel("Senha").fill(SENHA);
+  await q.getByLabel("Data de nascimento").fill("1992-03-03");
+  await q.getByText("Li e aceito os").click();
+  await q.getByText("Li e aceito a").click();
+  await q.getByRole("button", { name: "Criar conta" }).click();
+  await q.getByLabel("Código").fill(await codigoEmail(arqEmail));
+  await q.getByRole("button", { name: "Ativar conta" }).click();
+  await espera(2500);
+  const voltou = q.url();
+  registrar("RF20", "UX-volta-convite", "depois do cadastro a pessoa volta ao convite para aceitar", /convite/.test(voltou), voltou);
+  if (!/convite/.test(voltou)) await q.goto(link);
+  await espera(1200);
+  await q.getByRole("button", { name: "Aceitar convite" }).click();
+  await q.waitForURL(/obras\//, { timeout: 15000 }).catch(() => {});
+  await espera(1500);
+  await q.screenshot({ path: `${OUT}15-convidado-na-obra.png` });
+  registrar("RF20", "UX-aceite", "ao aceitar, cai direto na obra do convite", /obras\/[0-9a-f-]{36}/.test(q.url()) && (await q.getByText("Edifício Jacarandá").count()) > 0, q.url());
+}
+
+// 6. URL direta sem sessão, sessão perdida, celular
+const ctx3 = await b.newContext({ viewport: { width: 1280, height: 800 }, locale: "pt-BR" });
+const r = await ctx3.newPage();
+await r.goto(`${obraUrl}/geotecnia/furos`);
+await r.waitForURL(/entrar/);
+registrar("RF19", "UX-voltar", "URL protegida sem sessão leva ao login guardando o destino", /voltar=/.test(r.url()), r.url());
+await r.getByLabel("E-mail").fill(email);
+await r.getByLabel("Senha").fill(SENHA);
+await r.getByRole("button", { name: "Entrar" }).click();
+await r.getByLabel("Código").fill(totp(segredo, 1));
+await r.getByRole("button", { name: "Confirmar" }).click();
+await espera(2500);
+registrar("RF19", "UX-voltar-b", "após login (com 2FA) volta para a URL pedida", /geotecnia\/furos/.test(r.url()), r.url());
+await ctx3.clearCookies();
+await r.goto(`${obraUrl}/estrutura/cargas`);
+await espera(2000);
+registrar("RF19", "UX-sessao-perdida", "sessão perdida leva ao login sem tela quebrada", /entrar/.test(r.url()), r.url());
+await p.setViewportSize({ width: 390, height: 844 });
+await p.goto(`${obraUrl}/modelo`);
+await espera(2500);
+await p.screenshot({ path: `${OUT}16-celular-modelo.png` });
+const tm = await texto();
+registrar("UX", "celular", "no celular o motor de desenho avisa seus limites ou se adapta", /tela maior|celular|toque|desktop/i.test(tm) || (await p.locator("canvas").count()) > 0, tm.slice(0, 160));
+registrar("UX", "erros-js", "nenhum erro de JavaScript durante a jornada", erros.length === 0, erros.slice(0, 5));
+await b.close();
+salvar(new URL("../../docs/auditoria/evidencias/j4-interface.json", import.meta.url).pathname);

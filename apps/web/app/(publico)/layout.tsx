@@ -18,7 +18,8 @@ export default function LayoutPublico({ children }: { children: React.ReactNode 
       </aside>
       <main className="flex items-center justify-center p-4 sm:p-8">
         <div className="w-full max-w-md">
-          <Link href="/" className="lg:hidden flex items-center gap-2 mb-6 font-semibold text-text"><Logomarca tamanho={32} /> CivilConstructorAI</Link>
+          <Link href="/" className="lg:hidden flex items-center gap-2 mb-2 font-semibold text-text"><Logomarca tamanho={32} /> CivilConstructorAI</Link>
+          <p className="lg:hidden mb-6 text-sm text-text-3">CAD/BIM com auditoria: projete, calcule, orce e entregue pranchas rastreáveis; toda saída de IA é rascunho até um profissional aprovar.</p>
           {children}
         </div>
       </main>

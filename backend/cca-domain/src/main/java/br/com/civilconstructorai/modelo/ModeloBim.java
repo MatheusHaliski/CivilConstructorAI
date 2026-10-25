@@ -465,6 +465,20 @@ public class ModeloBim {
                 if (pavimentos.stream().anyMatch(p -> Math.abs(p.elevacao() - z) < 0.01)) {
                     throw erro("VI-003", "Já existe pavimento na elevação " + z + " m.");
                 }
+                // RF03 CA-04: pé-direito entre 2,20 e 12,00 m (acima do solo); fora disso só com confirmação explícita
+                if (z >= 0 && !bool(a, "confirmar", false)) {
+                    var abaixo = pavimentos.stream().filter(p -> p.elevacao() >= 0 && p.elevacao() < z).mapToDouble(Pavimento::elevacao).max();
+                    var acima = pavimentos.stream().filter(p -> p.elevacao() > z).mapToDouble(Pavimento::elevacao).min();
+                    for (var vizinho : new java.util.OptionalDouble[] {abaixo, acima}) {
+                        if (vizinho.isPresent()) {
+                            double pe = Math.abs(z - vizinho.getAsDouble());
+                            if (pe < 2.20 - 1e-9 || pe > 12.00 + 1e-9) {
+                                throw erro("VI-003", String.format(java.util.Locale.of("pt", "BR"),
+                                        "Pé-direito de %.2f m fora do intervalo 2,20–12,00 m. Se for intencional (mezanino, reservatório), confirme com confirmar=true.", pe));
+                            }
+                        }
+                    }
+                }
                 var novoPav = new Pavimento(Ids.novo(), str(a, "nome", "Pavimento " + pavimentos.size()), z, Pavimento.tipoPara(z));
                 pavimentos.add(novoPav);
                 diff.pavimentosCriados.add(novoPav);
@@ -734,6 +748,15 @@ public class ModeloBim {
     }
 
     @SuppressWarnings("unchecked")
+    /** A…Z, AA, AB… (malhas acima de 26 eixos em X geravam "[", "\\"…) */
+    static String nomeColuna(int i) {
+        var sb = new StringBuilder();
+        for (int n = i; n >= 0; n = n / 26 - 1) {
+            sb.insert(0, (char) ('A' + n % 26));
+        }
+        return sb.toString();
+    }
+
     private void malha(Map<String, Object> a, DiffModelo diff) {
         int nx = Math.max(1, (int) Math.round(num(a, "nx", 5.0))), ny = Math.max(1, (int) Math.round(num(a, "ny", 3.0)));
         List<Double> dxs = new ArrayList<>(), dys = new ArrayList<>();
@@ -751,8 +774,26 @@ public class ModeloBim {
                 dys.add(num(a, "dy", 6.0));
             }
         }
-        if (dxs.stream().anyMatch(d -> d <= 0) || dys.stream().anyMatch(d -> d <= 0)) {
-            throw erro("VI-003", "Espaçamento de eixo deve ser maior que zero.");
+        // RF03 CA-02: espaçamento ≥ ShortCurveTolerance (0,05 m)
+        if (dxs.stream().anyMatch(d -> d < 0.05) || dys.stream().anyMatch(d -> d < 0.05)) {
+            throw erro("VI-003", "Espaçamento de eixo deve ser de pelo menos 0,05 m (ShortCurveTolerance).");
+        }
+        // RF03 CA-01: sem nomes repetidos por direção (antes: 500 por violar eixo_modelo_id_nome_key ao gerar a 2ª malha)
+        var repetidos = new ArrayList<String>();
+        for (int i = 0; i <= dxs.size(); i++) {
+            var n = nomeColuna(i);
+            if (eixos.stream().anyMatch(e -> e.direcao() == Direcao.X && e.nome().equals(n))) {
+                repetidos.add(n);
+            }
+        }
+        for (int i = 0; i <= dys.size(); i++) {
+            var n = String.valueOf(i + 1);
+            if (eixos.stream().anyMatch(e -> e.direcao() == Direcao.Y && e.nome().equals(n))) {
+                repetidos.add(n);
+            }
+        }
+        if (!repetidos.isEmpty()) {
+            throw erro("VI-003", "O modelo já tem os eixos " + String.join(", ", repetidos) + ". Para acrescentar eixos use EIXO; para refazer a malha, apague a atual primeiro.");
         }
         var o = ptOpt(a, "origem");
         if (o == null) {
@@ -761,7 +802,7 @@ public class ModeloBim {
         double totalX = dxs.stream().mapToDouble(Double::doubleValue).sum(), totalY = dys.stream().mapToDouble(Double::doubleValue).sum();
         double x = o.x();
         for (int i = 0; i <= dxs.size(); i++) {
-            var eixo = new Eixo(Ids.novo(), String.valueOf((char) ('A' + i)), Direcao.X, Geo.arredondar(x), o.y() - 1, o.y() + totalY + 1, 1.0);
+            var eixo = new Eixo(Ids.novo(), nomeColuna(i), Direcao.X, Geo.arredondar(x), o.y() - 1, o.y() + totalY + 1, 1.0);
             eixos.add(eixo);
             diff.eixosCriados.add(eixo);
             if (i < dxs.size()) {
@@ -845,7 +886,7 @@ public class ModeloBim {
 
     private String proximoNomeEixo(Direcao direcao) {
         long usados = eixos.stream().filter(e -> e.direcao() == direcao).count();
-        return direcao == Direcao.X ? String.valueOf((char) ('A' + usados)) : String.valueOf(usados + 1);
+        return direcao == Direcao.X ? nomeColuna((int) usados) : String.valueOf(usados + 1);
     }
 
     /** RF03: mover um eixo reposiciona os pilares ancorados nele (dentro da tolerância) */

@@ -47,6 +47,12 @@ class AnaliseIT extends AbstractIT {
         return "/api/v1/obras/" + cenario.obraId();
     }
 
+    /** carga + "pronto para análise" no pavimento tipo (pré-condição RN-03 do RF05) */
+    private void liberarParaAnalise() throws Exception {
+        postJson(engenheiro, "/estrutura/cargas", Map.of("pavimentoId", CenarioEstrutural.TIPO, "natureza", "ACIDENTAL", "tipo", "AREA", "valor", 2.0));
+        assertThat(postJson(engenheiro, "/estrutura/lancamentos/" + CenarioEstrutural.TIPO + "/pronto", null).getResponse().getStatus()).isEqualTo(200);
+    }
+
     private MvcResult postJson(UsuarioAtual u, String caminho, Object corpo) throws Exception {
         var req = post(base() + caminho).with(authentication(TesteSeguranca.autenticacao(u))).with(csrf());
         if (corpo != null) {
@@ -78,6 +84,12 @@ class AnaliseIT extends AbstractIT {
         assertThat(combinacoes.getResponse().getStatus()).isEqualTo(200);
         assertThat(json(combinacoes).size()).isGreaterThanOrEqualTo(3); // ELU + ELS com G e Q
 
+        // RF05 RN-03: sem o "pronto para análise" do engenheiro, a análise é recusada com o próximo passo
+        var semPronto = postJson(engenheiro, "/analises", null);
+        assertThat(semPronto.getResponse().getStatus()).isEqualTo(422);
+        assertThat(json(semPronto).get("type").asString()).endsWith("/lancamento_nao_pronto");
+        assertThat(postJson(engenheiro, "/estrutura/lancamentos/" + CenarioEstrutural.TIPO + "/pronto", null).getResponse().getStatus()).isEqualTo(200);
+
         var analise = postJson(engenheiro, "/analises", null);
         assertThat(analise.getResponse().getStatus()).as(analise.getResponse().getContentAsString()).isEqualTo(202);
         var corpo = json(analise);
@@ -104,6 +116,7 @@ class AnaliseIT extends AbstractIT {
     @Test
     void vigaSemApoioFalhaComoHipostatica() throws Exception {
         modelos.registrar(CenarioEstrutural.vigaSolta(cenario.obraId(), 4));
+        liberarParaAnalise();
         var analise = postJson(engenheiro, "/analises", null);
         assertThat(analise.getResponse().getStatus()).isEqualTo(202);
         var corpo = json(analise);

@@ -13,7 +13,7 @@ type Tabela_ = { id: string; uf: string; mesReferencia: string; desonerado: bool
 type Comp = { id: string; codigo: string; descricao: string; unidade: string; custoUnitario: number; grupo?: string };
 type Aditivo = { id: string; descricao: string; valor: number; estado: string };
 /** espelha a visão de OrcamentoController.visao */
-type Visao = { id: string; estado: string; dataBase: string; total: number; bdiPct: number; geradoPorIa: boolean; totaisPorEtapa: Record<string, number>; itens: ItemOrcamento[]; itensPendentesIa: number };
+type Visao = { id: string; estado: string; dataBase: string; total: number; bdiPct: number; geradoPorIa: boolean; totaisPorEtapa: Record<string, number>; itens: ItemOrcamento[]; itensPendentesIa: number; tabelaDemonstracao?: boolean; quantitativoDesatualizado?: boolean; versaoModelo?: number };
 
 /** RF12 · Orçamento 5D: quantitativos × SINAPI (UF, mês, desonerado), sugestão por IA validada, aprovação com selo, aditivos. */
 export default function PaginaOrcamento({ params }: { params: Promise<{ obraId: string }> }) {
@@ -58,6 +58,8 @@ export default function PaginaOrcamento({ params }: { params: Promise<{ obraId: 
         </Cartao>}
         {sel && o && <>
           <Cartao titulo={`Itens · ${moeda(visao.data?.total ?? o.total)}`} descricao={visao.data ? Object.entries(visao.data.totaisPorEtapa).map(([e, v]) => `${e}: ${moeda(v)}`).join(" · ") : undefined} className="lg:col-span-2" acoes={<>{eng && o.estado !== "APROVADO" && o.estado !== "REJEITADO" && <><Botao pequeno disabled={!sessao?.seloVerificado} title={!sessao?.seloVerificado ? "Exige selo verificado e 2FA" : undefined} onClick={() => decidir.mutate("aprovar")}>Aprovar</Botao><Botao pequeno variante="fantasma" onClick={() => decidir.mutate("rejeitar")}>Rejeitar</Botao></>}</>}>
+            {visao.data?.tabelaDemonstracao && <Aviso tom="perigo" titulo="Preços de demonstração">Este orçamento usou a tabela de demonstração ({visao.data.dataBase}). Os valores são ilustrativos e não servem como estimativa: importe a tabela SINAPI oficial da UF e do regime da obra e gere um novo orçamento.</Aviso>}
+            {visao.data?.quantitativoDesatualizado && <Aviso tom="aviso" titulo="Modelo mudou depois deste orçamento">O orçamento foi feito sobre a versão {visao.data.versaoModelo} do modelo. Gere um novo para refletir o modelo atual; a diferença em relação ao aprovado vira proposta de aditivo.</Aviso>}
             {visao.isLoading ? <Carregando /> : <Tabela linhas={itens} chave={(i) => i.id} vazio={<Vazio titulo="Sem itens" />} colunas={[
               { titulo: "Etapa / serviço", celula: (i) => <span><span className="text-xs text-text-3">{i.etapa}</span><br />{i.servico}{i.geradoPorIa && !i.confirmadoPor && <> <EtiquetaIa /></>}</span> },
               { titulo: "SINAPI", celula: (i) => <span className="mono text-xs">{i.codigoSinapi}<br /><span className="text-text-3">{String(i["descricao"] ?? "")}</span></span> }, { titulo: "Qtd", celula: (i) => `${numero(i.quantidade, 3)} ${i.unidade}`, numerica: true },

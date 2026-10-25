@@ -138,6 +138,13 @@ public class ModeloRepositorioJdbc implements ModeloRepositorio {
     }
 
     @Override
+    public void vincularRascunho(UUID obraId, java.util.Collection<UUID> elementos, UUID rascunhoId) {
+        for (var id : elementos) {
+            jdbc.update("update elemento set rascunho_ia_id = ? where id = ? and modelo_id = (select id from modelo_bim where obra_id = ?)", rascunhoId, id, obraId);
+        }
+    }
+
+    @Override
     public List<ComandoRegistro> comandos(UUID obraId, long desdeVersaoExclusiva) {
         return jdbc.query("select * from comando_vi where obra_id = ? and versao_nova > ? order by versao_nova", this::mapComando, obraId, desdeVersaoExclusiva);
     }

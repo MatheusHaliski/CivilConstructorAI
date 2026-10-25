@@ -27,6 +27,8 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -183,6 +185,20 @@ class OrcamentoIT extends AbstractIT {
         assertThat(json(confirmado).get("confirmadoPor").asString()).isEqualTo(engenheiro.contaId().toString());
 
         assertThat(postJson(cliente, "/orcamentos/" + orcId + "/aprovar", null).getResponse().getStatus()).isEqualTo(403);
+        // serviços sem composição (fôrmas que a IA não associou) ficam visíveis com custo zero e bloqueiam a aprovação
+        var comPendencias = json(getJson(engenheiro, "/orcamentos/" + orcId));
+        if (comPendencias.get("itensSemComposicao").asInt() > 0) {
+            var bloqueio = postJson(engenheiro, "/orcamentos/" + orcId + "/aprovar", null);
+            assertThat(bloqueio.getResponse().getStatus()).isEqualTo(422);
+            assertThat(bloqueio.getResponse().getContentAsString()).contains("itens_sem_composicao");
+            for (var i : comPendencias.get("itens")) {
+                if (i.get("codigoSinapi").asString().isEmpty()) {
+                    assertThat(i.get("total").asDouble()).isZero();
+                    mvc.perform(delete(base() + "/orcamentos/" + orcId + "/itens/" + i.get("id").asString()).with(authentication(TesteSeguranca.autenticacao(engenheiro))).with(csrf()))
+                            .andExpect(status().is2xxSuccessful());
+                }
+            }
+        }
         var aprovado = postJson(engenheiro, "/orcamentos/" + orcId + "/aprovar", null);
         assertThat(aprovado.getResponse().getStatus()).as(aprovado.getResponse().getContentAsString()).isEqualTo(200);
         assertThat(json(aprovado).get("estado").asString()).isEqualTo("APROVADO");

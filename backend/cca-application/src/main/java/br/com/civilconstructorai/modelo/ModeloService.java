@@ -10,6 +10,7 @@ import br.com.civilconstructorai.ia.ModeloLinguagem;
 import br.com.civilconstructorai.ia.RotaIa;
 import br.com.civilconstructorai.modelo.Enums.Camada;
 import br.com.civilconstructorai.modelo.Enums.OrigemComando;
+import br.com.civilconstructorai.modelo.Enums.TipoElemento;
 import br.com.civilconstructorai.modelo.ModeloRepositorio.AlertaTransicao;
 import br.com.civilconstructorai.modelo.ModeloRepositorio.ModeloCarregado;
 import br.com.civilconstructorai.notacao.FormatadorVi;
@@ -41,9 +42,14 @@ public class ModeloService {
     private final RegistroOperacoes registro;
     private final ModeloLinguagem llm;
     private final ObjectMapper mapper;
+    private final DependentesDoModelo dependentes;
+    private final br.com.civilconstructorai.ia.RascunhoIaService rascunhosIa;
 
     public ModeloService(ModeloRepositorio repositorio, AuditorService auditor, AcessoObra acesso, ContextoUsuario contexto,
-                         RegistroOperacoes registro, ModeloLinguagem llm, ObjectMapper mapper) {
+                         RegistroOperacoes registro, ModeloLinguagem llm, ObjectMapper mapper, DependentesDoModelo dependentes,
+                         br.com.civilconstructorai.ia.RascunhoIaService rascunhosIa) {
+        this.dependentes = dependentes;
+        this.rascunhosIa = rascunhosIa;
         this.repositorio = repositorio;
         this.auditor = auditor;
         this.acesso = acesso;
@@ -73,11 +79,29 @@ public class ModeloService {
     @Transactional(readOnly = true)
     public Visao obter(UUID obraId, Long versao) {
         acesso.exigirMembro(obraId);
+        var u = contexto.exigir();
         var carregado = carregarOuCriarSomenteLeitura(obraId);
-        var estado = versao == null || versao == carregado.versao() ? carregado.estado()
-                : repositorio.estadoNaVersao(obraId, versao).orElseThrow(() -> new ExcecaoDominio.RecursoNaoEncontrado("Versão " + versao + " do modelo"));
+        // DN-02/RF13 CA-08: cliente e fornecedor só veem a versão liberada, sem rascunho de IA (auditoria 2026-10: o
+        // /snapshot já fazia isso, mas o GET /modelo usado pelo app devolvia a versão de trabalho inteira)
+        boolean cliente = apenasClienteOuFornecedor(u, obraId);
+        Long alvo = versao;
+        if (cliente) {
+            if (!carregado.liberadaCliente() || carregado.versaoLiberada() == null || (versao != null && !versao.equals(carregado.versaoLiberada()))) {
+                throw new ExcecaoDominio.RecursoNaoEncontrado("Versão do modelo");
+            }
+            alvo = carregado.versaoLiberada();
+        }
+        final Long pedida = alvo;
+        var estado = pedida == null || pedida == carregado.versao() ? carregado.estado()
+                : repositorio.estadoNaVersao(obraId, pedida).orElseThrow(() -> new ExcecaoDominio.RecursoNaoEncontrado("Versão " + pedida + " do modelo"));
         var m = new ModeloBim(estado);
-        return new Visao(obraId, estado.versao(), carregado.liberadaCliente(), m.pavimentosOrdenados(), m.eixos(), m.elementos());
+        var elementos = cliente ? m.elementos().stream().filter(e -> e.getCamada() != Camada.ia_rascunho && e.getRascunhoIaId() == null).toList() : m.elementos();
+        return new Visao(obraId, estado.versao(), carregado.liberadaCliente(), m.pavimentosOrdenados(), m.eixos(), elementos);
+    }
+
+    private static boolean apenasClienteOuFornecedor(br.com.civilconstructorai.comum.UsuarioAtual u, UUID obraId) {
+        var papeis = u.papeisNaObra(obraId);
+        return !papeis.isEmpty() && papeis.stream().allMatch(p -> p == PapelObra.CLIENTE || p == PapelObra.FORNECEDOR);
     }
 
     @Transactional(readOnly = true)
@@ -156,7 +180,35 @@ public class ModeloService {
         var vi = FormatadorVi.formatar(r.comandoFinal().codigo(), r.comandoFinal().args());
         repositorio.salvarAplicacao(obraId, atual.estado(), r.rascunho().estado(), r.diff(), r.comandoFinal(), vi, r.relatorio());
         repositorio.salvarCiclo(r.ciclo());
+        propagar(obraId, atual, r.diff());
         return new ResultadoComando(r.comandoFinal().id(), vi, versaoAtual + 1, r.diff(), r.relatorio());
+    }
+
+    private static final java.util.Set<TipoElemento> ESTRUTURAIS = java.util.EnumSet.of(TipoElemento.PILAR, TipoElemento.VIGA, TipoElemento.LAJE,
+            TipoElemento.PAREDE, TipoElemento.CONTRAVENTAMENTO, TipoElemento.SAPATA, TipoElemento.BLOCO, TipoElemento.RADIER, TipoElemento.ESTACA);
+
+    /** invalida análise, dimensionamentos, fundações, quantitativos e pranchas que dependiam da versão anterior */
+    private void propagar(UUID obraId, ModeloBim antes, DiffModelo diff) {
+        var tipos = new java.util.ArrayList<TipoElemento>();
+        var pavimentos = new java.util.HashSet<String>();
+        for (var e : diff.novosOuAlterados()) {
+            tipos.add(e.getTipo());
+            if (e.getPavimentoId() != null) {
+                pavimentos.add(e.getPavimentoId().toString());
+            }
+        }
+        for (var id : diff.removidos) {
+            antes.elementos().stream().filter(e -> e.getId().equals(id)).findFirst().ifPresent(e -> {
+                tipos.add(e.getTipo());
+                if (e.getPavimentoId() != null) {
+                    pavimentos.add(e.getPavimentoId().toString());
+                }
+            });
+        }
+        boolean referencias = !diff.eixosCriados.isEmpty() || !diff.eixosAlterados.isEmpty() || !diff.pavimentosCriados.isEmpty();
+        boolean estrutural = referencias || tipos.stream().anyMatch(ESTRUTURAIS::contains);
+        boolean construtivo = tipos.stream().anyMatch(TipoElemento::construtivo);
+        dependentes.modeloMudou(obraId, diff.versaoNova, estrutural, construtivo, referencias ? java.util.Set.of() : pavimentos);
     }
 
     /** lote atômico (COPIAR múltiplo, MATRIZ, comandos da IA): falha em um item reverte todos */
@@ -190,6 +242,7 @@ public class ModeloService {
         var relatorio = new RelatorioAuditoria(new RelatorioAuditoria.Laco(true, List.of()), new RelatorioAuditoria.Laco2(true, List.of(), List.of()), List.of(), true, 0);
         var vi = FormatadorVi.formatar("DESFAZER", inverso.args());
         repositorio.salvarAplicacao(obraId, atual.estado(), alvo.estado(), diff, inverso, vi, relatorio);
+        propagar(obraId, atual, diff);
         return new ResultadoComando(inverso.id(), vi, versaoAtual + 1, diff, relatorio);
     }
 
@@ -216,6 +269,7 @@ public class ModeloService {
         diff.versaoNova = versaoAtual + 1;
         var vi = FormatadorVi.formatar(cmd.codigo(), cmd.args());
         repositorio.salvarAplicacao(obraId, atual.estado(), rascunho.estado(), diff, cmd, vi, relatorio);
+        propagar(obraId, atual, diff);
         return new ResultadoComando(cmd.id(), vi, versaoAtual + 1, diff, relatorio);
     }
 
@@ -246,7 +300,64 @@ public class ModeloService {
         if (pedidos.isEmpty()) {
             throw new ExcecaoDominio.RegraDeNegocio("ia_sem_comandos", "A IA não identificou nenhum comando no texto.");
         }
-        return aplicarLote(obraId, pedidos);
+        var resultados = aplicarLote(obraId, pedidos);
+        // RF27 CA-01: o resultado da IA nasce como RascunhoIA vinculado aos elementos (camada ia-rascunho) e só vira
+        // projeto quando aprovado; antes os elementos ficavam no modelo sem rascunho para aprovar ou rejeitar
+        var u = contexto.exigir();
+        var conteudo = mapper.writeValueAsString(Map.of("texto", Sanitizador.texto(texto), "comandos", resultados.stream().map(ResultadoComando::vi).toList()));
+        var rascunho = rascunhosIa.criar(u.empresaAtivaId(), obraId, TIPO_RASCUNHO_COMANDO, RotaIa.COMANDO_VI, null, conteudo, u.contaId(), null, false);
+        var criados = resultados.stream().flatMap(x -> x.diff().criados.stream()).map(Elemento::getId).toList();
+        repositorio.vincularRascunho(obraId, criados, rascunho.getId());
+        return resultados;
+    }
+
+    public static final String TIPO_RASCUNHO_COMANDO = "COMANDO_VI";
+
+    /** aprovar promove os elementos do rascunho à camada da disciplina; rejeitar remove — ambos geram versão no histórico */
+    @Transactional
+    public void decidirRascunhoIa(UUID obraId, UUID rascunhoId, boolean aprovar) {
+        acesso.exigirMembro(obraId);
+        var u = contexto.exigir();
+        if (repositorio.carregar(obraId).isEmpty()) {
+            return; // obra sem modelo gravado: o rascunho não criou elementos
+        }
+        var versaoAtual = repositorio.travarVersao(obraId);
+        var carregado = repositorio.carregar(obraId).orElseThrow();
+        var atual = new ModeloBim(carregado.estado());
+        atual.setVersao(versaoAtual);
+        var novo = atual.copia();
+        var alvos = novo.elementos().stream().filter(e -> rascunhoId.equals(e.getRascunhoIaId())).toList();
+        if (alvos.isEmpty()) {
+            return;
+        }
+        var diff = new DiffModelo();
+        if (aprovar) {
+            for (var e : alvos) {
+                e.setCamada(camadaDaDisciplina(e.getTipo()));
+                e.setRascunhoIaId(null);
+                diff.alterados.add(e);
+            }
+        } else {
+            var ids = alvos.stream().map(Elemento::getId).toList();
+            novo.elementos().removeIf(e -> ids.contains(e.getId()));
+            diff.removidos.addAll(ids);
+        }
+        novo.setVersao(versaoAtual + 1);
+        diff.versaoNova = versaoAtual + 1;
+        var cmd = new ComandoVi(Ids.novo(), aprovar ? "APROVAR_RASCUNHO_IA" : "DESCARTAR_RASCUNHO_IA", Map.of("rascunho", rascunhoId.toString()), OrigemComando.SISTEMA, versaoAtual, u.contaId(), Instant.now());
+        var relatorio = new RelatorioAuditoria(new RelatorioAuditoria.Laco(true, List.of()), new RelatorioAuditoria.Laco2(true, List.of(), List.of()), List.of(), true, 0);
+        repositorio.salvarAplicacao(obraId, atual.estado(), novo.estado(), diff, cmd, FormatadorVi.formatar(cmd.codigo(), cmd.args()), relatorio);
+        propagar(obraId, atual, diff);
+    }
+
+    private static Camada camadaDaDisciplina(TipoElemento t) {
+        return switch (t) {
+            case PILAR, VIGA, LAJE, CONTRAVENTAMENTO -> Camada.estrutura;
+            case SAPATA, BLOCO, RADIER, ESTACA -> Camada.fundacao;
+            case PAREDE, PORTA, JANELA, AMBIENTE -> Camada.arquitetura;
+            case COTA, TEXTO, ETIQUETA, HACHURA -> Camada.anotacao;
+            default -> Camada.desenho;
+        };
     }
 
     @Transactional

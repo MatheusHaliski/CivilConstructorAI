@@ -1,6 +1,7 @@
 "use client";
 import { Suspense, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { destinoSeguro } from "@/lib/formatos";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { KeyRound, ShieldCheck } from "lucide-react";
@@ -25,7 +26,8 @@ function Entrar() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [codigo, setCodigo] = useState("");
-  const voltar = params.get("voltar") ?? "/obras";
+  // só destinos internos: ?voltar=https://… virava redirecionamento aberto depois do login (auditoria 2026-10)
+  const voltar = destinoSeguro(params.get("voltar"));
 
   async function seguir(r: RespostaLogin) {
     setEmpresas(r.empresas ?? []);
@@ -49,7 +51,7 @@ function Entrar() {
           <Entrada rotulo="E-mail" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} obrigatorio />
           <Entrada rotulo="Senha" type="password" autoComplete="current-password" value={senha} onChange={(e) => setSenha(e.target.value)} obrigatorio />
           <Botao type="submit" carregando={ocupado} icone={<KeyRound className="size-4" aria-hidden />}>Entrar</Botao>
-          <p className="text-sm text-text-3">Não tem conta? <Link className="text-brand-text underline underline-offset-4" href="/cadastrar">Cadastre-se</Link></p>
+          <p className="text-sm text-text-3">Não tem conta? <Link className="text-brand-text underline underline-offset-4" href={voltar !== "/obras" ? `/cadastrar?voltar=${encodeURIComponent(voltar)}` : "/cadastrar"}>Cadastre-se</Link></p>
         </form>
       )}
       {etapa === "MFA" && (

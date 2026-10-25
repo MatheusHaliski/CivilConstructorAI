@@ -8,7 +8,7 @@ import type { Preferencias, TipoSelo } from "@/lib/tipos";
 import { Aviso, Botao, CabecalhoPagina, Cartao, Carregando, Entrada, Etiqueta, Selecao } from "@/components/ui";
 
 type Perfil = { id: string; nome: string; email: string; tipo: string; estado: string; cnpj?: string; registroProfissional?: string; registroUf?: string; seloTipo?: TipoSelo; seloEstado: string; mfaAtivo: boolean; mfaObrigatorio: boolean; fotoUrl?: string };
-type Selo = { tipo: string; estado: "NONE" | "PENDING" | "VERIFIED" | "REJECTED"; registro: string; uf: string };
+type Selo = { tipo: string; estado: "NONE" | "PENDING" | "VERIFIED" | "REJECTED"; registro: string; uf: string; motivo?: string };
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"].map((u) => ({ valor: u, rotulo: u }));
 const SELO: Record<Selo["estado"], { rotulo: string; tom: "neutro" | "aviso" | "sucesso" | "perigo" }> = { NONE: { rotulo: "Sem selo", tom: "neutro" }, PENDING: { rotulo: "Em verificação", tom: "aviso" }, VERIFIED: { rotulo: "Verificado", tom: "sucesso" }, REJECTED: { rotulo: "Recusado", tom: "perigo" } };
 
@@ -70,7 +70,7 @@ export default function PaginaConta() {
         <Cartao titulo="Selo profissional" className="lg:col-span-3" descricao="Sem selo verificado ninguém aprova orçamento, medição, checklist nem cálculo (RF21)." acoes={selo.data && <Etiqueta tom={SELO[selo.data.estado].tom} icone={selo.data.estado === "VERIFIED" ? <BadgeCheck className="size-3.5" aria-hidden /> : undefined}>{SELO[selo.data.estado].rotulo}</Etiqueta>}>
           {selo.data?.estado === "VERIFIED" ? <p className="text-sm">{selo.data.tipo} <span className="mono">{selo.data.registro}</span> {selo.data.uf} · verificado.</p> : <>
             {selo.data?.estado === "PENDING" && <Aviso tom="info">Seu pedido está na fila da equipe da plataforma.</Aviso>}
-            {selo.data?.estado === "REJECTED" && <Aviso tom="perigo">O último pedido foi recusado. Confira os dados e envie de novo.</Aviso>}
+            {selo.data?.estado === "REJECTED" && <Aviso tom="perigo" titulo="Pedido recusado">{selo.data.motivo ? <>Motivo informado pelo suporte: <strong>{selo.data.motivo}</strong>. </> : null}Corrija e envie de novo.</Aviso>}
             <div className="grid gap-3 sm:grid-cols-4 items-end">
               <Selecao rotulo="Tipo" value={s.tipo} onChange={(e) => setS((v) => ({ ...v, tipo: e.target.value as TipoSelo }))} opcoes={[{ valor: "CREA", rotulo: "CREA" }, { valor: "CAU", rotulo: "CAU" }, { valor: "CNPJ", rotulo: "CNPJ (empresa)" }]} />
               <Entrada rotulo="Número" className="mono" value={s.registro} onChange={(e) => setS((v) => ({ ...v, registro: e.target.value }))} />

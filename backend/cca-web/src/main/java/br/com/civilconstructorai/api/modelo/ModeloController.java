@@ -121,7 +121,20 @@ public class ModeloController {
 
     @GetMapping("/comandos")
     public List<Map<String, Object>> historico(@PathVariable UUID obraId, @RequestParam(defaultValue = "0") long desde) {
-        return service.historico(obraId, desde).stream().map(c -> Map.<String, Object>of("id", c.id(), "codigo", c.codigo(), "vi", c.vi(), "origem", c.origem(), "versaoBase", c.versaoBase(), "versaoNova", c.versaoNova(), "criadoEm", c.criadoEm())).toList();
+        // autoria e resultado da auditoria visíveis no histórico (RF01 CA-03; auditoria 2026-10: o autor não era exposto)
+        return service.historico(obraId, desde).stream().map(c -> {
+            var m = new LinkedHashMap<String, Object>();
+            m.put("id", c.id());
+            m.put("codigo", c.codigo());
+            m.put("vi", c.vi());
+            m.put("origem", c.origem());
+            m.put("autorId", c.autorId());
+            m.put("versaoBase", c.versaoBase());
+            m.put("versaoNova", c.versaoNova());
+            m.put("criadoEm", c.criadoEm());
+            m.put("correcoesAuditor", c.relatorio() == null ? 0 : c.relatorio().correcoes().size());
+            return (Map<String, Object>) m;
+        }).toList();
     }
 
     @PostMapping("/texto-natural")

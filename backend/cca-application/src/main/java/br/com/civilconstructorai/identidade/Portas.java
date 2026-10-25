@@ -42,6 +42,9 @@ public final class Portas {
         void registrar(String chave, int maximo, Duration janela);
 
         void limpar(String chave);
+
+        /** true só na primeira vez que a chave é vista dentro da janela (uso único, ex.: TOTP contra replay) */
+        boolean primeiroUso(String chave, Duration janela);
     }
 
     /** TOTP RFC 6238. */

@@ -67,6 +67,9 @@ public class Conta extends EntidadeBase {
     @Column(name = "selo_verificado_em")
     private Instant seloVerificadoEm;
 
+    @Column(name = "selo_motivo")
+    private String seloMotivo;
+
     @Column(name = "mfa_ativo", nullable = false)
     private boolean mfaAtivo;
 
@@ -127,11 +130,17 @@ public class Conta extends EntidadeBase {
         this.registroUf = uf == null ? null : uf.toUpperCase(Locale.ROOT);
         this.seloEstado = EstadoSelo.MAQUINA.transicionar(seloEstado == EstadoSelo.PENDING ? EstadoSelo.NONE : seloEstado, EstadoSelo.PENDING);
         this.seloVerificadoEm = null;
+        this.seloMotivo = null;
     }
 
-    public void decidirSelo(boolean aprovado, Instant agora) {
+    /** rejeição exige motivo, que o profissional vê para corrigir e reenviar (RF21) */
+    public void decidirSelo(boolean aprovado, String motivo, Instant agora) {
+        if (!aprovado && (motivo == null || motivo.isBlank())) {
+            throw new ExcecaoDominio.Validacao("motivo", "Informe o motivo da rejeição: o profissional precisa saber o que corrigir.");
+        }
         this.seloEstado = EstadoSelo.MAQUINA.transicionar(seloEstado, aprovado ? EstadoSelo.VERIFIED : EstadoSelo.REJECTED);
         this.seloVerificadoEm = aprovado ? agora : null;
+        this.seloMotivo = aprovado ? null : motivo.trim();
     }
 
     /** nome, registro ou CNPJ mudaram: selo verificado volta a PENDING */
@@ -210,6 +219,7 @@ public class Conta extends EntidadeBase {
     public TipoSelo getSeloTipo() { return seloTipo; }
     public EstadoSelo getSeloEstado() { return seloEstado; }
     public Instant getSeloVerificadoEm() { return seloVerificadoEm; }
+    public String getSeloMotivo() { return seloMotivo; }
     public boolean isMfaAtivo() { return mfaAtivo; }
     public byte[] getMfaSegredoCifrado() { return mfaSegredoCifrado; }
     public boolean isMfaObrigatorio() { return mfaObrigatorio; }

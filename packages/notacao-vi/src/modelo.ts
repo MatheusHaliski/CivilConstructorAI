@@ -15,6 +15,13 @@ export function novoId(prefixo = "e"): string {
   return `${prefixo}_${Date.now().toString(36)}${seq.toString(36)}`;
 }
 
+/** A…Z, AA, AB… (malhas acima de 26 eixos em X) */
+export function nomeColuna(i: number): string {
+  let s = "";
+  for (let n = i; n >= 0; n = Math.floor(n / 26) - 1) s = String.fromCharCode(65 + (n % 26)) + s;
+  return s;
+}
+
 export class ErroComandoVI extends Error {
   constructor(public readonly codigo: string, mensagem: string, public readonly relatorio?: RelatorioAuditoria) {
     super(mensagem);
@@ -211,11 +218,14 @@ export class ModeloBim {
         const nx = Math.max(1, Math.round(n(a["nx"], 5))), ny = Math.max(1, Math.round(n(a["ny"], 3)));
         const dxs = Array.isArray(a["x"]) ? (a["x"] as number[]) : Array.from({ length: nx - 1 }, () => n(a["dx"], 5));
         const dys = Array.isArray(a["y"]) ? (a["y"] as number[]) : Array.from({ length: ny - 1 }, () => n(a["dy"], 6));
-        if ([...dxs, ...dys].some((d) => d <= 0)) throw new ErroComandoVI("VI-003", "Espaçamento de eixo deve ser maior que zero.");
+        if ([...dxs, ...dys].some((d) => d < 0.05)) throw new ErroComandoVI("VI-003", "Espaçamento de eixo deve ser de pelo menos 0,05 m (ShortCurveTolerance).");
+        const repetidos = [...dxs.concat([0]).map((_, i) => ["X", nomeColuna(i)]), ...dys.concat([0]).map((_, i) => ["Y", String(i + 1)])]
+          .filter(([d, nome]) => this.eixos.some((e) => e.direcao === d && e.nome === nome)).map(([, nome]) => nome);
+        if (repetidos.length) throw new ErroComandoVI("VI-003", `O modelo já tem os eixos ${repetidos.join(", ")}. Para acrescentar eixos use EIXO; para refazer a malha, apague a atual primeiro.`);
         const o = a["origem"] ? pt(a["origem"], "origem") : { x: 0, y: 0 };
         const totalX = dxs.reduce((s, d) => s + d, 0), totalY = dys.reduce((s, d) => s + d, 0);
         let x = o.x;
-        dxs.concat([0]).forEach((d, i) => { const eixo: Eixo = { id: novoId("eixo"), nome: String.fromCharCode(65 + i), direcao: "X", posicao: x, inicio: o.y - 1, fim: o.y + totalY + 1, recuoBolha: 1 }; this.eixos.push(eixo); (diff.eixosCriados ??= []).push(eixo); x += d; });
+        dxs.concat([0]).forEach((d, i) => { const eixo: Eixo = { id: novoId("eixo"), nome: nomeColuna(i), direcao: "X", posicao: x, inicio: o.y - 1, fim: o.y + totalY + 1, recuoBolha: 1 }; this.eixos.push(eixo); (diff.eixosCriados ??= []).push(eixo); x += d; });
         let y = o.y;
         dys.concat([0]).forEach((d, i) => { const eixo: Eixo = { id: novoId("eixo"), nome: String(i + 1), direcao: "Y", posicao: y, inicio: o.x - 1, fim: o.x + totalX + 1, recuoBolha: 1 }; this.eixos.push(eixo); (diff.eixosCriados ??= []).push(eixo); y += d; });
         break;
@@ -223,6 +233,15 @@ export class ModeloBim {
       case "PAVIMENTO": {
         const z = n(a["z"] ?? a["elevacao"], undefined, "z");
         if (this.pavimentos.some((p) => Math.abs(p.elevacao - z) < 0.01)) throw new ErroComandoVI("VI-003", `Já existe pavimento na elevação ${z} m.`);
+        if (z >= 0 && a["confirmar"] !== true) {
+          const acimaDoSolo = this.pavimentos.map((p) => p.elevacao).filter((e) => e >= 0);
+          const abaixo = Math.max(...acimaDoSolo.filter((e) => e < z)), acima = Math.min(...acimaDoSolo.filter((e) => e > z));
+          for (const v of [abaixo, acima]) {
+            if (!Number.isFinite(v)) continue;
+            const pe = Math.abs(z - v);
+            if (pe < 2.2 - 1e-9 || pe > 12 + 1e-9) throw new ErroComandoVI("VI-003", `Pé-direito de ${pe.toFixed(2).replace(".", ",")} m fora do intervalo 2,20–12,00 m. Se for intencional (mezanino, reservatório), confirme com confirmar=true.`);
+          }
+        }
         const pav: Pavimento = { id: novoId("pav"), nome: (a["nome"] as string) || `Pavimento ${this.pavimentos.length}`, elevacao: z, tipo: (a["tipo"] as Pavimento["tipo"]) ?? (z < 0 ? "FUNDACAO" : z === 0 ? "TERREO" : "TIPO") };
         this.pavimentos.push(pav); (diff.pavimentosCriados ??= []).push(pav);
         // pilares do pavimento imediatamente abaixo passam a ter este como topo (Disciplina Z, RF17)
@@ -413,7 +432,7 @@ export class ModeloBim {
 
   private proximoNomeEixo(direcao: Eixo["direcao"]): string {
     const usados = this.eixos.filter((e) => e.direcao === direcao).length;
-    return direcao === "X" ? String.fromCharCode(65 + usados) : String(usados + 1);
+    return direcao === "X" ? nomeColuna(usados) : String(usados + 1);
   }
 
   /** interseções de eixos (snap EIX) */

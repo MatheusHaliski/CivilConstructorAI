@@ -110,7 +110,9 @@ public class PranchaService {
             pranchas.salvar(gerada);
             return gerada;
         } catch (RuntimeException e) {
-            var falhou = p.com(Estado.FALHOU, null, null, e.getMessage());
+            // a causa vai para o log (antes só a mensagem curta ficava na prancha, sem pista de onde quebrou)
+            org.slf4j.LoggerFactory.getLogger(PranchaService.class).warn("Falha ao gerar a prancha {}", p.id(), e);
+            var falhou = p.com(Estado.FALHOU, null, null, "Não foi possível gerar a prancha (" + e.getClass().getSimpleName() + "). Tente de novo; se persistir, informe o suporte.");
             pranchas.salvar(falhou);
             return falhou;
         }

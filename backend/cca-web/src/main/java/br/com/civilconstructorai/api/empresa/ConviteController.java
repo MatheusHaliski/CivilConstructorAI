@@ -25,9 +25,11 @@ import java.util.UUID;
 public class ConviteController {
 
     private final ConviteService convites;
+    private final br.com.civilconstructorai.identidade.LoginService login;
 
-    public ConviteController(ConviteService convites) {
+    public ConviteController(ConviteService convites, br.com.civilconstructorai.identidade.LoginService login) {
         this.convites = convites;
+        this.login = login;
     }
 
     @GetMapping("/convites/{token}/publico")
@@ -37,8 +39,15 @@ public class ConviteController {
 
     @PostMapping("/invites/{token}/accept")
     public Map<String, Object> aceitar(@PathVariable String token) {
-        UUID empresaId = convites.aceitar(token);
-        return Map.of("empresaId", empresaId, "mensagem", "Convite aceito. Escolha esta empresa como ativa para começar.");
+        var aceite = convites.aceitar(token);
+        // a empresa do convite passa a ser a ativa e a sessão já traz o papel novo (auditoria 2026-10: a convidada
+        // caía em "sem empresa ativa" e não via a obra até sair e entrar de novo)
+        login.trocarEmpresaAtiva(aceite.empresaId());
+        var out = new java.util.LinkedHashMap<String, Object>();
+        out.put("empresaId", aceite.empresaId());
+        out.put("obraId", aceite.obraId());
+        out.put("mensagem", aceite.obraId() == null ? "Convite aceito: você já está na equipe da empresa." : "Convite aceito: a obra já aparece para você.");
+        return out;
     }
 
     @PostMapping("/invites/{token}/decline")

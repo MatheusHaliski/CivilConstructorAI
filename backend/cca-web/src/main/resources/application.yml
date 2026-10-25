@@ -1,6 +1,10 @@
 spring:
   application:
     name: civilconstructorai
+  # mensagens de validação (Bean Validation) em pt-BR independentemente do Accept-Language (RF18 CA-01)
+  web:
+    locale: pt_BR
+    locale-resolver: fixed
   threads:
     virtual:
       enabled: true
@@ -64,6 +68,9 @@ management:
         enabled: true
 
 app:
+  web:
+    # URL pública do app web usada em links de e-mail (convites)
+    url: ${CCA_WEB_URL:http://localhost:3000}
   seguranca:
     app-secret: ${CCA_APP_SECRET:}
   legal:
@@ -104,8 +111,12 @@ server:
 app:
   arquivos:
     endpoint: http://localhost:3900
-    acesso: ${CCA_S3_ACCESS_KEY:GK_dev}
-    segredo: ${CCA_S3_SECRET_KEY:dev_secret}
+    # o Garage local assina como região "garage" (s3_region em infra/garage/garage.toml); com sa-east-1 todo
+    # upload/download do backend falhava com "Authorization header malformed"
+    regiao: garage
+    # mesma chave que infra/garage/garage-init.sh importa no Garage local
+    acesso: ${CCA_S3_ACCESS_KEY:GK0000000000000000000000de}
+    segredo: ${CCA_S3_SECRET_KEY:dededededededededededededededededededededededededededededededede}
 logging:
   level:
     br.com.civilconstructorai: DEBUG

@@ -48,7 +48,7 @@ public class EstruturaController {
 
     public record NovaCargaRequest(@NotBlank String pavimentoId, @NotNull br.com.civilconstructorai.estrutura.carga.NaturezaAcao natureza,
                                    @NotNull br.com.civilconstructorai.estrutura.carga.TipoCarga tipo, double valor, String elementoAlvoId,
-                                   @NotBlank String descricao, String casoCarga) {
+                                   String descricao, String casoCarga) {
     }
 
     public record VentoRequest(double v0, Double s1, Double s2, Double s3, Double ca) {

@@ -19,7 +19,11 @@ export default function PaginaConvite({ params }: { params: Promise<{ token: str
   const [ocupado, setOcupado] = useState(false);
   const agir = async (acao: "accept" | "decline") => {
     setErro(null); setOcupado(true);
-    try { await post(`/invites/${token}/${acao}`); await recarregar(); router.replace(acao === "accept" ? "/obras" : "/entrar"); }
+    try {
+      const r = await post<{ empresaId: string; obraId?: string | null }>(`/invites/${token}/${acao}`);
+      await recarregar();
+      router.replace(acao === "accept" ? (r?.obraId ? `/obras/${r.obraId}` : "/obras") : "/entrar");
+    }
     catch (x) { setErro(mensagemDeErro(x)); } finally { setOcupado(false); }
   };
   if (q.isLoading || carregando) return <Carregando />;
@@ -41,7 +45,7 @@ export default function PaginaConvite({ params }: { params: Promise<{ token: str
       ) : (
         <div className="flex flex-col gap-2">
           <Aviso tom="info">Entre com a conta do e-mail convidado para aceitar.</Aviso>
-          <div className="flex gap-2"><Link href={`/entrar?voltar=/convite/${token}`}><Botao>Entrar</Botao></Link><Link href="/cadastrar"><Botao variante="secundario">Criar conta</Botao></Link></div>
+          <div className="flex gap-2"><Link href={`/entrar?voltar=/convite/${token}`}><Botao>Entrar</Botao></Link><Link href={`/cadastrar?voltar=/convite/${token}`}><Botao variante="secundario">Criar conta</Botao></Link></div>
         </div>
       )}
     </Cartao>

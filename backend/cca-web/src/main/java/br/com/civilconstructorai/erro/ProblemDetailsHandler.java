@@ -50,6 +50,11 @@ public class ProblemDetailsHandler {
         return problema(HttpStatus.NOT_FOUND, e.codigo(), e.getMessage());
     }
 
+    @ExceptionHandler(ExcecaoDominio.NaoAutenticado.class)
+    ProblemDetail naoAutenticado(ExcecaoDominio.NaoAutenticado e) {
+        return problema(HttpStatus.UNAUTHORIZED, e.codigo(), e.getMessage());
+    }
+
     @ExceptionHandler({ExcecaoDominio.AcessoNegado.class, AccessDeniedException.class})
     ProblemDetail acessoNegado(RuntimeException e) {
         var codigo = e instanceof ExcecaoDominio d ? d.codigo() : "acesso_negado";
@@ -116,6 +121,33 @@ public class ProblemDetailsHandler {
     ProblemDetail status(ResponseStatusException e) {
         var s = HttpStatus.valueOf(e.getStatusCode().value());
         return problema(s, s.name().toLowerCase(), e.getReason() == null ? titulo(s) : e.getReason());
+    }
+
+    /** requisição malformada (parâmetro ausente, tipo errado, JSON ilegível): 400 em pt-BR, não 500 (auditoria 2026-10) */
+    @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
+    ProblemDetail parametroAusente(org.springframework.web.bind.MissingServletRequestParameterException e) {
+        var p = problema(HttpStatus.BAD_REQUEST, "parametro_ausente", "Falta o parâmetro \"" + e.getParameterName() + "\".");
+        p.setProperty("errors", List.of(Map.of("campo", e.getParameterName(), "mensagem", "obrigatório")));
+        return p;
+    }
+
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    ProblemDetail tipoInvalido(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException e) {
+        var p = problema(HttpStatus.BAD_REQUEST, "parametro_invalido", "Valor inválido para \"" + e.getName() + "\".");
+        p.setProperty("errors", List.of(Map.of("campo", e.getName(), "mensagem", "valor inválido")));
+        return p;
+    }
+
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    ProblemDetail corpoIlegivel(org.springframework.http.converter.HttpMessageNotReadableException e) {
+        return problema(HttpStatus.BAD_REQUEST, "corpo_invalido", "O corpo da requisição não pôde ser lido (JSON malformado ou valor fora do esperado).");
+    }
+
+    /** restrição do banco (único, FK) que escapou da validação de domínio: conflito explicável, não erro interno */
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    ProblemDetail integridade(org.springframework.dao.DataIntegrityViolationException e) {
+        log.warn("Violação de integridade não prevista pela validação: {}", e.getMostSpecificCause().getMessage());
+        return problema(HttpStatus.CONFLICT, "conflito_dados", "Os dados entram em conflito com informações já gravadas. Recarregue e tente de novo.");
     }
 
     /** Última linha de defesa: nunca vaza stack trace nem cai no /error anônimo (que viraria 401). */

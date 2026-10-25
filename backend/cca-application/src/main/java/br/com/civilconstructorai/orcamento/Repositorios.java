@@ -19,6 +19,8 @@ public final class Repositorios {
         List<TabelaSinapi> findAllByOrderByMesReferenciaDesc();
 
         Optional<TabelaSinapi> findFirstByUfAndDesoneradoOrderByMesReferenciaDesc(String uf, boolean desonerado);
+
+        List<TabelaSinapi> findByUfAndDesoneradoOrderByMesReferenciaDesc(String uf, boolean desonerado);
     }
 
     @Repository("orcamentoComposicoes")

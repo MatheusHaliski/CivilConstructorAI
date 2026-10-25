@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public final class EmailDeTeste {
 
     private static final Pattern CODIGO = Pattern.compile("\\b(\\d{6})\\b");
-    private static final Pattern LINK_CONVITE = Pattern.compile("/convites/([A-Za-z0-9_-]+)");
+    private static final Pattern LINK_CONVITE = Pattern.compile("/convite/([A-Za-z0-9_-]+)");
 
     private EmailDeTeste() {
     }

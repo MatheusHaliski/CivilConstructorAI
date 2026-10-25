@@ -1,0 +1,152 @@
+[
+  {
+    "rf": "UX",
+    "id": "visitante",
+    "descricao": "a primeira tela explica o que é o produto e como começar",
+    "ok": true,
+    "evidencia": "CivilConstructorAI CAD/BIM generativo com auditoria paramétrica. Desenhe em Notação VI ou em texto natural, deixe o auditor corrigir vãos e níveis, e saia com estrutura, fundações, quantitativos e pranchas rastreáveis. •"
+  },
+  {
+    "rf": "RF18",
+    "id": "UX-erros",
+    "descricao": "enviar vazio mostra os erros por campo, em pt-BR",
+    "ok": true,
+    "evidencia": "Criar conta Pessoa física ou empresa. Só para maiores de 18 anos. Pessoa Empresa Nome completo * Informe o nome completo. E-mail * Informe um e-mail válido. Senha * Informe uma senha. Data de nascimento * Informe a data de nascimento. Sou profissional habilitado (CREA/CAU) Li e aceito os Termos de u"
+  },
+  {
+    "rf": "RF18",
+    "id": "UX-corrigir-email",
+    "descricao": "na verificação dá para corrigir o e-mail digitado errado",
+    "ok": true,
+    "evidencia": "Confirme seu e-mail Isso ativa a sua conta. Enviamos um código de 6 dígitos para o seu e-mail. Destino: ui-1792951791174@exemplo.cca. Código * Ativar conta Reenviar código E-mail errado? Cadastrar com outro e-mail. O código atual vale 30 minutos."
+  },
+  {
+    "rf": "RF18",
+    "id": "UX-codigo-errado",
+    "descricao": "código errado explica e informa tentativas restantes",
+    "ok": true,
+    "evidencia": "Confirme seu e-mail Isso ativa a sua conta. Enviamos um código de 6 dígitos para o seu e-mail. Destino: ui-1792951791174@exemplo.cca. codigo: Código incorreto. Restam 4 tentativa(s). Código * Ativar conta Reenviar código E-mail errado? Cadastrar com "
+  },
+  {
+    "rf": "UX",
+    "id": "proximo-passo",
+    "descricao": "sem empresa, a tela diz o próximo passo (criar empresa ou aceitar convite)",
+    "ok": true,
+    "evidencia": "Obras Cada obra tem modelo BIM, estrutura, fundações, quantitativos, orçamento e pranchas próprios. Você ainda não tem uma empresa ativa Crie a sua empresa (ou aceite um convite) para começar. Ir para"
+  },
+  {
+    "rf": "RF19",
+    "id": "UX-mfa",
+    "descricao": "ao virar dona, o app leva à configuração do 2FA e explica por quê",
+    "ok": true,
+    "evidencia": {
+      "url": "http://localhost:3000/conta/seguranca?configurar-mfa=1",
+      "t": "Segurança Sessão opaca no servidor (cookie HttpOnly), 2FA por aplicativo autenticador e modo seguro para ações sensíveis. Configure o segundo fator para continuar Seu papel (dono, administrador ou que"
+    }
+  },
+  {
+    "rf": "RF23",
+    "id": "UX-recuperacao",
+    "descricao": "códigos de recuperação mostrados uma vez, com orientação de guardar",
+    "ok": true,
+    "evidencia": "Segurança Sessão opaca no servidor (cookie HttpOnly), 2FA por aplicativo autenticador e modo seguro para ações sensíveis. Verificação em duas etapas (TOTP) ativa Sessão atual verificada com 2FA. Gerar"
+  },
+  {
+    "rf": "RF22",
+    "id": "UX-contexto",
+    "descricao": "a lateral mostra a obra atual e todas as abas dela",
+    "ok": true,
+    "evidencia": "http://localhost:3000/obras/01a17441-5ef5-7a67-a3a2-a642380ff95a"
+  },
+  {
+    "rf": "RF29",
+    "id": "previa",
+    "descricao": "a prévia mostra o código gerado e os elementos antes de gravar",
+    "ok": true,
+    "evidencia": null
+  },
+  {
+    "rf": "RF29",
+    "id": "aplicar",
+    "descricao": "parede criada por listas (sem digitar coordenadas nem código) e desfazer disponível",
+    "ok": true,
+    "evidencia": "Obras › Edifício Jacarandá › Ações e códigos › Ações construtivas Ações construtivas Escolha o que construir, preencha por listas (eixos, paredes, materiais) e confira a prévia auditada antes de grava"
+  },
+  {
+    "rf": "RF29",
+    "id": "desfazer",
+    "descricao": "desfazer a ação remove a parede (comando inverso)",
+    "ok": true,
+    "evidencia": null
+  },
+  {
+    "rf": "RF29",
+    "id": "copilot",
+    "descricao": "Copilot sugere a próxima ação com evidência",
+    "ok": true,
+    "evidencia": "Obras › Edifício Jacarandá › Assistente IA › Copilot Copilot Sugere a próxima ação com base no que já existe na obra. Você decide; nada é gravado sem a sua confirmação. Próxima ação sugerida Regras so"
+  },
+  {
+    "rf": "RF20",
+    "id": "UX-email",
+    "descricao": "e-mail diz quem convidou, a obra, o papel legível e a validade em pt-BR",
+    "ok": true,
+    "evidencia": "\r Prado Engenharia convidou voc=C3=AA para a obra \"Edif=C3=ADcio Jacarand=C3=A1\" com o papel de arquiteto(a).\r \r Para aceitar, abra o link abaixo e entre (ou crie a conta) com este mesmo e-mail:\r http://localhost:3000/convite/QiNXPtI6u-UiMOg-7LowljSRzas_NkKMGFYZPvp7p-Y\r \r O convite vale at=C3=A9 1 d"
+  },
+  {
+    "rf": "RF20",
+    "id": "UX-convite",
+    "descricao": "página do convite mostra empresa, obra e papel e orienta a criar conta/entrar",
+    "ok": true,
+    "evidencia": "Convite para Prado Engenharia Ltda Obra: Edifício Jacarandá Papel Arquiteto(a) E-mail convidado Válido até 1 de novembro de 2026 Entre com a conta do e-mail convidado para aceitar. Entrar Criar conta"
+  },
+  {
+    "rf": "RF20",
+    "id": "UX-volta-convite",
+    "descricao": "depois do cadastro a pessoa volta ao convite para aceitar",
+    "ok": true,
+    "evidencia": "http://localhost:3000/convite/QiNXPtI6u-UiMOg-7LowljSRzas_NkKMGFYZPvp7p-Y"
+  },
+  {
+    "rf": "RF20",
+    "id": "UX-aceite",
+    "descricao": "ao aceitar, cai direto na obra do convite",
+    "ok": true,
+    "evidencia": "http://localhost:3000/obras/01a17441-5ef5-7a67-a3a2-a642380ff95a"
+  },
+  {
+    "rf": "RF19",
+    "id": "UX-voltar",
+    "descricao": "URL protegida sem sessão leva ao login guardando o destino",
+    "ok": true,
+    "evidencia": "http://localhost:3000/entrar?voltar=%2Fobras%2F01a17441-5ef5-7a67-a3a2-a642380ff95a%2Fgeotecnia%2Ffuros"
+  },
+  {
+    "rf": "RF19",
+    "id": "UX-voltar-b",
+    "descricao": "após login (com 2FA) volta para a URL pedida",
+    "ok": true,
+    "evidencia": "http://localhost:3000/obras/01a17441-5ef5-7a67-a3a2-a642380ff95a/geotecnia/furos"
+  },
+  {
+    "rf": "RF19",
+    "id": "UX-sessao-perdida",
+    "descricao": "sessão perdida leva ao login sem tela quebrada",
+    "ok": true,
+    "evidencia": "http://localhost:3000/entrar?voltar=%2Fobras%2F01a17441-5ef5-7a67-a3a2-a642380ff95a%2Festrutura%2Fcargas"
+  },
+  {
+    "rf": "UX",
+    "id": "celular",
+    "descricao": "no celular o motor de desenho avisa seus limites ou se adapta",
+    "ok": true,
+    "evidencia": "Obras › Edifício Jacarandá › Projeto › Modelo BIM Modelo BIM Notação VI Motor pronto. Digite um comando (ex.: WA parede, CL pilar, MALHA) ou Ctrl+K para a palet"
+  },
+  {
+    "rf": "UX",
+    "id": "erros-js",
+    "descricao": "nenhum erro de JavaScript durante a jornada",
+    "ok": true,
+    "evidencia": []
+  }
+]

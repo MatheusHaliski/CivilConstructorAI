@@ -69,7 +69,12 @@ export async function api<T = unknown>(metodo: "GET" | "POST" | "PUT" | "PATCH" 
     problema.status ??= res.status;
     const ra = res.headers.get("Retry-After");
     if (ra) problema.retryAfter = Number(ra);
-    throw new ErroApi(res.status, problema);
+    const erro = new ErroApi(res.status, problema);
+    // 2FA obrigatório ainda não configurado (RF19 CA-06): leva direto à configuração em vez de quebrar a tela
+    if (erro.codigo === "mfa_obrigatorio" && typeof window !== "undefined" && !window.location.pathname.startsWith("/conta/seguranca")) {
+      window.location.assign("/conta/seguranca?configurar-mfa=1");
+    }
+    throw erro;
   }
   return dados as T;
 }

@@ -24,6 +24,10 @@ public class TabelaSinapi extends EntidadeBase {
     @Column(nullable = false)
     private int composicoes;
 
+    /** IMPORTADA (CSV oficial da Caixa) ou DEMONSTRACAO (valores ilustrativos semeados para testes) */
+    @Column(nullable = false)
+    private String origem = "IMPORTADA";
+
     protected TabelaSinapi() {
     }
 
@@ -38,8 +42,10 @@ public class TabelaSinapi extends EntidadeBase {
     public LocalDate getMesReferencia() { return mesReferencia; }
     public boolean isDesonerado() { return desonerado; }
     public int getComposicoes() { return composicoes; }
+    public boolean isDemonstracao() { return "DEMONSTRACAO".equals(origem); }
 
     public String rotulo() {
-        return "SINAPI " + uf + " " + mesReferencia.getMonthValue() + "/" + mesReferencia.getYear() + (desonerado ? " desonerado" : " não desonerado");
+        return "SINAPI " + uf + " " + mesReferencia.getMonthValue() + "/" + mesReferencia.getYear() + (desonerado ? " desonerado" : " não desonerado")
+                + (isDemonstracao() ? " · DEMONSTRAÇÃO (valores ilustrativos, não são preços oficiais)" : "");
     }
 }

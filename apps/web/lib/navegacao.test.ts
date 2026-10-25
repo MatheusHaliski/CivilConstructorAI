@@ -22,3 +22,14 @@ describe("navegação", () => {
     expect(buscarNavegacao(gruposObra("o1"), "orcamento")[0]?.rotulo).toBe("Orçamento SINAPI");
   });
 });
+
+import { destinoSeguro } from "./formatos";
+describe("destinoSeguro", () => {
+  it("aceita só caminhos internos", () => {
+    expect(destinoSeguro("/convite/abc")).toBe("/convite/abc");
+    expect(destinoSeguro("https://mal.example/x")).toBe("/obras");
+    expect(destinoSeguro("//mal.example")).toBe("/obras");
+    expect(destinoSeguro("/\\mal.example")).toBe("/obras");
+    expect(destinoSeguro(null)).toBe("/obras");
+  });
+});

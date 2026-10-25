@@ -51,19 +51,24 @@ class DominioIdentidadeTest {
         var c = Conta.nova("a@b.com", "hash", "Ana", TipoConta.PESSOA, LocalDate.of(1990, 1, 1), LocalDate.of(2026, 1, 1));
         c.solicitarSelo(TipoSelo.CREA, "PR-12345", "pr");
         assertThat(c.getSeloEstado()).isEqualTo(EstadoSelo.PENDING);
-        c.decidirSelo(true, Instant.now());
+        c.decidirSelo(true, null, Instant.now());
         assertThat(c.seloVerificado()).isTrue();
         c.alterarNome("Ana Maria");
         assertThat(c.getSeloEstado()).isEqualTo(EstadoSelo.PENDING);
-        c.decidirSelo(false, Instant.now());
+        assertThatThrownBy(() -> c.decidirSelo(false, " ", Instant.now())).isInstanceOf(br.com.civilconstructorai.comum.ExcecaoDominio.Validacao.class);
+        c.decidirSelo(false, "Documento ilegível", Instant.now());
         assertThat(c.getSeloEstado()).isEqualTo(EstadoSelo.REJECTED);
+        assertThat(c.getSeloMotivo()).isEqualTo("Documento ilegível");
     }
 
     @Test
     void conviteNaoPromoveAcimaEExpiraEm7Dias() {
         var agora = Instant.parse("2026-10-25T00:00:00Z");
         assertThatThrownBy(() -> Convite.novo(UUID.randomUUID(), UUID.randomUUID(), "x@y.com", PapelObra.ADMIN, UUID.randomUUID(), PapelObra.ENGENHEIRO, "h", agora))
-                .isInstanceOf(ExcecaoDominio.RegraDeNegocio.class);
+                .isInstanceOf(ExcecaoDominio.AcessoNegado.class);
+        // RF20 CA-04: ninguém entra como DONO por convite, nem convidado por outro DONO
+        assertThatThrownBy(() -> Convite.novo(UUID.randomUUID(), null, "x@y.com", PapelObra.DONO, UUID.randomUUID(), PapelObra.DONO, "h", agora))
+                .isInstanceOf(ExcecaoDominio.AcessoNegado.class).hasMessageContaining("dono");
         var c = Convite.novo(UUID.randomUUID(), UUID.randomUUID(), "x@y.com", PapelObra.MESTRE_OBRAS, UUID.randomUUID(), PapelObra.ENGENHEIRO, "h", agora);
         assertThat(c.getExpiraEm()).isEqualTo(agora.plus(Convite.VALIDADE));
         assertThatThrownBy(() -> c.aceitar(UUID.randomUUID(), "outro@y.com", agora)).isInstanceOf(ExcecaoDominio.AcessoNegado.class);

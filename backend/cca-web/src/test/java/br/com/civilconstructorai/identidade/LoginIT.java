@@ -36,8 +36,8 @@ class LoginIT extends AbstractIdentidadeIT {
         var email = "login-" + UUID.randomUUID() + "@teste.cca";
         cliente().registrarEAtivar(email, "Pessoa Login", Map.of());
         var senhaErrada = c.login(email, "senha-errada-mas-longa-1");
-        assertThat(inexistente.status()).isEqualTo(403);
-        assertThat(senhaErrada.status()).isEqualTo(403);
+        assertThat(inexistente.status()).isEqualTo(401);
+        assertThat(senhaErrada.status()).isEqualTo(401);
         assertThat(inexistente.texto("detail")).isEqualTo(senhaErrada.texto("detail")).isEqualTo("E-mail ou senha incorretos.");
     }
 
@@ -82,7 +82,7 @@ class LoginIT extends AbstractIdentidadeIT {
         assertThat(setup.status()).isEqualTo(200);
         var segredo = setup.texto("segredo");
         assertThat(setup.texto("uriOtpauth")).startsWith("otpauth://totp/");
-        var confirm = c.post("/me/mfa/totp/confirm", Map.of("codigo", totp(segredo)));
+        var confirm = c.post("/me/mfa/totp/confirm", Map.of("codigo", totp(segredo, -1)));
         assertThat(confirm.status()).isEqualTo(200);
         var codigos = confirm.corpo().get("codigosRecuperacao");
         assertThat(codigos.size()).isEqualTo(10);
@@ -100,28 +100,37 @@ class LoginIT extends AbstractIdentidadeIT {
         assertThat(c.sessao().corpo().get("mfaVerificado").asBoolean()).isTrue();
         c.logout();
         c.login(email, ApiClient.SENHA_PADRAO);
-        assertThat(c.segundoFator(recuperacao).status()).isEqualTo(403);
-        assertThat(c.segundoFator(totp(segredo)).texto("proximaEtapa")).isEqualTo("AUTENTICADO");
+        assertThat(c.segundoFator(recuperacao).status()).isEqualTo(401);
+        assertThat(c.segundoFator(totp(segredo, 0)).texto("proximaEtapa")).isEqualTo("AUTENTICADO");
+        // RF19 CA-05: o mesmo TOTP não serve de novo (replay); o limite de 5 tentativas por conta conta este também
+        var replay = cliente();
+        replay.login(email, ApiClient.SENHA_PADRAO);
+        assertThat(replay.segundoFator(totp(segredo, 0)).status()).isEqualTo(401);
 
         // sudo: senha + TOTP; troca de senha derruba as outras sessões
         var outra = cliente();
         outra.login(email, ApiClient.SENHA_PADRAO);
-        outra.segundoFator(totp(segredo));
+        outra.segundoFator(totp(segredo, 1));
         assertThat(outra.sessao().status()).isEqualTo(200);
         assertThat(c.get("/me/sessions").corpo().size()).isGreaterThanOrEqualTo(2);
         var semSudo = c.post("/me/password", Map.of("senhaAtual", ApiClient.SENHA_PADRAO, "novaSenha", "outra-frase-bem-longa-2026"));
         assertThat(semSudo.status()).isEqualTo(403);
         assertThat(semSudo.corpo().get("type").asString()).endsWith("/sudo_required");
-        assertThat(c.post("/me/sudo", Map.of("senha", ApiClient.SENHA_PADRAO, "codigo", totp(segredo))).status()).isEqualTo(204);
+        assertThat(c.post("/me/sudo", Map.of("senha", ApiClient.SENHA_PADRAO, "codigo", codigos.get(1).asString())).status()).isEqualTo(204);
         assertThat(c.post("/me/password", Map.of("senhaAtual", ApiClient.SENHA_PADRAO, "novaSenha", "outra-frase-bem-longa-2026")).status()).isEqualTo(204);
         assertThat(outra.sessao().status()).isEqualTo(401);
         assertThat(c.sessao().status()).isEqualTo(200);
     }
 
     static String totp(String segredo) {
+        return totp(segredo, 0);
+    }
+
+    /** código do passo atual + {@code deslocamento} (o verificador aceita ±1 passo) */
+    static String totp(String segredo, int deslocamento) {
         try {
             var gen = new DefaultCodeGenerator();
-            return gen.generate(segredo, Math.floorDiv(new SystemTimeProvider().getTime(), 30));
+            return gen.generate(segredo, Math.floorDiv(new SystemTimeProvider().getTime(), 30) + deslocamento);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }

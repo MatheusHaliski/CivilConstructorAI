@@ -65,8 +65,14 @@ public class DimensionamentoService {
         acesso.exigirPapel(obraId, PapelObra.ENGENHEIRO, PapelObra.DONO, PapelObra.ADMIN);
         var u = contexto.exigir();
         var analise = analises.findByIdAndObraId(analiseId, obraId).orElseThrow(() -> new ExcecaoDominio.RecursoNaoEncontrado("Análise"));
+        // RF07 CA-01 / RF10 CA-01: 409 com o próximo passo em linguagem de pessoa (antes: 422 "está OBSOLETO")
+        if (analise.getEstado() == EstadoJob.OBSOLETO) {
+            throw new ExcecaoDominio.Conflito("O modelo ou as cargas mudaram depois desta análise. Rode a análise estrutural da versão atual antes de dimensionar.");
+        }
         if (analise.getEstado() != EstadoJob.CONCLUIDO) {
-            throw new ExcecaoDominio.RegraDeNegocio("analise_nao_concluida", "A análise precisa estar CONCLUIDA (está " + analise.getEstado() + ").");
+            throw new ExcecaoDominio.RegraDeNegocio("analise_nao_concluida", analise.getEstado() == EstadoJob.FALHOU
+                    ? "Esta análise falhou; corrija o modelo conforme a mensagem dela e rode de novo."
+                    : "A análise ainda está em execução; aguarde a conclusão para dimensionar.");
         }
         var m = modelo.carregar(obraId);
         if (m.versao() != analise.getVersaoModelo()) {

@@ -102,6 +102,22 @@ public class ApiClient {
         return sessao().texto("empresaAtivaId");
     }
 
+    /** configura o TOTP nesta sessão (dono/admin/aprovador não usam a empresa sem 2FA — RF19 CA-06) e devolve o segredo */
+    public String ativarMfa() {
+        var segredo = post("/me/mfa/totp/setup", null).texto("segredo");
+        try {
+            var codigo = new dev.samstevens.totp.code.DefaultCodeGenerator().generate(segredo,
+                    Math.floorDiv(new dev.samstevens.totp.time.SystemTimeProvider().getTime(), 30) - 1);
+            var r = post("/me/mfa/totp/confirm", Map.of("codigo", codigo));
+            if (r.status() != 200) {
+                throw new IllegalStateException("2FA não confirmou: " + r);
+            }
+        } catch (dev.samstevens.totp.exceptions.CodeGenerationException e) {
+            throw new IllegalStateException(e);
+        }
+        return segredo;
+    }
+
     // ---------------------------------------------------------------- HTTP
     public Resposta get(String caminho) {
         return enviar("GET", caminho, null);

@@ -68,10 +68,12 @@ public class OrcamentoService {
     private final RegistroOperacoes registro;
     private final Relogio relogio;
     private final Json json;
+    private final br.com.civilconstructorai.estrutura.ModeloEstruturalFonte modeloFonte;
 
     public OrcamentoService(Repositorios.Orcamentos orcamentos, Repositorios.Itens itens, Repositorios.Aditivos aditivos, SinapiService sinapi,
                             QuantitativoService quantitativos, ModeloLinguagem ia, AcessoObra acesso, ContextoUsuario contexto,
-                            RegistroOperacoes registro, Relogio relogio, Json json) {
+                            RegistroOperacoes registro, Relogio relogio, Json json, br.com.civilconstructorai.estrutura.ModeloEstruturalFonte modeloFonte) {
+        this.modeloFonte = modeloFonte;
         this.orcamentos = orcamentos;
         this.itens = itens;
         this.aditivos = aditivos;
@@ -113,9 +115,9 @@ public class OrcamentoService {
             if (e.getValue().signum() <= 0) {
                 continue;
             }
-            if (!k[3].isEmpty()) {
-                var comp = sinapi.porCodigo(tabela.getId(), k[3]);
-                lista.add(new ItemOrcamento(u.empresaAtivaId(), orc.getId(), k[0], k[1], null, comp, k[2], e.getValue(), false, null));
+            var comp = k[3].isEmpty() ? java.util.Optional.<ComposicaoSinapi>empty() : sinapi.buscarPorCodigo(tabela.getId(), k[3]);
+            if (comp.isPresent()) {
+                lista.add(new ItemOrcamento(u.empresaAtivaId(), orc.getId(), k[0], k[1], null, comp.get(), k[2], e.getValue(), false, null));
             } else {
                 semVinculo.add(e.getKey());
             }
@@ -123,6 +125,14 @@ public class OrcamentoService {
         int itensIa = 0;
         if (usarIa && !semVinculo.isEmpty()) {
             itensIa = sugerirComIa(orc, tabela.getId(), semVinculo, servicos, lista, u.empresaAtivaId());
+        }
+        var cobertos = lista.stream().map(i -> i.getEtapa() + "|" + i.getServico()).collect(java.util.stream.Collectors.toSet());
+        for (var chave : semVinculo) {
+            var k = chave.split("\\|", -1);
+            if (!cobertos.contains(k[0] + "|" + k[1])) {
+                lista.add(ItemOrcamento.semComposicao(u.empresaAtivaId(), orc.getId(), k[0], k[1], k[2], servicos.get(chave),
+                        k[3].isEmpty() ? "o serviço não tem código na Tabela A; associe uma composição" : "o código " + k[3] + " não existe em " + tabela.rotulo()));
+            }
         }
         itens.saveAll(lista);
         orc.concluirGeracao(itensIa > 0, total(lista), itensIa);
@@ -230,7 +240,12 @@ public class OrcamentoService {
             if (!u.podeAprovar(obraId)) {
                 throw new ExcecaoDominio.AcessoNegado("Aprovar um orçamento exige papel aprovador, selo profissional verificado e 2FA ativo.");
             }
-            var pendentes = (int) itens.findByOrcamentoIdOrderByEtapaAscServicoAsc(orc.getId()).stream().filter(ItemOrcamento::pendenteDeConfirmacao).count();
+            var todos = itens.findByOrcamentoIdOrderByEtapaAscServicoAsc(orc.getId());
+            var pendentes = (int) todos.stream().filter(ItemOrcamento::pendenteDeConfirmacao).count();
+            var semComposicao = todos.stream().filter(ItemOrcamento::semVinculo).count();
+            if (pendentes == 0 && semComposicao > 0) {
+                throw new ExcecaoDominio.RegraDeNegocio("itens_sem_composicao", semComposicao + " item(ns) sem composição SINAPI (custo zero). Associe as composições ou remova os itens antes de aprovar.");
+            }
             orc.aprovar(u.contaId(), relogio.agora(), pendentes);
         } else {
             acesso.exigirPapel(obraId, PapelObra.ORCAMENTISTA, PapelObra.ENGENHEIRO, PapelObra.DONO, PapelObra.ADMIN);
@@ -263,6 +278,10 @@ public class OrcamentoService {
         out.put("id", orc.getId());
         out.put("estado", orc.getEstado());
         out.put("dataBase", orc.getDataBase());
+        out.put("tabelaDemonstracao", orc.getDataBase() != null && orc.getDataBase().contains("DEMONSTRAÇÃO"));
+        // RF12 CA-06: quantitativo de versão anterior do modelo deixa o orçamento desatualizado (antes não havia aviso)
+        out.put("versaoModelo", orc.getVersaoModelo());
+        out.put("quantitativoDesatualizado", modeloFonte.versaoAtual(obraId) > orc.getVersaoModelo());
         out.put("total", orc.getTotal());
         out.put("bdiPct", orc.getBdiPct());
         out.put("geradoPorIa", orc.getItensGeradosPorIa() > 0);
@@ -282,6 +301,7 @@ public class OrcamentoService {
         }
         out.put("itens", lista);
         out.put("itensPendentesIa", lista.stream().filter(ItemOrcamento::pendenteDeConfirmacao).count());
+        out.put("itensSemComposicao", lista.stream().filter(ItemOrcamento::semVinculo).count());
         return out;
     }
 

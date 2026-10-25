@@ -70,6 +70,11 @@ public final class AdaptadoresIdentidade {
         public void limpar(String chave) {
             limite.limpar(chave);
         }
+
+        @Override
+        public boolean primeiroUso(String chave, Duration janela) {
+            return limite.primeiroUso(chave, janela);
+        }
     }
 
     /** TOTP RFC 6238: SHA-1, 6 dígitos, 30 s, tolerância de ±1 período. */

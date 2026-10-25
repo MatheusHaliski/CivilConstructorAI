@@ -94,6 +94,7 @@ public class RascunhoIaController {
         m.put("conteudo", r.getConteudo());
         m.put("criadoEm", r.getCriadoEm());
         m.put("aprovadoEm", r.getAprovadoEm());
+        m.put("aprovadoPor", r.getAprovadoPor());
         m.put("artRrt", r.getArtRrt());
         m.put("motivo", r.getMotivo());
         return m;

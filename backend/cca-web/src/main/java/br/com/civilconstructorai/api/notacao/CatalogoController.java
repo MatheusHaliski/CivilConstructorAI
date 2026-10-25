@@ -52,6 +52,16 @@ public class CatalogoController {
     @PostMapping("/vi/validar")
     public Map<String, Object> validar(@RequestBody ValidarReq req) {
         var prog = ParserVi.parse(req.vi() == null ? "" : req.vi());
-        return Map.of("valido", prog.valido(), "comandos", prog.comandos().stream().map(c -> Map.of("codigo", c.codigo(), "linha", c.linha(), "conhecido", CatalogoComandos.porCodigo(c.codigo()).isPresent())).toList(), "erros", prog.erros());
+        // RF02 CA-02: função desconhecida também é erro, junto com os de sintaxe, com sugestão do catálogo
+        var erros = new java.util.ArrayList<Object>(prog.erros());
+        for (var c : prog.comandos()) {
+            if (CatalogoComandos.porCodigo(c.codigo()).isEmpty()) {
+                var sugestoes = CatalogoComandos.buscar(c.codigo(), Perfil.CIVILCONSTRUCTOR, 3).stream().map(CatalogoComandos.Comando::codigo).toList();
+                erros.add(Map.of("codigo", "VI-001", "linha", c.linha(), "coluna", 4,
+                        "mensagem", "Função desconhecida " + c.codigo() + (sugestoes.isEmpty() ? "." : " — você quis dizer " + String.join(" ou ", sugestoes) + "?")));
+            }
+        }
+        erros.sort(java.util.Comparator.comparingInt(e -> e instanceof ParserVi.ErroVi v ? v.linha() : (Integer) ((Map<?, ?>) e).get("linha")));
+        return Map.of("valido", erros.isEmpty(), "comandos", prog.comandos().stream().map(c -> Map.of("codigo", c.codigo(), "linha", c.linha(), "conhecido", CatalogoComandos.porCodigo(c.codigo()).isPresent())).toList(), "erros", erros);
     }
 }

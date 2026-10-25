@@ -47,6 +47,7 @@ public class SegurancaConfig {
                 .addFilterAfter(sessaoAbsoluta, org.springframework.security.web.context.SecurityContextHolderFilter.class)
                 // conta ainda não verificada (RF18): só rotas de verificação, antes da autorização por rota
                 .addFilterBefore(new VerificacaoPendenteFilter(problem), org.springframework.security.web.access.intercept.AuthorizationFilter.class)
+                .addFilterBefore(new MfaPendenteFilter(problem), org.springframework.security.web.access.intercept.AuthorizationFilter.class)
                 .httpBasic(b -> b.disable())
                 .formLogin(f -> f.disable())
                 .logout(l -> l.disable())

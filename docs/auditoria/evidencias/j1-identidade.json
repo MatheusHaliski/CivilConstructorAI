@@ -1,0 +1,521 @@
+[
+  {
+    "rf": "RF18",
+    "id": "CA-01",
+    "descricao": "cadastro inválido → 422 com todos os erros",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "campos": [
+        "nome",
+        "email",
+        "senha",
+        "dataNascimento",
+        "aceitaTermos",
+        "aceitaPolitica"
+      ]
+    }
+  },
+  {
+    "rf": "RF24",
+    "id": "CA-01",
+    "descricao": "sem aceite de Termos e Política → os dois erros juntos",
+    "ok": true,
+    "evidencia": [
+      "nome",
+      "email",
+      "senha",
+      "dataNascimento",
+      "aceitaTermos",
+      "aceitaPolitica"
+    ]
+  },
+  {
+    "rf": "RF18",
+    "id": "CA-02",
+    "descricao": "senha contendo a parte local do e-mail é rejeitada",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "e": [
+        {
+          "campo": "senha",
+          "mensagem": "A senha não pode conter o seu e-mail ou usuário."
+        }
+      ]
+    }
+  },
+  {
+    "rf": "RF18",
+    "id": "CA-11",
+    "descricao": "escrita sem X-XSRF-TOKEN → 403",
+    "ok": true,
+    "evidencia": 403
+  },
+  {
+    "rf": "RF18",
+    "id": "CA-06",
+    "descricao": "cadastro → 201 e sessão aberta",
+    "ok": true,
+    "evidencia": 201
+  },
+  {
+    "rf": "RF19",
+    "id": "CA-07",
+    "descricao": "cookie de sessão __Host-cca_session (dev usa cca_session sem Secure)",
+    "ok": true,
+    "evidencia": [
+      "XSRF-TOKEN",
+      "__Host-cca_session"
+    ]
+  },
+  {
+    "rf": "RF18",
+    "id": "CA-10",
+    "descricao": "conta PENDING_VERIFICATION não acessa /obras",
+    "ok": true,
+    "evidencia": {
+      "s": 403,
+      "type": "https://civilconstructorai.com.br/problemas/verificacao_pendente"
+    }
+  },
+  {
+    "rf": "RF18",
+    "id": "CA-07a",
+    "descricao": "código errado → 422 sem invalidar a conta",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Há 1 problema(s) nos dados enviados."
+    }
+  },
+  {
+    "rf": "RF18",
+    "id": "CA-07b",
+    "descricao": "reenvio antes de 60 s → 429 + Retry-After",
+    "ok": true,
+    "evidencia": {
+      "s": 429,
+      "ra": "60"
+    }
+  },
+  {
+    "rf": "RF18",
+    "id": "CA-06b",
+    "descricao": "código correto ativa a conta",
+    "ok": true,
+    "evidencia": 204
+  },
+  {
+    "rf": "RF19",
+    "id": "CA-10",
+    "descricao": "GET /session traz empresa ativa, papéis, selo, mfa",
+    "ok": true,
+    "evidencia": [
+      "seloVerificado",
+      "contaId",
+      "mfaVerificado",
+      "mfaPendente",
+      "sudoAtivo",
+      "empresaAtivaId",
+      "papelEmpresa",
+      "papeisPorObra"
+    ]
+  },
+  {
+    "rf": "RF19",
+    "id": "CA-12",
+    "descricao": "nenhuma resposta traz o id real da sessão",
+    "ok": true,
+    "evidencia": [
+      "seloVerificado",
+      "contaId",
+      "mfaVerificado",
+      "mfaPendente",
+      "sudoAtivo",
+      "empresaAtivaId",
+      "papelEmpresa",
+      "papeisPorObra"
+    ]
+  },
+  {
+    "rf": "RF18",
+    "id": "CA-08",
+    "descricao": "e-mail repetido → mesma resposta 201 (sem enumeração)",
+    "ok": true,
+    "evidencia": 201
+  },
+  {
+    "rf": "RF19",
+    "id": "CA-01",
+    "descricao": "401 genérico e tempo equivalente (mediana; tolerância 80 ms neste ambiente)",
+    "ok": true,
+    "evidencia": {
+      "s": 401,
+      "detail": "E-mail ou senha incorretos.",
+      "medianaExiste": 489,
+      "medianaInexiste": 478
+    }
+  },
+  {
+    "rf": "RF19",
+    "id": "CA-03",
+    "descricao": "login de PESSOA sem empresa conclui",
+    "ok": true,
+    "evidencia": [
+      "AUTENTICADO"
+    ]
+  },
+  {
+    "rf": "RF22",
+    "id": "CA-01b",
+    "descricao": "CNPJ inválido → 422",
+    "ok": true,
+    "evidencia": 422
+  },
+  {
+    "rf": "RF22",
+    "id": "CA-01a",
+    "descricao": "criar empresa com CNPJ válido → 201",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "j": "01a17441-06d7-78e2-9aed-d8de821989a1"
+    }
+  },
+  {
+    "rf": "RF19",
+    "id": "CA-06",
+    "descricao": "empresa criada vira a ativa e a sessão de DONO sem 2FA fica com 2FA pendente",
+    "ok": true,
+    "evidencia": {
+      "mfaPendente": true,
+      "empresa": "01a17441-06d7-78e2-9aed-d8de821989a1",
+      "papel": "DONO"
+    }
+  },
+  {
+    "rf": "RF19",
+    "id": "CA-06b",
+    "descricao": "DONO sem 2FA: dados da empresa bloqueados (403 mfa_obrigatorio), conta liberada",
+    "ok": true,
+    "evidencia": {
+      "s": 403,
+      "type": "https://civilconstructorai.com.br/problemas/mfa_obrigatorio"
+    }
+  },
+  {
+    "rf": "RF23",
+    "id": "CA-02",
+    "descricao": "2FA confirmado devolve 10 códigos de recuperação",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "n": 10
+    }
+  },
+  {
+    "rf": "RF19",
+    "id": "CA-05",
+    "descricao": "login com TOTP válido conclui",
+    "ok": true,
+    "evidencia": [
+      "MFA",
+      "AUTENTICADO"
+    ]
+  },
+  {
+    "rf": "RF19",
+    "id": "CA-05b",
+    "descricao": "TOTP já usado é rejeitado (replay) com 401",
+    "ok": true,
+    "evidencia": {
+      "s": 401,
+      "d": "Código inválido ou já usado. Aguarde o próximo código do aplicativo."
+    }
+  },
+  {
+    "rf": "RF19",
+    "id": "CA-05c",
+    "descricao": "código de recuperação funciona uma vez",
+    "ok": true,
+    "evidencia": 200
+  },
+  {
+    "rf": "RF19",
+    "id": "CA-04",
+    "descricao": "etapa intermediária (MFA pendente): rota protegida → 401",
+    "ok": true,
+    "evidencia": {
+      "s": 401,
+      "type": "https://civilconstructorai.com.br/problemas/nao_autenticado"
+    }
+  },
+  {
+    "rf": "RF19",
+    "id": "CA-05d",
+    "descricao": "código de recuperação consumido não serve de novo",
+    "ok": true,
+    "evidencia": 401
+  },
+  {
+    "rf": "RF22",
+    "id": "CA-02",
+    "descricao": "obra criada PLANEJADA com Térreo z=0",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "estado": "PLANEJADA"
+    }
+  },
+  {
+    "rf": "RF22",
+    "id": "CA-02b",
+    "descricao": "modelo novo tem Térreo em 0,00",
+    "ok": true,
+    "evidencia": [
+      {
+        "tipo": "TERREO",
+        "elevacao": 0,
+        "nome": "Térreo",
+        "id": "d936719d-8af8-3041-9e4b-ec4248a18cda"
+      }
+    ]
+  },
+  {
+    "rf": "RF22",
+    "id": "CA-05",
+    "descricao": "PLANEJADA→EM_ANDAMENTO sem engenheiro com ART → 422",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "A obra precisa de pelo menos um(a) engenheiro(a) responsável antes de iniciar."
+    }
+  },
+  {
+    "rf": "RF22",
+    "id": "CA-04",
+    "descricao": "transição fora do diagrama → 409 com transições possíveis",
+    "ok": true,
+    "evidencia": {
+      "s": 409,
+      "d": "Obra: transição inválida de PLANEJADA para CONCLUIDA."
+    }
+  },
+  {
+    "rf": "RF20",
+    "id": "criar",
+    "descricao": "dono convida arquiteta para a obra",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "j": [
+        "id",
+        "obraId",
+        "email",
+        "papel",
+        "estado",
+        "expiraEm"
+      ]
+    }
+  },
+  {
+    "rf": "RF20",
+    "id": "CA-03",
+    "descricao": "resposta da API não expõe o token",
+    "ok": true,
+    "evidencia": [
+      "id",
+      "obraId",
+      "email",
+      "papel",
+      "estado",
+      "expiraEm"
+    ]
+  },
+  {
+    "rf": "RF20",
+    "id": "CA-04",
+    "descricao": "convite para DONO → 403 com motivo",
+    "ok": true,
+    "evidencia": {
+      "s": 403,
+      "d": "Ninguém entra como dono por convite; a posse da empresa não se transfere por aqui."
+    }
+  },
+  {
+    "rf": "RF20",
+    "id": "CA-08",
+    "descricao": "convite novo para o mesmo e-mail substitui o pendente (anterior REVOGADO)",
+    "ok": true,
+    "evidencia": [
+      "ENGENHEIRO:PENDENTE",
+      "ORCAMENTISTA:REVOGADO"
+    ]
+  },
+  {
+    "rf": "RF20",
+    "id": "e-mail-url",
+    "descricao": "link absoluto para a rota /convite/{token} do app",
+    "ok": true,
+    "evidencia": "\r Para aceitar, abra o link abaixo e entre (ou crie a conta) com este mesmo e-mail:\r http://localhost:3000/convite/1vgFE_PG4PwMWqQGojE0ibURqTu2ivCc3griH-h9Y7g\r \r O convite vale at=C3=A9 1 de novembro de 2026, 15:09 (hor=C3=A1rio de Bras=C3=ADlia) e s=C3=B3 pode ser usado uma vez. Se voc=C3=AA n=C3=A"
+  },
+  {
+    "rf": "RF20",
+    "id": "e-mail",
+    "descricao": "e-mail do convite chega com link",
+    "ok": true,
+    "evidencia": "link presente"
+  },
+  {
+    "rf": "RF20",
+    "id": "publico",
+    "descricao": "página pública do convite mostra empresa/obra/papel",
+    "ok": true,
+    "evidencia": {
+      "empresa": "Mendes Projetos Ltda",
+      "expiraEm": "2026-11-01T18:09:43.622676Z",
+      "obra": "Residencial Auditoria",
+      "papel": "ARQUITETO",
+      "email": "a***1@exemplo.cca"
+    }
+  },
+  {
+    "rf": "RF20",
+    "id": "CA-06",
+    "descricao": "aceite por conta de outro e-mail → 403",
+    "ok": true,
+    "evidencia": {
+      "s": 403,
+      "d": "Este convite foi enviado para outro e-mail. Entre com a conta certa."
+    }
+  },
+  {
+    "rf": "RF20",
+    "id": "CA-07",
+    "descricao": "token inválido não revela empresa/obra",
+    "ok": true,
+    "evidencia": {
+      "s": 410,
+      "j": {
+        "detail": "Convite não encontrado, expirado ou já usado.",
+        "instance": "/api/v1/convites/tokeninvalidotokeninvalido00/publico",
+        "status": 410,
+        "title": "Convite indisponível",
+        "type": "https://civilconstructorai.com.br/problemas/convite_indisponivel"
+      }
+    }
+  },
+  {
+    "rf": "RF20",
+    "id": "aceite",
+    "descricao": "convidada aceita e entra na obra",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "j": {
+        "empresaId": "01a17441-06d7-78e2-9aed-d8de821989a1",
+        "obraId": "01a17441-0feb-7f8f-afe7-b20c09cd9180",
+        "mensagem": "Convite aceito: a obra já aparece para você."
+      }
+    }
+  },
+  {
+    "rf": "RF20",
+    "id": "CA-02",
+    "descricao": "segundo aceite → 410",
+    "ok": true,
+    "evidencia": 410
+  },
+  {
+    "rf": "RF20",
+    "id": "sessao",
+    "descricao": "sessão da arquiteta reflete o papel na obra sem novo login",
+    "ok": true,
+    "evidencia": {
+      "01a17441-0feb-7f8f-afe7-b20c09cd9180": [
+        "ARQUITETO"
+      ]
+    }
+  },
+  {
+    "rf": "RF21",
+    "id": "CA-01",
+    "descricao": "obra de outra empresa → 404 idêntico a id inexistente",
+    "ok": true,
+    "evidencia": {
+      "a": 404,
+      "b": 404
+    }
+  },
+  {
+    "rf": "RF21",
+    "id": "CA-04a",
+    "descricao": "modelo de outra empresa → 404",
+    "ok": true,
+    "evidencia": 404
+  },
+  {
+    "rf": "RF21",
+    "id": "CA-02",
+    "descricao": "arquiteta solicitando análise → 403 com motivo pt-BR",
+    "ok": true,
+    "evidencia": {
+      "s": 403,
+      "d": "Esta ação exige o papel ENGENHEIRO ou DONO ou ADMIN nesta obra."
+    }
+  },
+  {
+    "rf": "RF23",
+    "id": "CA-03",
+    "descricao": "ação sensível sem sudo → 403 sudo_required",
+    "ok": true,
+    "evidencia": {
+      "s": 403,
+      "type": "https://civilconstructorai.com.br/problemas/sudo_required"
+    }
+  },
+  {
+    "rf": "RF23",
+    "id": "sudo",
+    "descricao": "sudo com senha + TOTP",
+    "ok": true,
+    "evidencia": {
+      "s": 204,
+      "j": ""
+    }
+  },
+  {
+    "rf": "RF23",
+    "id": "CA-07",
+    "descricao": "dono não pode desativar 2FA obrigatório → 409",
+    "ok": true,
+    "evidencia": {
+      "s": 409,
+      "d": "O 2FA é obrigatório para o seu papel (dono, administrador ou aprovador); troque o aparelho gerando um novo código em vez de desativar."
+    }
+  },
+  {
+    "rf": "RF23",
+    "id": "CA-05",
+    "descricao": "GET /me/sessions não expõe id real",
+    "ok": true,
+    "evidencia": {
+      "apelido": "4262973e17eaafd1",
+      "criadaEm": "2026-10-25T18:09:42.084Z",
+      "ultimoAcessoEm": "2026-10-25T18:09:48.036Z",
+      "userAgent": "Playwright/1.64.1 (x64; ubuntu 24.04) node/22.22",
+      "atual": true
+    }
+  },
+  {
+    "rf": "RF19",
+    "id": "logout",
+    "descricao": "após logout, rotas protegidas → 401",
+    "ok": true,
+    "evidencia": {
+      "logout": 204,
+      "depois": 401
+    }
+  }
+]

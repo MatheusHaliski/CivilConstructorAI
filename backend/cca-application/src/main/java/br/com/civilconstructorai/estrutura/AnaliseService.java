@@ -9,6 +9,7 @@ import br.com.civilconstructorai.estrutura.analise.AnaliseEstrutural;
 import br.com.civilconstructorai.estrutura.carga.Combinacao;
 import br.com.civilconstructorai.estrutura.carga.GeradorCombinacoes;
 import br.com.civilconstructorai.estrutura.carga.NaturezaAcao;
+import br.com.civilconstructorai.estrutura.lancamento.EstadoLancamento;
 import br.com.civilconstructorai.estrutura.mef.MontadorModeloAnalitico;
 import br.com.civilconstructorai.estrutura.mef.SolverMef;
 import br.com.civilconstructorai.estrutura.modelo.ModeloEstrutural;
@@ -34,8 +35,11 @@ public class AnaliseService {
     private final Relogio relogio;
     private final Json json;
 
+    private final Repositorios.Lancamentos lancamentos;
+
     public AnaliseService(Repositorios.Analises analises, Repositorios.Cargas cargas, CargasService cargasService, ModeloEstruturalFonte modelo,
-                          AcessoObra acesso, ContextoUsuario contexto, Relogio relogio, Json json) {
+                          AcessoObra acesso, ContextoUsuario contexto, Relogio relogio, Json json, Repositorios.Lancamentos lancamentos) {
+        this.lancamentos = lancamentos;
         this.analises = analises;
         this.cargas = cargas;
         this.cargasService = cargasService;
@@ -51,6 +55,15 @@ public class AnaliseService {
         acesso.exigirPapel(obraId, PapelObra.ENGENHEIRO, PapelObra.DONO, PapelObra.ADMIN);
         var u = contexto.exigir();
         var m = modelo.carregar(obraId);
+        // RF05 RN-03: só calcula lançamento liberado pelo engenheiro (auditoria 2026-10: aceitava sem o "pronto")
+        var lancs = lancamentos.findByObraId(obraId);
+        var naoProntos = lancs.stream().filter(l -> l.getEstado() != EstadoLancamento.PRONTO_PARA_ANALISE && l.getEstado() != EstadoLancamento.VAZIO)
+                .map(l -> m.pavimento(l.getPavimentoId()).map(p -> p.nome()).orElse(l.getPavimentoId())).toList();
+        if (lancs.stream().noneMatch(l -> l.getEstado() == EstadoLancamento.PRONTO_PARA_ANALISE) || !naoProntos.isEmpty()) {
+            throw new ExcecaoDominio.RegraDeNegocio("lancamento_nao_pronto", naoProntos.isEmpty()
+                    ? "Lance as cargas e marque o lançamento como pronto para análise (Estrutura › Cargas e combinações) antes de calcular."
+                    : "Marque como pronto para análise o lançamento de: " + String.join(", ", naoProntos) + ".");
+        }
         // análises anteriores de outra versão ficam obsoletas
         for (var a : analises.findByObraIdOrderByCriadoEmDesc(obraId)) {
             if (a.getVersaoModelo() != m.versao()) {

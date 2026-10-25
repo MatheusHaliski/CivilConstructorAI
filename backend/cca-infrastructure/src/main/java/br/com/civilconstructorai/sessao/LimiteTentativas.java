@@ -32,6 +32,10 @@ public class LimiteTentativas {
         }
     }
 
+    public boolean primeiroUso(String chave, Duration janela) {
+        return Boolean.TRUE.equals(redis.opsForValue().setIfAbsent("cca:uso:" + chave, "1", janela));
+    }
+
     public void limpar(String chave) {
         redis.delete("cca:limite:" + chave);
     }

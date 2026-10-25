@@ -17,6 +17,8 @@ export type Sessao = {
   mfaVerificado: boolean;
   seloVerificado: boolean;
   sudoAtivo: boolean;
+  /** papel exige 2FA e ele ainda não foi configurado: só a própria conta responde até configurar */
+  mfaPendente?: boolean;
 };
 
 export type RespostaLogin = { proximaEtapa: EtapaLogin; empresas: UUID[] };

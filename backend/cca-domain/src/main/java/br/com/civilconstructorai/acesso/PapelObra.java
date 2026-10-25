@@ -59,4 +59,20 @@ public enum PapelObra {
     }
 
     public static final Set<PapelObra> TODOS = Set.of(values());
+
+    /** nome para pessoas (e-mails e telas), no lugar do nome técnico do enum */
+    public String rotulo() {
+        return switch (this) {
+            case DONO -> "dono(a) da empresa";
+            case ADMIN -> "administrador(a)";
+            case ENGENHEIRO -> "engenheiro(a)";
+            case ARQUITETO -> "arquiteto(a)";
+            case ORCAMENTISTA -> "orçamentista";
+            case MESTRE_OBRAS -> "mestre de obras";
+            case TECNICO_SEGURANCA -> "técnico(a) de segurança";
+            case CLIENTE -> "cliente / proprietário(a)";
+            case FORNECEDOR -> "fornecedor(a)";
+            case TRABALHADOR -> "trabalhador(a)";
+        };
+    }
 }

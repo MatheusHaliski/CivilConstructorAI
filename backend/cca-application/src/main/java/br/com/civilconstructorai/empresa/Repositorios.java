@@ -35,5 +35,7 @@ public final class Repositorios {
         List<Convite> findByTenantIdAndEstadoOrderByCriadoEmDesc(UUID tenantId, EstadoConvite estado);
 
         long countByTenantIdAndEmailIgnoreCaseAndEstado(UUID tenantId, String email, EstadoConvite estado);
+
+        java.util.List<Convite> findByTenantIdAndEmailIgnoreCaseAndEstado(UUID tenantId, String email, EstadoConvite estado);
     }
 }
