@@ -21,6 +21,10 @@ paths:
 
 ## 1. Descrição
 
+No motor de desenho (RF28), `GR` (Grid do Revit) desenha um eixo por dois pontos, `XL` sobre um eixo
+existente o converte em eixo nomeado e `LL` (Level) cria um pavimento pela elevação; `MALHA` gera a grade
+inteira de uma vez. O Osnap `EIX` (interseção de eixos) tem prioridade máxima para ancorar pilares.
+
 O usuário informa, por formulário (H5) ou comando VI (`VI(GRID, x=[5,5,4,5], y=[6,6], rotulo_x=letras,
 rotulo_y=numeros)` e `VI(PAVIMENTOS, n=4, pe_direito=3.0, terreo=0.0)`), os espaçamentos entre eixos em cada
 direção e a pilha de pavimentos. O sistema:

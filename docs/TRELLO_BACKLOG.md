@@ -10,7 +10,7 @@ commit do código ou doc correspondente.
 |---|---|---|
 | 1 | 📌 Visão, ADRs & Docs transversais | cards `DOC` e decisões pendentes |
 | 2 | M0 · Identidade & Acesso | RF18–RF23 |
-| 3 | M1 · Concepção Arquitetônica | RF01–RF03 |
+| 3 | M1 · Concepção Arquitetônica | RF01–RF03, RF28 |
 | 4 | M2 · Análise Estrutural & Esforços | RF04–RF06 |
 | 5 | M3 · Dimensionamento Normativo | RF07–RF08 |
 | 6 | M4 · Geotecnia & Fundações | RF09–RF10 |
@@ -32,7 +32,7 @@ backend, testes `*IT`, front, rastreabilidade).
 | [DOC · Visão, arquitetura e ADRs](https://trello.com/c/ariuFHjW) | ✅ Concluído | ✅ `PESQUISA_TECNOLOGIAS.md`, `README.md` | — |
 | [DOC · Diagramas transversais](https://trello.com/c/OH410Kxs) | ✅ Concluído | ✅ 6 arquivos `DIAGRAMA_*` / `MAQUINA_ESTADOS.md` | — |
 | [DOC · CI "Docs por RF"](https://trello.com/c/7kFA6Jlq) | ✅ Concluído | ✅ `scripts/check_rf_docs.py`, `.github/workflows/docs-rf.yml` | — |
-| [❓ Decisões de negócio pendentes](https://trello.com/c/Iwnugds9) | 📌 | aberto | — |
+| [✅ Decisões de negócio (DN-01…DN-07, seguindo o recomendado)](https://trello.com/c/Iwnugds9) | ✅ Concluído | ✅ `DECISOES_DE_NEGOCIO.md` | — |
 | [RF01 · Modelagem vetorial 2D/3D no canvas WebGL](https://trello.com/c/3WgN7lzt) | M1 | ✅ | ⏳ |
 | [RF02 · Comandos via Notação VI e prompts JSON](https://trello.com/c/W4pJDtvv) | M1 | ✅ | ⏳ |
 | [RF03 · Malhas de eixos e pavimentos Z](https://trello.com/c/5aEYPZHD) | M1 | ✅ | ⏳ |
@@ -60,6 +60,7 @@ backend, testes `*IT`, front, rastreabilidade).
 | [RF25 · Direitos do titular](https://trello.com/c/BQtSoryZ) | M8 | ✅ | ⏳ |
 | [RF26 · Exclusão com carência e saga](https://trello.com/c/9s245tLM) | M8 | ✅ | ⏳ |
 | [RF27 · Transparência de IA e revisão humana](https://trello.com/c/7dTIZbIs) | M8 | ✅ | ⏳ |
+| [RF28 · Motor de desenho: linha de comando, atalhos e modos](https://trello.com/c/7lSEtX9P) | M1 | ✅ | ⏳ |
 
 ## Ordem de entrega
 
@@ -71,7 +72,7 @@ backend, testes `*IT`, front, rastreabilidade).
 5. Telas e endpoints de LGPD + saga de eliminação → RF24–RF26.
 6. Tokens DTCG → CSS/TS, tabela de contraste, Storybook com addon-a11y.
 7. Núcleo BIM: serviço `geometria` + auditor + loop duplo → RF16, RF17, RF06, RF08; canvas e comandos VI →
-   RF01, RF02, RF03; cena 3D → RF13.
+   RF01, RF02, RF03; motor de desenho com linha de comando e atalhos → RF28; cena 3D → RF13.
 8. Camada de IA atrás de `ModeloLinguagem` (primeira rota: `comando-vi`) + rascunho "gerado por IA" +
    aprovação profissional + conjunto de avaliação → RF02, RF27.
 9. Estrutura e fundações → RF04, RF05, RF07, RF09, RF10.
