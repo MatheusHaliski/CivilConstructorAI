@@ -6,3 +6,4 @@ export * from "./catalogo";
 export * from "./modelo";
 export * from "./auditor";
 export * from "./quantitativos";
+export * from "./objetos";

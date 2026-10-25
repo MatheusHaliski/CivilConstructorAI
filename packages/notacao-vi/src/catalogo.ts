@@ -105,6 +105,12 @@ export const CATALOGO: Comando[] = [
     descricao: "Laje por contorno fechado.", roteiro: [P("p1", "Primeiro vértice do contorno:"), P("pn", "Próximo vértice ou [Fechar]:", { repetir: true, opcoes: ["Desfazer", "Fechar"] }), V("h", "Espessura [0.12]:", 0.12)] },
   { codigo: "FUNDACAO", nomePtBr: "FUNDAÇÃO", nomeEn: "FOUNDATION", categoria: "DESENHO", aliases: todos(["FD"]), rf: ["RF10"], papeis: ["ENGENHEIRO"], extensao: true,
     descricao: "Sapata, bloco ou radier sob um pilar.", roteiro: [S("Selecione o pilar:"), V("tipo", "Tipo [SAPATA/BLOCO/RADIER]:", "SAPATA", { tipo: "OPCAO", opcoes: ["SAPATA", "BLOCO", "RADIER"] })] },
+  { codigo: "OBJETO", nomePtBr: "OBJETO DA BIBLIOTECA", nomeEn: "COMPONENT", categoria: "DESENHO", aliases: { CIVILCONSTRUCTOR: ["OB"], REVIT: ["CM"], AUTOCAD: ["OB"] }, rf: ["RF01", "RF13"], extensao: true,
+    descricao: "Insere móvel, equipamento, louça, luminária, ponto de instalação ou pessoa da biblioteca (objetos de parede encostam na parede; luminárias de teto vão ao teto).",
+    roteiro: [V("item", "Código da biblioteca [SALA.SOFA_3L]:", "SALA.SOFA_3L", { tipo: "TEXTO" }), P("pos", "Ponto de inserção:"), V("rot", "Rotação em graus [0]:", 0)] },
+  { codigo: "CONECTAR", nomePtBr: "CONECTAR", nomeEn: "CONNECT", categoria: "DESENHO", aliases: todos(["CN"]), rf: ["RF01", "RF16"], extensao: true,
+    descricao: "Liga o conector de saída de um objeto (quadro, tomada, entrada de água, aparelho) ao de entrada de outro, no mesmo sistema; recusa ligações incompatíveis.",
+    roteiro: [S("Selecione o objeto de origem:"), S("Selecione o objeto de destino:"), V("circuito", "Circuito elétrico (Enter: o da tomada, ou C1):", "", { tipo: "TEXTO", opcional: true })] },
   // ---------- Modificação
   { codigo: "MOVER", nomePtBr: "MOVER", nomeEn: "MOVE", categoria: "MODIFICACAO", aliases: { CIVILCONSTRUCTOR: ["M", "MV"], AUTOCAD: ["M"], REVIT: ["MV"] }, rf: ["RF28"],
     descricao: "Move a seleção com precisão por Osnap.", roteiro: [S(), P("base", "Ponto base:"), P("destino", "Segundo ponto (destino):")] },

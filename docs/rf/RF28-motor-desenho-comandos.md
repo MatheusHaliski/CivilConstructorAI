@@ -444,3 +444,10 @@ Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10
 - **Corrigido:** formulário de ações filtra materiais pela aplicação do catálogo (regressão da categoria antiga); seletor de material no painel de propriedades; códigos canônicos nos padrões.
 - **Evidência:** `acoes.test.ts` (36 testes do app), j5.
 - **Pendente:** —
+
+## Auditoria AUD-CC-3D-001
+
+([relatório](../auditoria/AUDITORIA_AUD-CC-3D-001.md)) Biblioteca na barra lateral (busca por medida, prévia, inserir), "Conectar E1 a…" a partir do
+conector, `?sel=` para abrir o modelo com elementos selecionados, 1ª pessoa com W/A/S/D sem a linha de comando
+capturar as teclas. Corrigido o nome acessível do link "Minha conta" (WCAG 2.5.3); axe da tela do modelo sem
+violações graves.

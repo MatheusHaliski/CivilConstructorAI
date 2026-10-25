@@ -5,7 +5,8 @@
  * (cor + forma + texto), Orto/Polar, prévia fantasma do comando ativo e entrada dinâmica junto ao cursor.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { dist, pontoDentroPoligono, type Elemento, type Ponto2D } from "@cca/notacao-vi";
+import { cantosObjeto, dist, itemObjeto, percursoConexao, pontoDentroPoligono, posicaoConector, type Elemento, type Ponto2D } from "@cca/notacao-vi";
+import { COR_SISTEMA } from "@/lib/motor/cena";
 import { elementosVisiveis, useMotor } from "@/lib/motor/estado";
 import { restringir } from "@/lib/motor/entrada";
 import { caixaElemento, candidatos, distanciaAoElemento, melhor, snapGrade, type Candidato } from "@/lib/motor/snap";
@@ -137,6 +138,29 @@ export function Canvas2D() {
         case "PORTA": case "JANELA": { const w = modelo.elemento(e.paredeId); if (!w || w.tipo !== "PAREDE") break; const v = { x: w.p2.x - w.p1.x, y: w.p2.y - w.p1.y }; const l = Math.hypot(v.x, v.y) || 1; const u = { x: v.x / l, y: v.y / l }; const c = { x: w.p1.x + v.x * e.posicao, y: w.p1.y + v.y * e.posicao }; const n = { x: -u.y, y: u.x }; const h = e.largura / 2, esp = w.espessura / 2 + 0.02; const r = [{ x: c.x - u.x * h + n.x * esp, y: c.y - u.y * h + n.y * esp }, { x: c.x + u.x * h + n.x * esp, y: c.y + u.y * h + n.y * esp }, { x: c.x + u.x * h - n.x * esp, y: c.y + u.y * h - n.y * esp }, { x: c.x - u.x * h - n.x * esp, y: c.y - u.y * h - n.y * esp }].map(D); ctx.fillStyle = C.bg; poly(r); ctx.fill(); ctx.strokeStyle = selecionado ? C.sel : C.texto; ctx.stroke(); if (e.tipo === "PORTA") { const a = T(D({ x: c.x - u.x * h, y: c.y - u.y * h })); ctx.beginPath(); ctx.arc(a.x, a.y, e.largura * viewport.escala, Math.atan2(-u.y, u.x) - Math.PI / 2, Math.atan2(-u.y, u.x)); ctx.stroke(); } break; }
         case "SAPATA": case "BLOCO": case "RADIER": case "ESTACA": { const c = D(e.centro); const b = e.bx / 2, h = e.by / 2; poly([{ x: c.x - b, y: c.y - h }, { x: c.x + b, y: c.y - h }, { x: c.x + b, y: c.y + h }, { x: c.x - b, y: c.y + h }]); ctx.setLineDash([5, 3]); ctx.stroke(); ctx.setLineDash([]); break; }
         case "COTA": { const a = D(e.p1), b = D(e.p2); const v = { x: b.x - a.x, y: b.y - a.y }; const l = Math.hypot(v.x, v.y) || 1; const n = { x: (-v.y / l) * e.afastamento, y: (v.x / l) * e.afastamento }; const a2 = { x: a.x + n.x, y: a.y + n.y }, b2 = { x: b.x + n.x, y: b.y + n.y }; const ta = T(a), tb = T(b), ta2 = T(a2), tb2 = T(b2); ctx.beginPath(); ctx.moveTo(ta.x, ta.y); ctx.lineTo(ta2.x, ta2.y); ctx.moveTo(tb.x, tb.y); ctx.lineTo(tb2.x, tb2.y); ctx.moveTo(ta2.x, ta2.y); ctx.lineTo(tb2.x, tb2.y); ctx.stroke(); ctx.fillStyle = C.texto; const texto = e.estilo === "NIVEL" ? `${a.y >= 0 ? "+" : ""}${a.y.toFixed(2).replace(".", ",")}` : l.toFixed(2).replace(".", ","); ctx.fillText(texto, (ta2.x + tb2.x) / 2, (ta2.y + tb2.y) / 2 - 8); break; }
+        case "OBJETO": {
+          // símbolo em planta: contorno real (l × p girado), frente marcada, nome curto, conectores pela cor do sistema
+          const it = itemObjeto(e.item); const q = cantosObjeto(e).map(D); const corObj = fantasma ? C.prev : it?.cor ?? cor;
+          poly(q); ctx.globalAlpha = fantasma ? 0.12 : e.camada === "humanos" ? 0.25 : 0.18; ctx.fillStyle = corObj; ctx.fill(); ctx.globalAlpha = fantasma ? 0.7 : 1;
+          ctx.strokeStyle = selecionado && !fantasma ? C.sel : e.camada === "mobiliario" ? C.texto3 : corObj; ctx.stroke();
+          const c = D(e.centro), tc = T(c);
+          if (it?.forma === "humano") { ctx.beginPath(); ctx.arc(tc.x, tc.y, Math.max(3, (e.dim.p / 2) * viewport.escala), 0, Math.PI * 2); ctx.stroke(); }
+          else if (it?.luz) { const r = Math.max(4, (Math.min(e.dim.l, e.dim.p) / 2) * viewport.escala); ctx.beginPath(); ctx.arc(tc.x, tc.y, r, 0, Math.PI * 2); ctx.moveTo(tc.x - r * 0.7, tc.y - r * 0.7); ctx.lineTo(tc.x + r * 0.7, tc.y + r * 0.7); ctx.moveTo(tc.x + r * 0.7, tc.y - r * 0.7); ctx.lineTo(tc.x - r * 0.7, tc.y + r * 0.7); ctx.stroke(); if (e.ligada === false) { ctx.fillStyle = C.texto3; ctx.fillText("desl.", tc.x, tc.y + r + 8); } }
+          // frente (+y local): traço do centro para a face frontal
+          const r0 = (e.rotacao * Math.PI) / 180, f = T(D({ x: e.centro.x - Math.sin(r0) * e.dim.p / 2, y: e.centro.y + Math.cos(r0) * e.dim.p / 2 }));
+          ctx.beginPath(); ctx.moveTo(tc.x, tc.y); ctx.lineTo(f.x, f.y); ctx.stroke();
+          if (it && !fantasma) for (const k of it.conectores) { const g = posicaoConector(modelo, e, k.id); if (!g) continue; const t = T(g); ctx.fillStyle = COR_SISTEMA[k.sistema] ?? cor; ctx.beginPath(); if (k.fluxo === "SAI") ctx.rect(t.x - 3, t.y - 3, 6, 6); else ctx.arc(t.x, t.y, 3, 0, Math.PI * 2); ctx.fill(); }
+          if (viewport.escala > 25 && it) { ctx.fillStyle = C.texto; ctx.font = "10px var(--font-sans), sans-serif"; ctx.fillText(it.nome.length > 18 ? `${it.nome.slice(0, 17)}…` : it.nome, tc.x, tc.y - Math.max(e.dim.p, 0.2) / 2 * viewport.escala - 6); ctx.font = "12px var(--font-mono), monospace"; }
+          break;
+        }
+        case "CONEXAO": {
+          // representação gráfica derivada: projeção do percurso esquemático, tracejada, na cor do sistema
+          const pts = percursoConexao(modelo, e); if (pts.length < 2) break;
+          ctx.strokeStyle = selecionado ? C.sel : COR_SISTEMA[e.sistema] ?? cor; ctx.lineWidth = selecionado ? 3 : 2; ctx.setLineDash(e.sistema === "ESGOTO" ? [8, 3] : e.sistema === "ELETRICA" ? [2, 3] : [6, 3]);
+          poly(pts.map((p) => D({ x: p.x, y: p.y })), false); ctx.stroke(); ctx.setLineDash([]);
+          if (e.sistema === "ELETRICA" && e.circuito && viewport.escala > 20) { const m = pts[Math.floor(pts.length / 2)]!; const t = T(D(m)); ctx.fillStyle = COR_SISTEMA.ELETRICA!; ctx.fillText(e.circuito, t.x + 10, t.y - 6); }
+          break;
+        }
         case "TEXTO": case "ETIQUETA": { const t = T(D(e.p)); ctx.fillStyle = C.texto; ctx.font = `${Math.max(10, e.altura * viewport.escala)}px var(--font-sans), sans-serif`; ctx.fillText(e.texto, t.x, t.y); ctx.font = "12px var(--font-mono), monospace"; break; }
       }
       ctx.setLineDash([]); ctx.globalAlpha = 1;
@@ -155,6 +179,7 @@ export function Canvas2D() {
       else if (def === "VIGA" && b) ghost(g("VIGA", { p1: b, p2: c, b: 0.12, h: 0.4, camada: "estrutura" }));
       else if ((def === "RETANGULO" || def === "ZOOM") && b) ghost(g("RETANGULO", { p1: b, p2: c }));
       else if (def === "CIRCULO" && b) ghost(g("CIRCULO", { centro: b, raio: dist(b, c) }));
+      else if (def === "OBJETO" && itemObjeto(String(v["item"] ?? ""))) { const it = itemObjeto(String(v["item"]))!; ghost(g("OBJETO", { item: it.id, centro: c, rotacao: Number(v["rot"] ?? 0), elevacao: it.elevacao ?? 0, dim: it.dim, camada: "desenho" })); }
       else if (def === "PILAR") ghost(g("PILAR", { centro: c, b: 0.19, h: 0.4, secao: "RETANGULAR", camada: "estrutura" }));
       else if (def === "EIXO" && b) ghost(g("LINHA", { p1: b, p2: c }));
       else if ((def === "PLANO_REF" || def === "ESPELHAR" || def === "ARCO" || def === "COTA_LINEAR" || def === "COTA_ALINHADA" || def === "RAIO_CONSTRUCAO" || def === "LINHA_CONSTRUCAO") && b) ghost(g("LINHA", { p1: b, p2: c }));

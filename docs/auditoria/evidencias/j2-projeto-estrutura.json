@@ -219,14 +219,14 @@
     "evidencia": {
       "n": 7,
       "ex": {
-        "id": "01a174de-3eb2-7294-ba63-624ebd3776a9",
+        "id": "01a17559-d8f0-7043-a1bc-40f83db1ab60",
         "codigo": "DESFAZER",
-        "vi": "VI(DESFAZER, comando=\"01a174de-3e5f-75db-aec1-0d2b2a068ce2\")",
+        "vi": "VI(DESFAZER, comando=\"01a17559-d8b8-7bee-a6b3-4899ecb8bc03\")",
         "origem": "CANVAS",
-        "autorId": "01a174de-3894-739f-84fd-a280c0c7ecca",
+        "autorId": "01a17559-d503-7ba6-886d-7a35388f021e",
         "versaoBase": 6,
         "versaoNova": 7,
-        "criadoEm": "2026-10-25T21:01:24.530180Z",
+        "criadoEm": "2026-10-25T23:16:24.944032Z",
         "correcoesAuditor": 0
       }
     }
@@ -416,13 +416,13 @@
     "ok": true,
     "evidencia": [
       {
-        "r": "V-01a174.1",
+        "r": "V1.1",
         "L": 5,
         "M": 34.125,
         "V": 81.9
       },
       {
-        "r": "V-01a174.2",
+        "r": "V1.2",
         "L": 5,
         "M": 34.125,
         "V": 81.9
@@ -459,7 +459,7 @@
     "descricao": "catálogo de comandos servido pela API",
     "ok": true,
     "evidencia": {
-      "n": 85
+      "n": 87
     }
   },
   {

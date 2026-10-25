@@ -156,6 +156,18 @@ public class ProblemDetailsHandler {
         return problema(HttpStatus.CONFLICT, "conflito_dados", "Os dados entram em conflito com informações já gravadas. Recarregue e tente de novo.");
     }
 
+    /** rota inexistente (auditoria AUD-3D F5: caía no handler genérico como 500) */
+    @ExceptionHandler({org.springframework.web.servlet.resource.NoResourceFoundException.class, org.springframework.web.servlet.NoHandlerFoundException.class})
+    ProblemDetail rotaInexistente(Exception e) {
+        return problema(HttpStatus.NOT_FOUND, "rota_inexistente", "Endereço da API inexistente.");
+    }
+
+    /** método HTTP não suportado pela rota: 405, não 500 */
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    ProblemDetail metodoNaoSuportado(org.springframework.web.HttpRequestMethodNotSupportedException e) {
+        return problema(HttpStatus.METHOD_NOT_ALLOWED, "metodo_nao_suportado", "Método " + e.getMethod() + " não é aceito neste endereço.");
+    }
+
     /** Última linha de defesa: nunca vaza stack trace nem cai no /error anônimo (que viraria 401). */
     @ExceptionHandler(Exception.class)
     ProblemDetail inesperado(Exception e) {

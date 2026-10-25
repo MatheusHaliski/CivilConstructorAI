@@ -13,7 +13,11 @@ import { Etiqueta } from "@/components/ui";
 export default function PaginaModelo({ params }: { params: Promise<{ obraId: string }> }) {
   const { obraId } = use(params);
   const papeis = usePapeis(obraId);
-  const cmd = useSearchParams().get("cmd");
+  const q = useSearchParams();
+  const cmd = q.get("cmd");
+  // ?sel=id1,id2&vista=3D: destaca elementos (ex.: os de um conflito do painel de falhas)
+  const sel = q.get("sel")?.split(",").filter(Boolean) ?? null;
+  const vista = q.get("vista") === "3D" ? "3D" : null;
   const obra = useQuery({ queryKey: ["obra", obraId], queryFn: () => get<ObraResumo>(`/obras/${obraId}`) });
   const pode = editaModelo(papeis) && obra.data?.estado !== "ARQUIVADA";
   return (
@@ -22,7 +26,7 @@ export default function PaginaModelo({ params }: { params: Promise<{ obraId: str
         <div><nav aria-label="Trilha" className="text-xs text-text-3"><Link href="/obras" className="underline">Obras</Link> › <Link href={`/obras/${obraId}`} className="underline">{obra.data?.nome ?? "…"}</Link> › Projeto › Modelo BIM</nav><h1 className="text-xl font-semibold">Modelo BIM</h1></div>
         <div className="flex gap-2">{!pode && <Etiqueta tom="aviso">somente leitura</Etiqueta>}<Etiqueta tom="marca">Notação VI</Etiqueta></div>
       </header>
-      <Motor obraId={obraId} podeEditar={pode} comandoInicial={cmd} />
+      <Motor obraId={obraId} podeEditar={pode} comandoInicial={cmd} selecaoInicial={sel} vistaInicial={vista} />
     </div>
   );
 }

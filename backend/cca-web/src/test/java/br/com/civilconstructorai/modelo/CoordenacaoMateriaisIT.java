@@ -152,4 +152,55 @@ class CoordenacaoMateriaisIT extends AbstractIT {
         assertThat(emUso.getResponse().getStatus()).isEqualTo(409);
         assertThat(emUso.getResponse().getContentAsString()).contains("Obra de teste");
     }
+
+    /** AUD-CC-3D-001: objetos e conexões gravados no banco, relidos iguais, verificados pela rede e pela coordenação */
+    @Test
+    void objetosEConexoesPersistemERedeEConflitosLeemDoModelo() throws Exception {
+        comando("{\"codigo\":\"PAREDE\",\"args\":{\"p1\":{\"x\":0,\"y\":0},\"p2\":{\"x\":6,\"y\":0}}}");
+        String qd = criado(comando2("{\"codigo\":\"OBJETO\",\"args\":{\"item\":\"INSTALACOES.QUADRO_DISTRIBUICAO\",\"pos\":{\"x\":5,\"y\":0.1}}}"));
+        String tom = criado(comando2("{\"codigo\":\"OBJETO\",\"args\":{\"item\":\"INSTALACOES.TOMADA_10A\",\"pos\":{\"x\":1,\"y\":0.1}}}"));
+        String gel = criado(comando2("{\"codigo\":\"OBJETO\",\"args\":{\"item\":\"COZINHA.GELADEIRA\",\"pos\":{\"x\":1,\"y\":0.52}}}"));
+        String pessoa = criado(comando2("{\"codigo\":\"OBJETO\",\"args\":{\"item\":\"PESSOAS.ADULTO\",\"pos\":{\"x\":3,\"y\":2},\"altura\":1.6}}"));
+        comando2("{\"codigo\":\"CONECTAR\",\"args\":{\"de\":\"" + qd + "\",\"para\":\"" + tom + "\",\"circuito\":\"C2\",\"disjuntor\":10}}");
+        String cx = criado(comando2("{\"codigo\":\"CONECTAR\",\"args\":{\"de\":\"" + gel + "\",\"para\":\"" + tom + "\"}}"));
+
+        // relido do banco: camadas novas, dimensões, sentido e circuito herdado da tomada
+        var m = json(mvc.perform(get(obra() + "/modelo").with(ComoUsuario.como(engenheiro))).andReturn());
+        JsonNode eCx = null, ePessoa = null;
+        for (var e : m.get("elementos")) {
+            if (e.get("id").asString().equals(cx)) eCx = e;
+            if (e.get("id").asString().equals(pessoa)) ePessoa = e;
+        }
+        assertThat(eCx).isNotNull();
+        assertThat(eCx.get("camada").asString()).isEqualTo("eletrica");
+        assertThat(eCx.get("props").get("de").get("id").asString()).isEqualTo(tom);
+        assertThat(eCx.get("props").get("circuito").asString()).isEqualTo("C2");
+        assertThat(ePessoa.get("camada").asString()).isEqualTo("humanos");
+        assertThat(ePessoa.get("props").get("dim").get("a").asDouble()).isEqualTo(1.6);
+
+        // rede de instalações a partir das conexões gravadas
+        var redes = json(mvc.perform(get(obra() + "/coordenacao/instalacoes").param("fp", "1").with(ComoUsuario.como(engenheiro))).andReturn());
+        assertThat(redes.get("trechos").asInt()).isEqualTo(2);
+        assertThat(redes.toString()).contains("MEP-ELE-05").contains("declarada pelas cargas");
+
+        // incompatível é recusado pelo servidor, com motivo
+        var chuv = criado(comando2("{\"codigo\":\"OBJETO\",\"args\":{\"item\":\"BANHEIRO.CHUVEIRO_ELETRICO\",\"pos\":{\"x\":4,\"y\":0.1}}}"));
+        var r = enviar("POST", obra() + "/modelo/comandos", "{\"codigo\":\"CONECTAR\",\"args\":{\"de\":\"" + qd + ":S1\",\"para\":\"" + chuv + ":AF1\"}}");
+        assertThat(r.getResponse().getStatus()).isEqualTo(422);
+        assertThat(r.getResponse().getContentAsString()).contains("Sistemas incompat");
+
+        // catálogo público e rota inexistente
+        assertThat(mvc.perform(get("/api/v1/catalogo/objetos").param("q", "geladeira 70")).andReturn().getResponse().getContentAsString()).contains("COZINHA.GELADEIRA");
+        assertThat(mvc.perform(get("/api/v1/rota-que-nao-existe").with(ComoUsuario.como(engenheiro))).andReturn().getResponse().getStatus()).isEqualTo(404);
+    }
+
+    private JsonNode comando2(String corpo) throws Exception {
+        var r = enviar("POST", obra() + "/modelo/comandos", corpo);
+        assertThat(r.getResponse().getStatus()).as(r.getResponse().getContentAsString()).isEqualTo(201);
+        return json(r);
+    }
+
+    private static String criado(JsonNode r) {
+        return r.get("diff").get("criados").get(0).get("id").asString();
+    }
 }

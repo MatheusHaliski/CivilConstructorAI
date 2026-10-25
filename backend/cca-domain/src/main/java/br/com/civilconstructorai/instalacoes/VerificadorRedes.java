@@ -258,14 +258,23 @@ public final class VerificadorRedes {
             }
             // corrente de projeto, proteção e queda de tensão (monofásico)
             double potencia = cargas.stream().mapToDouble(c -> c.num("potenciaW")).filter(v -> !Double.isNaN(v)).sum();
-            if (Double.isNaN(par.tensaoV()) || Double.isNaN(par.fatorPotencia()) || potencia <= 0) {
+            // tensão do circuito: a declarada pelas cargas (tomada 127 V, chuveiro 220 V); sem declaração, o parâmetro do projetista
+            var declaradas = cargas.stream().mapToDouble(c -> c.num("tensaoV")).filter(v -> !Double.isNaN(v)).distinct().toArray();
+            if (declaradas.length > 1) {
+                out.add(new Item(cid, Sistema.ELETRICA, Verificacao.naoAtendida("MEP-ELE-08", "Tensão única no circuito", "CONECTIVIDADE", "regra lógica do modelo",
+                        "cargas de " + java.util.Arrays.toString(declaradas) + " V no mesmo circuito " + cid, "Separe as cargas de tensões diferentes em circuitos próprios.")));
+                continue;
+            }
+            double tensao = declaradas.length == 1 ? declaradas[0] : par.tensaoV();
+            String origemTensao = declaradas.length == 1 ? "declarada pelas cargas" : "informada pelo projetista";
+            if (Double.isNaN(tensao) || Double.isNaN(par.fatorPotencia()) || potencia <= 0) {
                 out.add(new Item(cid, Sistema.ELETRICA, Verificacao.dadosInsuficientes("MEP-ELE-05", "Corrente de projeto e proteção", "DIMENSIONAMENTO", NBR5410, "Tensão, fator de potência ou potência das cargas não informados.")));
                 continue;
             }
-            double ib = potencia / (par.tensaoV() * par.fatorPotencia());
+            double ib = potencia / (tensao * par.fatorPotencia());
             var quadro = quadros.stream().map(porId::get).filter(q -> q.props().get("disjuntores") instanceof Map<?, ?> m && m.containsKey(cid)).findFirst().orElse(null);
             Double in = quadro == null ? null : ((Number) ((Map<?, ?>) quadro.props().get("disjuntores")).get(cid)).doubleValue();
-            String evIb = String.format(Locale.ROOT, "Ib = P/(V·FP) = %.0f/(%.0f·%.2f) = %.2f A", potencia, par.tensaoV(), par.fatorPotencia(), ib);
+            String evIb = String.format(Locale.ROOT, "Ib = P/(V·FP) = %.0f/(%.0f·%.2f) = %.2f A (tensão %s)", potencia, tensao, par.fatorPotencia(), ib, origemTensao);
             if (in == null) {
                 out.add(new Item(cid, Sistema.ELETRICA, Verificacao.dadosInsuficientes("MEP-ELE-05", "Ib ≤ In (disjuntor)", "DIMENSIONAMENTO", NBR5410, evIb + "; disjuntor do circuito não informado.")));
             } else if (ib > in) {
@@ -282,7 +291,7 @@ public final class VerificadorRedes {
                 continue;
             }
             double dv = 2 * RHO_COBRE_20C * l * ib / s;
-            double pct = dv / par.tensaoV() * 100;
+            double pct = dv / tensao * 100;
             String evDv = String.format(Locale.ROOT, "ΔV = 2·ρ·L·Ib/S = 2·%.4f·%.1f·%.2f/%.1f = %.2f V (%.2f %%), ρ do cobre a 20 °C, carga concentrada no fim (a favor da segurança)", RHO_COBRE_20C, l, ib, s, dv, pct);
             if (Double.isNaN(par.limiteQuedaTensaoPct())) {
                 out.add(new Item(cid, Sistema.ELETRICA, Verificacao.dadosInsuficientes("MEP-ELE-07", "Queda de tensão", "DIMENSIONAMENTO", NBR5410, evDv + "; limite não informado (declare o limite e a fonte).")));

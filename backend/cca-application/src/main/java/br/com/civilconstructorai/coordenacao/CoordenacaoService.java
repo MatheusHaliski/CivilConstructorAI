@@ -45,8 +45,9 @@ public class CoordenacaoService {
 
     /** o que o detector não cobre — devolvido junto de cada verificação para não ser lido como "sem conflitos" */
     public static final List<String> NAO_VERIFICADO = List.of(
-            "FOLGA: exige instalações modeladas (eletrodutos, tubos, bandejas); o modelo atual não tem esses elementos.",
-            "FUNCIONAL: acesso a registros, quadros e inspeções depende de instalações modeladas.",
+            "FOLGA: só entre percursos de sistemas diferentes (MEP-02), sobre o traçado esquemático derivado das conexões (sobe ao forro, corre em X e Y, desce); "
+                    + "o traçado real de obra, bandejas e folgas de manutenção não são verificados. Folga adotada de 5 cm, não normativa.",
+            "FUNCIONAL: giro de porta, pessoas e aparelho ligado a tomada de outro ambiente são verificados; acesso a registros, quadros e caixas de inspeção não.",
             "Lajes com contorno não retangular: sobreposição avaliada pela caixa envolvente.");
 
     private final Conflitos conflitos;
@@ -116,6 +117,30 @@ public class CoordenacaoService {
                         "resolvidos", String.valueOf(resolvidos), "reabertos", String.valueOf(reabertos))));
         return new Verificacao(versao, detectados.size(), novos, resolvidos, reabertos, NAO_VERIFICADO,
                 conflitos.findByObraIdOrderByCriadoEm(obraId).stream().map(this::visao).toList());
+    }
+
+    public record ItemRede(String elementoId, String sistema, br.com.civilconstructorai.estrutura.dimensionamento.Verificacao verificacao) {
+    }
+
+    public record VerificacaoRedes(long versaoModelo, String assinatura, String estado, int componentes, int trechos, List<ItemRede> itens, List<String> observacoes) {
+    }
+
+    /**
+     * Verificador de redes (P-MEP-01) sobre as conexões do modelo. Leitura pura: não grava. Tensão e fator de potência
+     * só entram quando o projetista informa; sem eles, Ib e queda de tensão ficam "Dados insuficientes".
+     */
+    @Transactional(readOnly = true)
+    public VerificacaoRedes verificarRedes(UUID obraId, Double tensaoV, Double fatorPotencia) {
+        acesso.exigirMembro(obraId);
+        var carregado = modelos.carregar(obraId).orElseThrow(() -> new ExcecaoDominio.RecursoNaoEncontrado("Modelo"));
+        var rede = br.com.civilconstructorai.instalacoes.RedeDoModelo.montar(new ModeloBim(carregado.estado()));
+        var par = new br.com.civilconstructorai.instalacoes.VerificadorRedes.Parametros(tensaoV == null ? Double.NaN : tensaoV, fatorPotencia == null ? Double.NaN : fatorPotencia, Double.NaN, null);
+        var r = br.com.civilconstructorai.instalacoes.VerificadorRedes.verificar(rede, par);
+        return new VerificacaoRedes(carregado.versao(), r.assinatura(), r.estado().name(), rede.componentes().size(), rede.trechos().size(),
+                r.itens().stream().map(i -> new ItemRede(i.elementoId(), i.sistema().name(), i.verificacao())).toList(),
+                List.of("Trechos vêm das conexões entre conectores; comprimentos e cotas do percurso esquemático (não é traçado de obra).",
+                        "Potências, diâmetros e correntes dos conectores são valores de referência da biblioteca, não dados de fabricante.",
+                        "Perdas de carga, pressões e capacidade de condução dependem de texto normativo não consultado e ficam \"Não verificado\"."));
     }
 
     public Visao decidir(UUID obraId, UUID id, String estado, String justificativa) {

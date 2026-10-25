@@ -353,3 +353,12 @@ Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10
 - **Corrigido:** códigos de material com ponto (`MAT.CONCRETO.C40`) chegavam ao auditor como `MAT_CONCRETO_C40` e eram recusados (`Sanitizador.codigo`); materiais personalizados da empresa passam pelo auditor nos dois motores; painel de propriedades troca o material por seletor com pesquisa, comparação, prévia dos elementos afetados e desfazer.
 - **Evidência:** `CoordenacaoMateriaisIT`; jornada j5.
 - **Pendente:** material personalizado criado com o editor aberto só aparece depois de recarregar.
+
+## Auditoria AUD-CC-3D-001
+
+Cenários construtivos, mobiliário, instalações e 3D ([relatório](../auditoria/AUDITORIA_AUD-CC-3D-001.md)). Jornadas `j6-diagnostico` (API) e
+`j6-interface` (navegador): antes 6/16, depois 34/34 e 11/13.
+
+- **Corrigido:** mover parede leva parede ligada (nova interseção), porta (distância absoluta), cota sobre a linha e objeto hospedado; divisória de 12 cm (bloco de 9 cm no catálogo); objetos da biblioteca (`OBJETO`) e conexões entre conectores (`CONECTAR`) na planta, com símbolo real, frente, conectores por cor e forma e percurso por sistema.
+- **Evidência:** `j6-depois.json` (AUD-01, CT-01…05), telas `aud3d/01`–`05`, paridade TS↔Java.
+- **Pendente:** cota associada só a pontos sobre a linha da parede; fachada/corte 2D gerados do 3D.

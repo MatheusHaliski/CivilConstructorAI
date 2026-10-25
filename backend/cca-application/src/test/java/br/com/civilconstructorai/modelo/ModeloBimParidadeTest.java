@@ -41,6 +41,9 @@ class ModeloBimParidadeTest {
             for (var s : setup) {
                 ids.add(executar(m, terreo.id(), (String) s.get("codigo"), (Map<String, Object>) s.get("args")).criados.getFirst().getId().toString());
             }
+            for (var s : (List<Map<String, Object>>) c.getOrDefault("preparo", List.of())) {
+                ids.add(executar(m, terreo.id(), (String) s.get("codigo"), (Map<String, Object>) trocarRefs(s.get("args"), ids)).criados.getFirst().getId().toString());
+            }
             var d = executar(m, terreo.id(), (String) c.get("codigo"), (Map<String, Object>) trocarRefs(c.get("args"), ids));
             var e = (Map<String, Object>) c.get("espera");
             if (e.containsKey("criados")) {
@@ -61,6 +64,16 @@ class ModeloBimParidadeTest {
             if (e.containsKey("materialId")) {
                 var alvo = d.criados.isEmpty() ? d.alterados.getFirst() : d.criados.getFirst();
                 assertThat(alvo.getMaterialId()).isEqualTo(e.get("materialId"));
+            }
+            if (e.containsKey("igual")) {
+                var alvo = d.criados.isEmpty() ? d.alterados.getFirst() : d.criados.getFirst();
+                for (var par : ((Map<String, Object>) e.get("igual")).entrySet()) {
+                    assertThat(texto(alvo, par.getKey())).as(par.getKey()).isEqualTo(String.valueOf(trocarRefs(par.getValue(), ids)));
+                }
+            }
+            for (var v : (List<Map<String, Object>>) e.getOrDefault("verifica", List.of())) {
+                var alvo = m.elemento(UUID.fromString(String.valueOf(trocarRefs(v.get("ref"), ids)))).orElseThrow();
+                assertThat(campo(alvo.getProps(), (String) v.get("campo"))).as(v.get("ref") + "." + v.get("campo")).isCloseTo(((Number) v.get("valor")).doubleValue(), within(1e-6));
             }
             if (e.containsKey("campo")) {
                 var alvo = d.criados.isEmpty() ? d.alterados.getFirst() : d.criados.getFirst();
@@ -88,6 +101,19 @@ class ModeloBimParidadeTest {
             return out;
         }
         return v;
+    }
+
+    /** campos de texto do elemento (camada e paredeId ficam fora de props no Java) */
+    @SuppressWarnings("unchecked")
+    private static String texto(Elemento e, String caminho) {
+        if (caminho.equals("camada")) {
+            return e.getCamada().rotulo();
+        }
+        Object o = e.getProps();
+        for (var k : caminho.split("\\.")) {
+            o = ((Map<String, Object>) o).get(k);
+        }
+        return String.valueOf(o);
     }
 
     @SuppressWarnings("unchecked")

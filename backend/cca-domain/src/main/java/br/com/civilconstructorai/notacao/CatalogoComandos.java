@@ -112,6 +112,12 @@ public final class CatalogoComandos {
             c("PILAR", "PILAR", "STRUCTURAL COLUMN", Categoria.DESENHO, todos("CL"), List.of("RF04", "RF17"), "Pilar; base e topo presos aos pavimentos (Disciplina Z).", ENG, true, p("centro", "Centro do pilar (snap EIX):"), v("b", "Largura b [0.19]:", 0.19), v("h", "Altura h [0.40]:", 0.4), t("mat", "Material [MAT.CONCRETO.C30]:", "MAT.CONCRETO.C30")),
             c("LAJE", "LAJE", "STRUCTURAL FLOOR", Categoria.DESENHO, todos("SB"), List.of("RF04"), "Laje por contorno fechado.", ARQ_ENG, true, p("p1", "Primeiro vértice do contorno:"), pr("pn", "Próximo vértice ou [Fechar]:", "Desfazer", "Fechar"), v("h", "Espessura [0.12]:", 0.12)),
             c("FUNDACAO", "FUNDAÇÃO", "FOUNDATION", Categoria.DESENHO, todos("FD"), List.of("RF10"), "Sapata, bloco ou radier sob um pilar.", ENG, true, s("Selecione o pilar:"), o("tipo", "Tipo [SAPATA/BLOCO/RADIER]:", "SAPATA", "SAPATA", "BLOCO", "RADIER")),
+            c("OBJETO", "OBJETO DA BIBLIOTECA", "COMPONENT", Categoria.DESENHO, por(List.of("OB"), List.of("OB"), List.of("CM")), List.of("RF01", "RF13"),
+                    "Insere móvel, equipamento, louça, luminária, ponto de instalação ou pessoa da biblioteca (objetos de parede encostam na parede; luminárias de teto vão ao teto).", List.of(), true,
+                    t("item", "Código da biblioteca [SALA.SOFA_3L]:", "SALA.SOFA_3L"), p("pos", "Ponto de inserção:"), v("rot", "Rotação em graus [0]:", 0)),
+            c("CONECTAR", "CONECTAR", "CONNECT", Categoria.DESENHO, todos("CN"), List.of("RF01", "RF16"),
+                    "Liga o conector de saída de um objeto (quadro, tomada, entrada de água, aparelho) ao de entrada de outro, no mesmo sistema; recusa ligações incompatíveis.", List.of(), true,
+                    s("Selecione o objeto de origem:"), s("Selecione o objeto de destino:"), t("circuito", "Circuito elétrico (Enter: o da tomada, ou C1):", "")),
             // modificação
             c("MOVER", "MOVER", "MOVE", Categoria.MODIFICACAO, por(List.of("M", "MV"), List.of("M"), List.of("MV")), List.of("RF28"), "Move a seleção com precisão por Osnap.", List.of(), false, s("Selecione objetos:"), p("base", "Ponto base:"), p("destino", "Segundo ponto (destino):")),
             c("COPIAR", "COPIAR", "COPY", Categoria.MODIFICACAO, por(List.of("CO", "CP"), List.of("CO", "CP"), List.of("CO")), List.of("RF28"), "Cópia múltipla até [Sair].", List.of(), false, s("Selecione objetos:"), p("base", "Ponto base:"), pr("destino", "Destino ou [Sair]:", "Desfazer", "Sair")),

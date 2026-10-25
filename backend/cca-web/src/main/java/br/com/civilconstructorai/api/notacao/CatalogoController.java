@@ -39,6 +39,32 @@ public class CatalogoController {
                 .orElse(Map.of("codigo", "", "sugestoes", CatalogoComandos.buscar(alias, perfil, 5).stream().map(CatalogoComandos.Comando::codigo).toList()));
     }
 
+    /** biblioteca de objetos (AUD-02): mesma fonte que o motor TS lê; {@code q} busca por nome, categoria, palavra-chave ou dimensão */
+    @GetMapping("/catalogo/objetos")
+    public Map<String, Object> objetos(@RequestParam(required = false) String q, @RequestParam(required = false) String categoria) {
+        var cat = br.com.civilconstructorai.notacao.CatalogoObjetos.padrao();
+        var termos = q == null ? List.<String>of() : List.of(java.text.Normalizer.normalize(q.toLowerCase(java.util.Locale.ROOT), java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "").split("\\s+"));
+        var itens = cat.itens().stream().filter(i -> categoria == null || categoria.isBlank() || i.categoria().equalsIgnoreCase(categoria)).filter(i -> {
+            var texto = java.text.Normalizer.normalize((i.nome() + " " + i.categoria() + " " + i.id() + " " + i.palavras()).toLowerCase(java.util.Locale.ROOT), java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+            for (var t : termos) {
+                if (t.isBlank()) {
+                    continue;
+                }
+                if (t.matches("\\d+([.,]\\d+)?")) {
+                    double v = Double.parseDouble(t.replace(',', '.'));
+                    double metros = v > 10 ? v / 100 : v;
+                    if (java.util.stream.DoubleStream.of(i.dim().l(), i.dim().p(), i.dim().a()).noneMatch(d -> Math.abs(d - metros) < 0.011)) {
+                        return false;
+                    }
+                } else if (!texto.contains(t) && !"generico".equals(t)) {
+                    return false;
+                }
+            }
+            return true;
+        }).toList();
+        return Map.of("versao", cat.versao(), "fabricante", "genérico (dimensões típicas adotadas, não de fabricante)", "itens", itens);
+    }
+
     @GetMapping("/vi/catalogo")
     public Map<String, Object> tabelaB() {
         return Map.of("funcoes", CatalogoComandos.tabelaB().stream().map(c -> Map.of("codigo", c.codigo(), "descricao", c.descricao(), "argumentos", c.roteiro().stream().map(p -> Map.of("nome", p.nome(), "tipo", p.tipo(), "padrao", p.padrao() == null ? "" : p.padrao(), "opcional", p.opcional())).toList(), "aliases", c.aliases().getOrDefault(Perfil.CIVILCONSTRUCTOR, List.of()))).toList(),

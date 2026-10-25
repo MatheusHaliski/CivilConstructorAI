@@ -3,8 +3,9 @@
  * (laço 1 + laço 2 determinísticos) e devolve o diff. Desfazer/refazer por snapshots versionados.
  */
 import type {
-  Abertura, ComandoVI, DiffModelo, Eixo, Elemento, EstadoModelo, Laje, OrigemComando, Parede, Pavimento, Pilar, Ponto2D, RelatorioAuditoria, Viga,
+  Abertura, ComandoVI, Conexao, Cota, DiffModelo, Eixo, Elemento, EstadoModelo, Laje, Objeto, OrigemComando, Parede, Pavimento, Pilar, Ponto2D, RelatorioAuditoria, SistemaPredial, Viga,
 } from "./tipos";
+import { DECLIVIDADE_PADRAO, MATERIAL_PADRAO, camadaDoItem, itemObjeto, tetoDoPavimento, type ConectorItem } from "./objetos";
 import { auditar, type OpcoesAuditoria } from "./auditor";
 import { arredondarPonto, dist, espelhar, projetarNoSegmento, rotacionar, soma, sub } from "./geometria";
 import { formatarVI } from "./vi";
@@ -271,31 +272,123 @@ export class ModeloBim {
         if (!contorno) throw new ErroComandoVI("VI-002", "Hachura precisa de um contorno fechado selecionado.");
         criar(base("HACHURA", "anotacao", { contorno, padrao: (a["padrao"] as string) ?? "CONCRETO" }) as Elemento); break;
       }
+      // ------------------------------------------------------------ objetos e conexões prediais (AUD-02/03/04)
+      case "OBJETO": {
+        const item = itemObjeto(a["item"] as string);
+        if (!a["item"]) throw new ErroComandoVI("VI-002", 'Argumento obrigatório "item" ausente (código da biblioteca de objetos).');
+        if (!item) throw new ErroComandoVI("VI-003", `Objeto "${String(a["item"])}" não existe na biblioteca.`);
+        let dim = { ...item.dim };
+        if (item.alturaVariavel && a["altura"] !== undefined) { const k = n(a["altura"], item.dim.a) / item.dim.a; dim = { l: arr3(item.dim.l * k), p: arr3(item.dim.p * k), a: arr3(item.dim.a * k) }; }
+        for (const k of ["l", "p", "a"] as const) if (a[k] !== undefined) dim[k] = n(a[k], dim[k], k);
+        const pos = pt(a["pos"] ?? a["centro"], "pos");
+        const o = base("OBJETO", camadaDoItem(item), { item: item.id, centro: pos, rotacao: arr3(n(a["rot"], 0)), elevacao: item.elevacao ?? 0, dim }) as Objeto;
+        if (item.luz) o.ligada = a["ligada"] !== false;
+        if (item.montagem === "PAREDE") {
+          const w = this.encontrarParede(a["parede"] as string | undefined, pos, pavimentoId, 0.6);
+          if (w) {
+            const { ponto } = projetarNoSegmento(pos, w.p1, w.p2);
+            const u = sub(w.p2, w.p1); const l = Math.hypot(u.x, u.y) || 1;
+            let nrm = { x: -u.y / l, y: u.x / l };
+            if (nrm.x * (pos.x - ponto.x) + nrm.y * (pos.y - ponto.y) < 0) nrm = { x: -nrm.x, y: -nrm.y };
+            o.centro = arredondarPonto(soma(ponto, { x: nrm.x * (w.espessura / 2 + dim.p / 2), y: nrm.y * (w.espessura / 2 + dim.p / 2) }));
+            o.rotacao = arr3(((Math.atan2(nrm.y, nrm.x) * 180) / Math.PI - 90 + 360) % 360);
+            o.paredeId = w.id;
+          }
+        }
+        if (item.montagem === "TETO") o.elevacao = arr3(tetoDoPavimento(this, pavimentoId) - dim.a);
+        if (a["elev"] !== undefined) o.elevacao = n(a["elev"], 0, "elev");
+        criar(o);
+        break;
+      }
+      case "CONECTAR": {
+        const ref = (v: unknown, nome: string): { id: string; conector?: string } => {
+          if (typeof v === "string") { const [id, conector] = v.split(":"); return { id: id!, conector }; }
+          if (v && typeof v === "object" && "id" in (v as object)) return { id: String((v as { id: unknown }).id), conector: (v as { conector?: string }).conector };
+          throw new ErroComandoVI("VI-002", `Argumento obrigatório "${nome}" ausente (objeto e conector, ex.: de="id:E1").`);
+        };
+        let de = ref(a["de"], "de"), para = ref(a["para"], "para");
+        const oDe = this.elemento(de.id), oPara = this.elemento(para.id);
+        if (!oDe || oDe.tipo !== "OBJETO" || !oPara || oPara.tipo !== "OBJETO") throw new ErroComandoVI("VI-003", "CONECTAR liga dois objetos da biblioteca (equipamento, louça, luminária, ponto de instalação).");
+        const sistemaPedido = a["sistema"] as SistemaPredial | undefined;
+        const cons = (o: Objeto) => itemObjeto(o.item)?.conectores ?? [];
+        const livre = (o: Objeto, c: ConectorItem) => this.elementos.filter((e) => e.tipo === "CONEXAO" && ((e.de.id === o.id && e.de.conector === c.id) || (e.para.id === o.id && e.para.conector === c.id))).length < (c.maxConexoes ?? 1);
+        if (!de.conector || !para.conector) {
+          // escolhe automaticamente um par saída → entrada do mesmo sistema, livre, nos dois sentidos
+          const pares: [Objeto, ConectorItem, Objeto, ConectorItem][] = [];
+          for (const [x, y] of [[oDe, oPara], [oPara, oDe]] as const)
+            for (const cx of cons(x)) for (const cy of cons(y))
+              if (cx.fluxo === "SAI" && cy.fluxo === "ENTRA" && cx.sistema === cy.sistema && (!sistemaPedido || cx.sistema === sistemaPedido)
+                && (!de.conector || (x.id === de.id ? cx.id : cy.id) === de.conector) && livre(x, cx) && livre(y, cy)) pares.push([x, cx, y, cy]);
+          if (!pares.length) {
+            const nome = (o: Objeto) => itemObjeto(o.item)?.nome ?? o.item;
+            const lista = (o: Objeto) => cons(o).map((c) => `${c.id} (${c.sistema.toLowerCase()}, ${c.fluxo === "SAI" ? "saída" : "entrada"})`).join(", ") || "nenhum conector";
+            throw new ErroComandoVI("VI-003", `Não há par de conectores compatível entre ${nome(oDe)} [${lista(oDe)}] e ${nome(oPara)} [${lista(oPara)}].`);
+          }
+          const [x, cx, y, cy] = pares[0]!;
+          de = { id: x.id, conector: cx.id }; para = { id: y.id, conector: cy.id };
+        } else {
+          // conectores explícitos: normaliza para saída → entrada
+          const cDe = cons(oDe).find((c) => c.id === de.conector), cPara = cons(oPara).find((c) => c.id === para.conector);
+          if (cDe?.fluxo === "ENTRA" && cPara?.fluxo === "SAI") [de, para] = [para, de];
+        }
+        const cA = cons(this.elemento(de.id) as Objeto).find((c) => c.id === de.conector), cB = cons(this.elemento(para.id) as Objeto).find((c) => c.id === para.conector);
+        const sistema = (cA?.sistema ?? cB?.sistema ?? sistemaPedido ?? "ELETRICA") as SistemaPredial;
+        const extra: Record<string, unknown> = { sistema, de: { id: de.id, conector: de.conector }, para: { id: para.id, conector: para.conector }, materialId: (a["mat"] as string) ?? MATERIAL_PADRAO[sistema] };
+        // cabo de aparelho numa tomada pertence ao circuito que alimenta a tomada (sem isso o aparelho "sairia" do circuito)
+        const circuitoDaTomada = cA?.papel === "TOMADA" ? (this.elementos.find((x) => x.tipo === "CONEXAO" && (x as Conexao).para.id === de.id) as Conexao | undefined)?.circuito : undefined;
+        if (sistema === "ELETRICA") { extra["circuito"] = (a["circuito"] as string) ?? circuitoDaTomada ?? "C1"; extra["secaoMm2"] = n(a["secao"], 2.5); extra["condutores"] = (a["condutores"] as string[]) ?? ["F", "N", "PE"]; if (a["disjuntor"] !== undefined) extra["disjuntorA"] = n(a["disjuntor"]); }
+        else { extra["dnMm"] = n(a["dn"], Math.max(cA?.dnMm ?? 0, cB?.dnMm ?? 0) || 20); if (sistema === "ESGOTO") extra["declividade"] = n(a["declividade"], DECLIVIDADE_PADRAO); }
+        criar(base("CONEXAO", sistema === "ELETRICA" ? "eletrica" : "hidrossanitaria", extra) as Conexao);
+        break;
+      }
       // ------------------------------------------------------------ modificação
       case "MOVER": case "COPIAR": {
         const d = sub(pt(a["destino"], "destino"), pt(a["base"], "base"));
-        for (const e of sel()) {
+        const selecionados = sel();
+        const ids = new Set(selecionados.map((e) => e.id));
+        for (const e of selecionados) {
           const alvo = cmd.codigo === "COPIAR" ? (structuredClone(e) as Elemento) : e;
-          if (cmd.codigo === "COPIAR") { alvo.id = novoId(); alvo.origem = cmd.origem; }
+          if (cmd.codigo === "COPIAR") { alvo.id = novoId(); alvo.origem = cmd.origem; if (alvo.tipo === "OBJETO") delete alvo.paredeId; }
+          const antes = alvo.tipo === "PAREDE" ? { p1: { ...alvo.p1 }, p2: { ...alvo.p2 } } : null;
           this.transladar(alvo, d);
           if (cmd.codigo === "COPIAR") criar(alvo); else alterar(alvo);
+          if (cmd.codigo === "MOVER" && alvo.tipo === "PAREDE" && antes) this.propagarParede(alvo, antes, d, ids, alterar);
         }
         break;
       }
-      case "ROTACIONAR": { const b = pt(a["base"], "base"); const ang = n(a["ang"], 90); for (const e of sel()) { this.mapearPontos(e, (p) => rotacionar(p, b, ang)); if (e.tipo === "PILAR") e.rotacao = (e.rotacao + ang) % 360; alterar(e); } break; }
+      case "ROTACIONAR": {
+        const b = pt(a["base"], "base"); const ang = n(a["ang"], 90);
+        for (const e of sel()) {
+          if (e.tipo === "CONEXAO") continue;
+          this.mapearPontos(e, (p) => rotacionar(p, b, ang));
+          if (e.tipo === "PILAR") e.rotacao = (e.rotacao + ang) % 360;
+          if (e.tipo === "OBJETO") e.rotacao = arr3((((e.rotacao + ang) % 360) + 360) % 360);
+          alterar(e);
+        }
+        break;
+      }
       case "ESPELHAR": {
         const p1 = pt(a["p1"], "p1"), p2 = pt(a["p2"], "p2");
         for (const e of sel()) {
           const alvo = a["apagar"] === true || a["apagar"] === "S" ? e : (structuredClone(e) as Elemento);
           if (alvo !== e) { alvo.id = novoId(); alvo.origem = cmd.origem; }
           this.mapearPontos(alvo, (p) => espelhar(p, p1, p2));
+          if (alvo.tipo === "OBJETO") { const ang = (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI; alvo.rotacao = arr3((((2 * ang - alvo.rotacao - 180) % 360) + 360) % 360); if (alvo !== e) delete alvo.paredeId; }
           if (alvo === e) alterar(e); else criar(alvo);
         }
         break;
       }
       case "ESCALAR": {
         const b = pt(a["base"], "base"); const k = n(a["fator"], 2);
-        for (const e of sel()) { if (["PAREDE", "PILAR", "VIGA", "LAJE", "PORTA", "JANELA", "SAPATA", "BLOCO", "RADIER"].includes(e.tipo)) throw new ErroComandoVI("VI-003", `${e.tipo} não pode ser escalado: use as propriedades.`); this.mapearPontos(e, (p) => soma(b, { x: (p.x - b.x) * k, y: (p.y - b.y) * k })); if (e.tipo === "CIRCULO") e.raio *= k; alterar(e); }
+        for (const e of sel()) {
+          if (["PAREDE", "PILAR", "VIGA", "LAJE", "PORTA", "JANELA", "SAPATA", "BLOCO", "RADIER"].includes(e.tipo)) throw new ErroComandoVI("VI-003", `${e.tipo} não pode ser escalado: use as propriedades.`);
+          if (e.tipo === "OBJETO") {
+            const it = itemObjeto(e.item);
+            if (it?.alturaVariavel) throw new ErroComandoVI("VI-003", `${it.nome}: mude a altura nas propriedades (a escala da pessoa é uniforme).`);
+            if (!it?.redimensionavel) throw new ErroComandoVI("VI-003", `${it?.nome ?? e.item} tem dimensões de produto e não pode ser escalado.`);
+            e.dim = { l: arr3(e.dim.l * k), p: arr3(e.dim.p * k), a: arr3(e.dim.a * k) };
+          }
+          this.mapearPontos(e, (p) => soma(b, { x: (p.x - b.x) * k, y: (p.y - b.y) * k })); if (e.tipo === "CIRCULO") e.raio *= k; alterar(e); }
         break;
       }
       case "DESLOCAR": {
@@ -324,7 +417,10 @@ export class ModeloBim {
       }
       case "APAGAR": {
         const ids = new Set(sel().map((e) => e.id));
+        // hospedados (aberturas e objetos de parede) saem com a parede; conexões saem com qualquer extremidade
         for (const e of this.elementos) if ((e.tipo === "PORTA" || e.tipo === "JANELA") && ids.has(e.paredeId)) ids.add(e.id);
+        for (const e of this.elementos) if (e.tipo === "OBJETO" && e.paredeId && ids.has(e.paredeId)) ids.add(e.id);
+        for (const e of this.elementos) if (e.tipo === "CONEXAO" && (ids.has(e.de.id) || ids.has(e.para.id))) ids.add(e.id);
         this.elementos = this.elementos.filter((e) => !ids.has(e.id)); diff.removidos.push(...ids); break;
       }
       case "EXPLODIR": {
@@ -359,6 +455,7 @@ export class ModeloBim {
           if (k === "id" || k === "tipo") continue;
           // como no Java: "mat" e "materialId" gravam o materialId (normalizado)
           if (k === "mat" || k === "materialId") (e as unknown as Record<string, unknown>)["materialId"] = normalizarMaterialId(String(v));
+          else if (k === "altura" && e.tipo === "OBJETO") { const kk = Number(v) / e.dim.a; e.dim = { l: arr3(e.dim.l * kk), p: arr3(e.dim.p * kk), a: arr3(Number(v)) }; }
           else (e as unknown as Record<string, unknown>)[k] = v;
         }
         alterar(e); break;
@@ -398,13 +495,58 @@ export class ModeloBim {
     switch (e.tipo) {
       case "PAREDE": case "VIGA": case "LINHA": case "PLANO_REF": case "RETANGULO": case "CONTRAVENTAMENTO": case "COTA": e.p1 = m(e.p1); e.p2 = m(e.p2); break;
       case "ARCO": e.p1 = m(e.p1); e.p2 = m(e.p2); e.p3 = m(e.p3); break;
-      case "PILAR": case "CIRCULO": case "SAPATA": case "BLOCO": case "RADIER": case "ESTACA": e.centro = m(e.centro); break;
+      case "PILAR": case "CIRCULO": case "SAPATA": case "BLOCO": case "RADIER": case "ESTACA": case "OBJETO": e.centro = m(e.centro); break;
       case "LAJE": case "HACHURA": e.contorno = e.contorno.map(m); break;
       case "POLILINHA": e.pontos = e.pontos.map(m); break;
       case "AMBIENTE": e.ponto = m(e.ponto); break;
       case "PONTO": e.p = m(e.p); break;
       case "TEXTO": case "ETIQUETA": e.p = m(e.p); break;
       case "PORTA": case "JANELA": break; // seguem a parede hospedeira
+    }
+  }
+
+  /**
+   * AUD-01 · parede deslocada leva junto o que depende dela (mesma regra no Java):
+   *  - paredes não paralelas cuja extremidade estava sobre o eixo dela: a extremidade vai para a interseção com o eixo novo;
+   *  - portas e janelas dessas paredes mantêm a distância à extremidade que não se moveu;
+   *  - cotas com ponto sobre o eixo da parede (ou o prolongamento até 2 m): o ponto acompanha o deslocamento perpendicular;
+   *  - objetos fixados nela (paredeId) acompanham o deslocamento.
+   */
+  private propagarParede(w: Parede, antes: { p1: Ponto2D; p2: Ponto2D }, d: Ponto2D, movidos: Set<string>, alterar: (e: Elemento) => Elemento) {
+    const u = sub(antes.p2, antes.p1); const L = Math.hypot(u.x, u.y); if (L < 1e-9) return;
+    const ux = u.x / L, uy = u.y / L;
+    const dn = { x: d.x - (d.x * ux + d.y * uy) * ux, y: d.y - (d.x * ux + d.y * uy) * uy };
+    const naLinha = (p: Ponto2D, folgaPonta: number) => {
+      const t = (p.x - antes.p1.x) * ux + (p.y - antes.p1.y) * uy;
+      const dist_ = Math.abs((p.x - antes.p1.x) * uy - (p.y - antes.p1.y) * ux);
+      return dist_ <= 0.005 && t >= -folgaPonta - 1e-9 && t <= L + folgaPonta + 1e-9;
+    };
+    for (const o of this.elementosDo(w.pavimentoId)) {
+      if (movidos.has(o.id) || o.id === w.id) continue;
+      if (o.tipo === "PAREDE") {
+        const v = sub(o.p2, o.p1); const lo = Math.hypot(v.x, v.y); if (lo < 1e-9) continue;
+        if (Math.abs((v.x / lo) * uy - (v.y / lo) * ux) < Math.sin((5 * Math.PI) / 180)) continue; // paralela: não arrasta
+        let mudou = false; const antesO = { p1: { ...o.p1 }, p2: { ...o.p2 } };
+        for (const k of ["p1", "p2"] as const) {
+          if (!naLinha(o[k], 0)) continue;
+          const ip = geo.intersecaoSegmentos(o.p1, o.p2, w.p1, w.p2, true);
+          if (ip) { o[k] = arredondarPonto(ip); mudou = true; }
+        }
+        if (!mudou) continue;
+        alterar(o);
+        const novoL = dist(o.p1, o.p2), velhoL = dist(antesO.p1, antesO.p2);
+        const p1Fixo = dist(o.p1, antesO.p1) < 1e-9;
+        for (const ab of this.elementos) if ((ab.tipo === "PORTA" || ab.tipo === "JANELA") && ab.paredeId === o.id) {
+          const s_ = ab.posicao * velhoL; const novoS = p1Fixo ? s_ : novoL - (velhoL - s_);
+          ab.posicao = novoS / novoL; alterar(ab);
+        }
+      }
+      if (o.tipo === "COTA") {
+        let mudou = false;
+        for (const k of ["p1", "p2"] as const) if (naLinha(o[k], 2)) { (o as Cota)[k] = arredondarPonto(soma(o[k], dn)); mudou = true; }
+        if (mudou) alterar(o);
+      }
+      if (o.tipo === "OBJETO" && o.paredeId === w.id) { o.centro = arredondarPonto(soma(o.centro, d)); alterar(o); }
     }
   }
 
@@ -420,19 +562,19 @@ export class ModeloBim {
   }
 
   rotuloAutomatico(e: Elemento): string {
-    const prefixo: Partial<Record<Elemento["tipo"], string>> = { PILAR: "P", VIGA: "V", LAJE: "L", PAREDE: "PAR", PORTA: "PT", JANELA: "J", SAPATA: "S", BLOCO: "B", RADIER: "R" };
+    const prefixo: Partial<Record<Elemento["tipo"], string>> = { PILAR: "P", VIGA: "V", LAJE: "L", PAREDE: "PAR", PORTA: "PT", JANELA: "J", SAPATA: "S", BLOCO: "B", RADIER: "R", OBJETO: "OB", CONEXAO: "CX" };
     const p = prefixo[e.tipo] ?? e.tipo.slice(0, 2);
     const idx = this.elementos.filter((x) => x.tipo === e.tipo && x.pavimentoId === e.pavimentoId).findIndex((x) => x.id === e.id) + 1;
     return `${p}${idx}`;
   }
 
-  private encontrarParede(id: string | undefined, pos: Ponto2D | undefined, pavimentoId: string): Parede | undefined {
+  private encontrarParede(id: string | undefined, pos: Ponto2D | undefined, pavimentoId: string, alcance = 0.15): Parede | undefined {
     if (id) return this.elemento(id) as Parede | undefined;
     if (!pos) return undefined;
     let melhor: { w: Parede; d: number } | undefined;
     for (const e of this.elementosDo(pavimentoId)) if (e.tipo === "PAREDE") {
       const { ponto } = projetarNoSegmento(pos, e.p1, e.p2); const d = dist(ponto, pos);
-      if (d <= e.espessura + 0.15 && (!melhor || d < melhor.d)) melhor = { w: e, d };
+      if (d <= e.espessura + alcance && (!melhor || d < melhor.d)) melhor = { w: e, d };
     }
     return melhor?.w;
   }
@@ -450,6 +592,8 @@ export class ModeloBim {
     return out;
   }
 }
+
+const arr3 = (v: number) => Math.round(v * 1000) / 1000;
 
 // importação tardia para evitar ciclo em bundlers que não fazem hoisting de ESM
 import * as geo from "./geometria";

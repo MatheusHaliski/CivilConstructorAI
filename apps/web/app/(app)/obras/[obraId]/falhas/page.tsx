@@ -18,8 +18,8 @@ const ORIGEM: Record<Origem, { rotulo: string; tom: "info" | "ia" | "marca" }> =
 
 /** o que o software não verifica: listado sempre, para que a ausência de falhas não seja lida como aprovação */
 const NAO_VERIFICADO = [
-  "Instalações elétricas, água fria, água quente, esgoto e ventilação: não há modelo de redes nem verificação (proposta em docs/propostas).",
-  "Compatibilização com instalações (folgas e conflitos funcionais): não verificada — o modelo não tem elementos de instalações.",
+  "Instalações: a continuidade, o sentido, a declividade do esgoto e a corrente de projeto são verificados sobre as conexões do modelo; perdas de carga, pressões e capacidade de condução (Iz) não.",
+  "Compatibilização com instalações: verificada sobre o percurso esquemático derivado das conexões (MEP-01/02/03), não sobre traçado de obra; acesso a registros, quadros e caixas não.",
   "Perfis metálicos e contraventamentos (ABNT NBR 8800): sem verificação de resistência ou estabilidade.",
   "Efeitos de 2ª ordem globais (γz, P-Δ), punção em lajes, torção, fissuração e flecha diferida: não verificados.",
   "Lajes como placas, lajes não retangulares ou com borda livre: só aproximação por comprimento de apoio.",
@@ -38,7 +38,7 @@ function Coordenacao({ obraId }: { obraId: string }) {
   const verificar = useAcao(() => post<{ versaoModelo: number; detectados: number; novos: number; resolvidos: number; reabertos: number; naoVerificado: string[] }>(`${b}/verificar`), { invalidar: [["conflitos", obraId]], sucesso: (r) => `Modelo v${r.versaoModelo}: ${r.detectados} conflito(s) · ${r.novos} novo(s) · ${r.resolvidos} resolvido(s) · ${r.reabertos} reaberto(s).` });
   const decidir = useAcao((v: { id: string; estado: string; justificativa?: string }) => post(`${b}/conflitos/${v.id}/estado`, { estado: v.estado, justificativa: v.justificativa }), { invalidar: [["conflitos", obraId]], sucesso: "Estado do conflito atualizado." });
   return (
-    <Cartao titulo="Conflitos de coordenação (proposta P-COORD-01)" descricao="Regras determinísticas sobre o modelo: pilares sobrepostos, vigas duplicadas, lajes sobrepostas, abertura atravessando pilar, viga abaixo do topo de porta/janela, viga sem apoio. Resolvido só quando a reverificação deixa de encontrar o conflito; nenhuma regra sugere furar viga ou pilar."
+    <Cartao titulo="Conflitos de coordenação (proposta P-COORD-01)" descricao="Regras determinísticas sobre o modelo: pilares sobrepostos, vigas duplicadas, lajes sobrepostas, abertura atravessando pilar, viga abaixo do topo de porta/janela, viga sem apoio; objeto dentro de parede, de outro objeto, da laje ou viga de cima ou no giro de uma porta; tubulação ou eletroduto atravessando viga ou pilar; percursos de sistemas diferentes que se cruzam; aparelho ligado a tomada de outro ambiente; pessoa dentro de parede ou objeto. Resolvido só quando a reverificação deixa de encontrar o conflito; nenhuma regra sugere furar viga ou pilar."
       acoes={<Botao pequeno carregando={verificar.isPending} onClick={() => verificar.mutate()}>Verificar agora</Botao>}>
       {verificar.data && <ul className="text-xs text-text-3 list-disc pl-5">{verificar.data.naoVerificado.map((x) => <li key={x}>Não verificado — {x}</li>)}</ul>}
       {lista.isLoading ? <Carregando /> : !(lista.data ?? []).length ? <Vazio titulo="Nenhuma verificação registrada" descricao="Clique em Verificar agora para rodar as regras na versão atual do modelo." /> : (
@@ -48,9 +48,39 @@ function Coordenacao({ obraId }: { obraId: string }) {
           { titulo: "Conflito", celula: (c) => <span className="text-xs">{c.mensagem}<span className="block mono text-text-3">{c.evidencia}</span></span> },
           { titulo: "Versões", celula: (c) => <span className="text-xs">detectado v{c.versaoDetectada} · verificado v{c.versaoVerificada}</span> },
           { titulo: "Justificativa", celula: (c) => <span className="text-xs">{c.justificativa ?? "—"}</span> },
-          { titulo: "", celula: (c) => <div className="flex gap-1 flex-wrap">{c.estado === "ABERTO" && <Botao pequeno variante="secundario" onClick={() => decidir.mutate({ id: c.id, estado: "EM_REVISAO" })}>Em revisão</Botao>}{(c.estado === "ABERTO" || c.estado === "EM_REVISAO") && pode && <Botao pequeno variante="fantasma" onClick={() => { const j = window.prompt("Justificativa técnica para aceitar o conflito"); if (j) decidir.mutate({ id: c.id, estado: "ACEITO", justificativa: j }); }}>Aceitar…</Botao>}{c.estado === "ACEITO" && <Botao pequeno variante="fantasma" onClick={() => decidir.mutate({ id: c.id, estado: "ABERTO" })}>Reabrir</Botao>}</div> },
+          { titulo: "", celula: (c) => <div className="flex gap-1 flex-wrap"><Link className="inline-flex min-h-9 items-center rounded border border-line-soft px-2 text-xs underline" href={`/obras/${obraId}/modelo?sel=${c.elementos.join(",")}&vista=3D`} aria-label={`Ver no modelo os elementos do conflito ${c.regra}`}>Ver no modelo</Link>{c.estado === "ABERTO" && <Botao pequeno variante="secundario" onClick={() => decidir.mutate({ id: c.id, estado: "EM_REVISAO" })}>Em revisão</Botao>}{(c.estado === "ABERTO" || c.estado === "EM_REVISAO") && pode && <Botao pequeno variante="fantasma" onClick={() => { const j = window.prompt("Justificativa técnica para aceitar o conflito"); if (j) decidir.mutate({ id: c.id, estado: "ACEITO", justificativa: j }); }}>Aceitar…</Botao>}{c.estado === "ACEITO" && <Botao pequeno variante="fantasma" onClick={() => decidir.mutate({ id: c.id, estado: "ABERTO" })}>Reabrir</Botao>}</div> },
         ]} />
       )}
+    </Cartao>
+  );
+}
+
+type ItemRede = { elementoId: string; sistema: string; verificacao: { codigo: string; nome: string; estado: string; referencia?: string; evidencia?: string; motivo?: string } };
+type Redes = { versaoModelo: number; estado: string; componentes: number; trechos: number; itens: ItemRede[]; observacoes: string[] };
+const SISTEMA: Record<string, string> = { ELETRICA: "Elétrica", AGUA_FRIA: "Água fria", AGUA_QUENTE: "Água quente", ESGOTO: "Esgoto", VENTILACAO: "Ventilação" };
+
+/** verificador de redes (P-MEP-01) sobre as conexões do modelo; tensão e FP só entram quando o projetista informa */
+function Instalacoes({ obraId }: { obraId: string }) {
+  const [tensao, setTensao] = useState(""); const [fp, setFp] = useState("");
+  const qs = new URLSearchParams({ ...(tensao ? { tensao } : {}), ...(fp ? { fp } : {}) }).toString();
+  const r = useDados<Redes>(["redes", obraId, qs], `/obras/${obraId}/coordenacao/instalacoes${qs ? `?${qs}` : ""}`);
+  return (
+    <Cartao titulo="Instalações prediais (proposta P-MEP-01)" descricao="Redes montadas a partir das conexões entre conectores dos objetos do modelo: continuidade, sentido saída → entrada, sistemas que não se misturam, declividade do esgoto e corrente de projeto por circuito. Uma linha desenhada sem conexão não é verificada.">
+      <div className="flex flex-wrap gap-3 items-end text-sm">
+        <label className="flex flex-col gap-1 text-xs"><span className="text-text-3">Tensão nominal (V) — usada quando as cargas não declaram</span><input value={tensao} onChange={(e) => setTensao(e.target.value.replace(",", "."))} inputMode="decimal" className="mono min-h-9 w-32 rounded border border-line bg-bg px-2" /></label>
+        <label className="flex flex-col gap-1 text-xs"><span className="text-text-3">Fator de potência</span><input value={fp} onChange={(e) => setFp(e.target.value.replace(",", "."))} inputMode="decimal" className="mono min-h-9 w-24 rounded border border-line bg-bg px-2" /></label>
+        {r.data && <span className="text-xs text-text-3">modelo v{r.data.versaoModelo} · {r.data.componentes} componente(s) · {r.data.trechos} trecho(s) · <EtiquetaVerificacao estado={r.data.estado} /></span>}
+      </div>
+      {r.isLoading ? <Carregando /> : !r.data?.trechos ? <Vazio titulo="Nenhuma conexão no modelo" descricao="Ligue os conectores dos objetos (quadro → tomada → aparelho, entrada de água → louças) no Modelo BIM para verificar as redes." /> : (
+        <Tabela linhas={r.data.itens} chave={(i) => `${i.elementoId}-${i.verificacao.codigo}`} colunas={[
+          { titulo: "Estado", celula: (i) => <EtiquetaVerificacao estado={i.verificacao.estado} /> },
+          { titulo: "Sistema", celula: (i) => <span className="text-xs">{SISTEMA[i.sistema] ?? i.sistema}</span> },
+          { titulo: "Verificação", celula: (i) => <span className="text-xs"><span className="mono">{i.verificacao.codigo}</span> {i.verificacao.nome}<span className="block text-text-3">{i.verificacao.referencia ?? ""}</span></span> },
+          { titulo: "Evidência", celula: (i) => <span className="text-xs">{i.verificacao.evidencia ?? i.verificacao.motivo ?? "—"}</span> },
+          { titulo: "Onde", celula: (i) => i.elementoId === "rede" || /^C\d/.test(i.elementoId) ? <span className="text-xs">{i.elementoId === "rede" ? "rede" : `circuito ${i.elementoId}`}</span> : <Link className="text-xs underline" href={`/obras/${obraId}/modelo?sel=${i.elementoId.split(":")[0]}`}>ver no modelo</Link> },
+        ]} />
+      )}
+      {r.data && <ul className="text-xs text-text-3 list-disc pl-5">{r.data.observacoes.map((o) => <li key={o}>{o}</li>)}</ul>}
     </Cartao>
   );
 }
@@ -109,6 +139,7 @@ export default function PaginaFalhas({ params }: { params: Promise<{ obraId: str
             ]} />
           </Cartao>
           <Coordenacao obraId={obraId} />
+          <Instalacoes obraId={obraId} />
           <Cartao titulo="Não verificado pelo software" descricao="Sempre listado: a ausência de falhas acima não cobre estes itens.">
             <ul className="list-disc pl-5 text-sm">{NAO_VERIFICADO.map((x) => <li key={x}>{x}</li>)}</ul>
           </Cartao>

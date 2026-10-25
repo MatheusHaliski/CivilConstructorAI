@@ -27,3 +27,16 @@ O backend limita tentativas por IP; entre execuções seguidas, limpe as chaves 
 
 Para o catálogo: `node scripts/auditoria/catalogo-verificavel.mjs` (com `CATALOGO_IGNORAR=arquivo1,arquivo2` ele ignora
 testes, para comparar antes × depois pelo mesmo critério). Para as notas: `python3 scripts/auditoria/notas.py`.
+
+### AUD-CC-3D-001 (cenários, mobiliário, instalações e 3D)
+
+```sh
+CCA_FASE=depois CCA_SESSAO=/tmp/sessao-j6.json CCA_EMAILS=... node scripts/auditoria/j6-diagnostico.mjs
+# limpe cca:limite:* e rode a interface sobre a mesma obra (ela espera a janela TOTP seguinte: o servidor recusa replay)
+CCA_SESSAO=/tmp/sessao-j6.json PW_CHROMIUM=... node scripts/auditoria/j6-interface.mjs
+python -m ifcopenshell.validate docs/auditoria/evidencias/arquivos/j6-depois.ifc
+```
+
+`CCA_SESSAO` guarda e-mail, segredo TOTP e ids da obra de teste fora do repositório. A conta tem 5 tentativas de 2FA a
+cada 15 min: uma segunda sessão logo após a da interface esbarra no anti-replay, por isso a interface confere o servidor
+com a própria sessão do navegador.

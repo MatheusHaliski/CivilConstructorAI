@@ -8,6 +8,7 @@
 import type { Correcao, DiffModelo, Elemento, Pilar, RelatorioAuditoria, Violacao, ComandoVI, Parede, Ponto2D } from "./tipos";
 import { material } from "./tabela-a";
 import { caixa, dist, intersecaoSegmentos, temAutoIntersecao } from "./geometria";
+import { comprimentoPercurso, itemObjeto, percursoConexao, problemasConexao, problemasObjeto } from "./objetos";
 import type { ModeloBim } from "./modelo";
 
 export type OpcoesAuditoria = {
@@ -59,6 +60,24 @@ export function auditar(modelo: ModeloBim, diff: DiffModelo, comando: ComandoVI,
       if (e.espessura < SECOES_MINIMAS.paredeEsp || e.espessura > 1) violacoes1.push(v("C-ESP_PAREDE", "RF01 RN-01", "Espessura de parede entre 0,05 m e 1,00 m.", e, { obtido: `${e.espessura} m` }));
       const minEsp = mat?.geometricConstraints.espessuraMinima_m;
       if (minEsp && e.espessura < minEsp) violacoes1.push(v("C-ESP_MATERIAL", "Tabela A", `${mat!.name} exige espessura ≥ ${minEsp} m.`, e));
+    }
+  }
+
+  // Objetos e conexões prediais (AUD-02/03/04): dimensões de produto, hospedeiro, compatibilidade de conectores
+  for (const e of novos) {
+    if (e.tipo === "OBJETO") for (const p of problemasObjeto(modelo, e)) violacoes1.push(v(p.codigo, "Biblioteca de objetos", p.mensagem, e));
+    if (e.tipo === "CONEXAO") for (const p of problemasConexao(modelo, e)) violacoes1.push(v(p.codigo, "Conexões prediais", p.mensagem, e));
+  }
+  // conexões de objetos que mudaram: percurso recalculado (aviso) e regras reavaliadas (violação se a conexão ficou inválida)
+  const mudaram = new Set(novos.filter((e) => e.tipo === "OBJETO").map((e) => e.id));
+  for (const c of modelo.elementos) {
+    if (c.tipo !== "CONEXAO" || novos.includes(c) || !(mudaram.has(c.de.id) || mudaram.has(c.para.id))) continue;
+    const probs = problemasConexao(modelo, c);
+    for (const p of probs) violacoes1.push(v(p.codigo, "Conexões prediais", `Conexão ${c.rotulo ?? modelo.rotuloAutomatico(c)} ficou inválida: ${p.mensagem}`, c));
+    if (!probs.length) {
+      const nomes = [c.de.id, c.para.id].map((id) => { const o = modelo.elemento(id); return o?.tipo === "OBJETO" ? itemObjeto(o.item)?.nome ?? o.item : id; });
+      avisos.push({ codigo: "CON-RECALCULADA", severidade: "AVISO", regra: "Conexões prediais", elementoRef: c.id,
+        mensagem: `Conexão ${nomes.join(" → ")} continua ligada; percurso esquemático recalculado: ${comprimentoPercurso(percursoConexao(modelo, c)).toFixed(2)} m.` });
     }
   }
 

@@ -1,0 +1,130 @@
+[
+  {
+    "rf": "RF01",
+    "id": "ui-planta",
+    "descricao": "planta abre com os objetos e conexões gravados",
+    "ok": true,
+    "evidencia": {
+      "objetos": 32,
+      "conexoes": 25
+    }
+  },
+  {
+    "rf": "IHC-9",
+    "id": "ui-axe-modelo",
+    "descricao": "tela do modelo sem violações graves ou críticas de WCAG 2.1 AA (axe)",
+    "ok": true,
+    "evidencia": []
+  },
+  {
+    "rf": "AUD-02",
+    "id": "ui-inserir",
+    "descricao": "pela biblioteca: busca \"geladeira 70\", prévia e inserção na planta gravam o objeto no servidor",
+    "ok": true,
+    "evidencia": {
+      "achados": 1,
+      "id": "01a17561-6186-7ad3-9aeb-655a6d69aee6",
+      "versao": 93
+    }
+  },
+  {
+    "rf": "AUD-03",
+    "id": "ui-conectar",
+    "descricao": "\"Conectar E1 a…\" + seleção da tomada grava a conexão tomada.S1 → geladeira.E1 no circuito da tomada (C5)",
+    "ok": true,
+    "evidencia": {
+      "de": {
+        "id": "01a17560-b01d-7d8c-a826-adb68ab2417c",
+        "conector": "S1"
+      },
+      "para": {
+        "id": "01a17561-6186-7ad3-9aeb-655a6d69aee6",
+        "conector": "E1"
+      },
+      "circuito": "C5"
+    }
+  },
+  {
+    "rf": "AUD-03",
+    "id": "ui-separacao",
+    "descricao": "propriedades da conexão separam ligação lógica, conexão física e representação gráfica",
+    "ok": true,
+    "evidencia": "Propriedades Biblioteca VI / IA Camadas Auditoria Atalhos Ajuda Conexão de elétrica CX26 Ligação lógica Circuito Disjuntor (A) Conexão física Tomada 10 A (OB24).S1 (saída) → Geladeira (OB33).E1 (entrada) Seção (mm²) Condutores: F, N, PE Material: MAT.CONDUTOR.COBRE_PVC_70 Representação gráfica Cabo "
+  },
+  {
+    "rf": "AUD-06",
+    "id": "ui-modos",
+    "descricao": "dez modos de exibição selecionáveis, cada um com descrição; malha, nós e pontos avisam que não são MEF nem nuvem de pontos",
+    "ok": true,
+    "evidencia": {
+      "modos": [
+        "Realista · dia",
+        "Realista · noite",
+        "Luzes artificiais desligadas",
+        "Sem iluminação (unlit)",
+        "Sólido simplificado",
+        "Linhas ocultas",
+        "Wireframe (somente arestas)",
+        "Malha de renderização",
+        "Nós e arestas",
+        "Somente pontos"
+      ]
+    }
+  },
+  {
+    "rf": "IHC-10",
+    "id": "ui-fps",
+    "descricao": "quadros por segundo medidos (WebGL por software; não representa GPU real)",
+    "ok": null,
+    "evidencia": {
+      "realista-dia": 9.3,
+      "solido": 26.2,
+      "malha": 17.5
+    }
+  },
+  {
+    "rf": "AUD-07",
+    "id": "ui-sol",
+    "descricao": "posição do sol muda com a hora (elevação e azimute mostrados)",
+    "ok": true,
+    "evidencia": "Sol: elevação 18.9°, azimute 263° (norte = +y da planta) Materiais PBR, sol pela hora, data e latitude, sombras e exposição."
+  },
+  {
+    "rf": "AUD-07",
+    "id": "ui-luminarias",
+    "descricao": "à noite a cena conta as luminárias ligadas do modelo",
+    "ok": true,
+    "evidencia": "4 de 4 luminária(s)"
+  },
+  {
+    "rf": "AUD-08",
+    "id": "ui-colisao",
+    "descricao": "andando em 1ª pessoa a pessoa para em parede ou objeto, com aviso",
+    "ok": true,
+    "evidencia": "Colisão: parede PAR9. A pessoa não atravessa paredes nem objetos."
+  },
+  {
+    "rf": "AUD-05",
+    "id": "ui-destacar",
+    "descricao": "do painel de falhas, \"Ver no modelo\" abre o 3D com os objetos do conflito selecionados",
+    "ok": true,
+    "evidencia": "http://localhost:3000/obras/01a17560-a883-7c8b-b58c-a171c663b7b5/modelo?sel=01a17560-aa57-7315-9ee5-d87d2aaf7364,01a17560-b2f7-799e-88c4-d4cbe7521539&vista=3D"
+  },
+  {
+    "rf": "CT-10",
+    "id": "ui-recarregar",
+    "descricao": "recarregar a página não perde objetos nem conexões feitos pela interface",
+    "ok": true,
+    "evidencia": {
+      "versao": 94,
+      "elementos": 84
+    }
+  },
+  {
+    "rf": "UX",
+    "id": "ui-erros-js",
+    "descricao": "nenhum erro de JavaScript na jornada",
+    "ok": true,
+    "evidencia": []
+  }
+]

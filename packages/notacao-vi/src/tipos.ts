@@ -23,13 +23,14 @@ export type Eixo = {
   recuoBolha: number;
 };
 
-export type Camada = "arquitetura" | "estrutura" | "fundacao" | "desenho" | "anotacao" | "ia-rascunho";
+/** disciplinas do modelo; mobiliário, elétrica, hidrossanitária e pessoas podem ser exibidas, ocultadas ou isoladas sem perder dados */
+export type Camada = "arquitetura" | "estrutura" | "fundacao" | "desenho" | "anotacao" | "ia-rascunho" | "mobiliario" | "eletrica" | "hidrossanitaria" | "humanos";
 
 export type TipoElemento =
   | "PAREDE" | "PILAR" | "VIGA" | "LAJE" | "PORTA" | "JANELA" | "AMBIENTE"
   | "LINHA" | "POLILINHA" | "CIRCULO" | "RETANGULO" | "ARCO" | "PONTO" | "PLANO_REF"
   | "CONTRAVENTAMENTO" | "SAPATA" | "BLOCO" | "RADIER" | "ESTACA"
-  | "COTA" | "TEXTO" | "ETIQUETA" | "HACHURA";
+  | "COTA" | "TEXTO" | "ETIQUETA" | "HACHURA" | "OBJETO" | "CONEXAO";
 
 export type ElementoBase = {
   id: string;
@@ -68,9 +69,34 @@ export type Cota = ElementoBase & { tipo: "COTA"; p1: Ponto2D; p2: Ponto2D; afas
 export type Texto = ElementoBase & { tipo: "TEXTO" | "ETIQUETA"; p: Ponto2D; texto: string; altura: number };
 export type Hachura = ElementoBase & { tipo: "HACHURA"; contorno: Ponto2D[]; padrao: string };
 
+export type SistemaPredial = "ELETRICA" | "AGUA_FRIA" | "AGUA_QUENTE" | "ESGOTO" | "VENTILACAO";
+/**
+ * Objeto da biblioteca (catalogo/objetos.json): móvel, equipamento, louça, luminária, ponto de instalação ou pessoa.
+ * `elevacao` é a base do objeto em relação ao piso do pavimento; `paredeId` é a parede hospedeira (montagem PAREDE).
+ * `ligada` é só o estado visual da luminária na simulação: não altera nem desconecta o circuito.
+ */
+export type Objeto = ElementoBase & {
+  tipo: "OBJETO"; item: string; centro: Ponto2D; rotacao: number; elevacao: number; dim: { l: number; p: number; a: number };
+  paredeId?: string; ligada?: boolean; potenciaW?: number;
+};
+/** conexão física entre o conector de saída de um objeto e o conector de entrada de outro (ver objetos.ts) */
+export type Conexao = ElementoBase & {
+  tipo: "CONEXAO"; sistema: SistemaPredial; de: { id: string; conector: string }; para: { id: string; conector: string };
+  circuito?: string; disjuntorA?: number; secaoMm2?: number; condutores?: string[]; dnMm?: number; declividade?: number;
+};
+
 export type Elemento =
   | Parede | Pilar | Viga | Laje | Abertura | Ambiente | Linha | Polilinha | Circulo | Retangulo | Arco | PontoRef
-  | Contraventamento | Fundacao | Cota | Texto | Hachura;
+  | Contraventamento | Fundacao | Cota | Texto | Hachura | Objeto | Conexao;
+
+/** o que as funções de objetos e conexões precisam ler do modelo (evita dependência circular com modelo.ts) */
+export type ModeloLeitura = {
+  elementos: Elemento[];
+  elemento(id: string): Elemento | undefined;
+  pavimento(id: string): Pavimento | undefined;
+  pavimentoAcima(id: string): Pavimento | undefined;
+  elementosDo(pavimentoId: string): Elemento[];
+};
 
 export type OrigemComando = "CANVAS" | "CONSOLE_VI" | "FORMULARIO" | "IA" | "SISTEMA";
 

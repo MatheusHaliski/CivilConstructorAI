@@ -412,3 +412,12 @@ Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10
 - **Corrigido:** a correção automática pela IA não pode trocar o tipo do comando; falha do provedor durante a correção encerra o laço sem gravar nada; auditor aceita materiais personalizados da empresa ativa.
 - **Evidência:** `CaminhoIaIT`, `CoordenacaoMateriaisIT`.
 - **Pendente:** laço com LLM real não verificado.
+
+## Auditoria AUD-CC-3D-001
+
+([relatório](../auditoria/AUDITORIA_AUD-CC-3D-001.md))
+
+- **Laço 1 (novo):** objeto (`OBJ-ITEM`, `OBJ-DIM` sem deformar equipamento, `OBJ-ALTURA`/`OBJ-PROPORCAO` de pessoas, `OBJ-HOSPEDEIRO`, `OBJ-ELEVACAO`) e conexão (`CON-SISTEMA`, `CON-FLUXO`, `CON-TENSAO`, `CON-CORRENTE`, `CON-OCUPADO`).
+- **Laço 2 (novo):** `CON-RECALCULADA` avisa que a ligação continua e o percurso foi recalculado quando um objeto conectado se move.
+- **Coordenação:** OBJ-01…04, MEP-01…03 e HUM-01, com explicação, evidência numérica e correção; nenhuma propõe furo em estrutura. Corrigido o 409 da verificação (chave duplicada de LIG-01 nas duas pontas de uma viga).
+- **Evidência:** `j6-depois.json` (AUD-05: os cinco casos do enunciado), `DetectorConflitosTest`, `RedeDoModeloTest`.

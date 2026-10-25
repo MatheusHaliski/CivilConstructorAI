@@ -127,7 +127,7 @@ registrar("UX", "j5-dim-tela", "dimensionamento mostra estados padronizados, ver
 await p.goto(`${BASE}${O}/falhas`); await p.getByText("Não verificado pelo software").waitFor();
 await shot("j5-05-painel-falhas", true);
 const tf = await texto();
-registrar("UX", "j5-falhas", "painel de falhas traz origem, estado, regra e o que não é verificado; não diz 'sem falhas'", /regra determinística/.test(tf) && /Instalações elétricas/.test(tf) && !/sem falhas\b(?! acima)/i.test(tf.replace("ausência de falhas", "")), tf.slice(0, 200));
+registrar("UX", "j5-falhas", "painel de falhas traz origem, estado, regra e o que não é verificado; não diz 'sem falhas'", /regra determinística/.test(tf) && /Instalações/.test(tf) && !/sem falhas\b(?! acima)/i.test(tf.replace("ausência de falhas", "")), tf.slice(0, 200));
 
 await p.goto(`${BASE}${O}/modelo`); await espera(2500);
 const v3d = p.getByRole("button", { name: "3D", exact: true }).first();

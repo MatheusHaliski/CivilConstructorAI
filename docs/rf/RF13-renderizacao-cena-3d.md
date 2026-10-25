@@ -360,3 +360,11 @@ Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10
 - **Corrigido:** vigas e lajes com a face superior na elevação do pavimento (a mesma convenção da análise; antes apareciam no pavimento de cima); contraventamento sólido; rotação do pilar também no 2D; raio X, corte horizontal e armaduras do último dimensionamento (polilinhas do detalhamento, com estado do resultado).
 - **Evidência:** j5 `j5-06-3d-armaduras-raio-x.png`.
 - **Pendente:** filtros por sistema de instalações (não há instalações no modelo).
+
+## Auditoria AUD-CC-3D-001
+
+([relatório](../auditoria/AUDITORIA_AUD-CC-3D-001.md))
+
+- **Corrigido/novo:** dez modos (realista dia/noite, luzes apagadas, unlit, sólido, linhas ocultas, wireframe, malha, nós, pontos — os três últimos avisam que não são MEF nem nuvem de pontos); sol pela hora, data e latitude (declinação de Cooper, norte = +y); luminárias com fluxo e temperatura de cor do catálogo, desligáveis sem mexer no circuito; exposição; sombras do sol; paredes recortadas pelos vãos com folha e vidro; vistas de fachada e topo; corte vertical; objetos e pessoas por formas procedurais; percursos de instalações por cor de sistema; 1ª pessoa com colisão; isolamento por disciplina; link de conflito abre em Raio X enquadrando os elementos.
+- **Evidência:** `j6-interface.json`, telas `aud3d/06`–`18`.
+- **Pendente:** luminárias não projetam sombra (a luz atravessa paredes); desempenho a medir com GPU (sem GPU: ~9 qps realista, ~26 qps sólido).

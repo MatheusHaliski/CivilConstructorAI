@@ -50,12 +50,13 @@
       <resource>
         <directory>src/main/resources</directory>
       </resource>
-      <!-- fonte única do catálogo de materiais: o mesmo arquivo que o motor TS importa -->
+      <!-- fonte única dos catálogos de materiais e de objetos: os mesmos arquivos que o motor TS importa -->
       <resource>
         <directory>${project.basedir}/../../packages/notacao-vi/catalogo</directory>
         <targetPath>catalogo</targetPath>
         <includes>
           <include>materiais.json</include>
+          <include>objetos.json</include>
         </includes>
       </resource>
     </resources>

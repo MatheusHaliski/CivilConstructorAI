@@ -1,7 +1,7 @@
 "use client";
 /** Motor de desenho 2D/3D: composição (canvas/cena, linha de comando, barra de status, paleta, painéis) + teclado global. */
 import { useEffect, useState } from "react";
-import { BookOpen, ClipboardCheck, Code2, Keyboard, Layers, SlidersHorizontal, X } from "lucide-react";
+import { Armchair, BookOpen, ClipboardCheck, Code2, Keyboard, Layers, SlidersHorizontal, X } from "lucide-react";
 import { useMotor, type Painel } from "@/lib/motor/estado";
 import { Canvas2D } from "./Canvas2D";
 import { Cena3D } from "./Cena3D";
@@ -9,19 +9,25 @@ import { LinhaComando } from "./LinhaComando";
 import { BarraStatus } from "./BarraStatus";
 import { Paleta } from "./Paleta";
 import { ConsoleVI } from "./ConsoleVI";
+import { PainelBiblioteca } from "./Biblioteca";
 import { PainelAjuda, PainelAtalhos, PainelAuditoria, PainelCamadas, PainelPropriedades } from "./Paineis";
 import { cx } from "@/components/ui";
 
-type Aba = Exclude<Painel, "nenhum" | "historico"> | "console" | "auditoria";
+type Aba = Exclude<Painel, "nenhum" | "historico"> | "console" | "auditoria" | "biblioteca";
 const ABAS: { id: Aba; rotulo: string; Icone: typeof Layers }[] = [
-  { id: "propriedades", rotulo: "Propriedades", Icone: SlidersHorizontal }, { id: "console", rotulo: "VI / IA", Icone: Code2 }, { id: "camadas", rotulo: "Camadas", Icone: Layers },
+  { id: "propriedades", rotulo: "Propriedades", Icone: SlidersHorizontal }, { id: "biblioteca", rotulo: "Biblioteca", Icone: Armchair }, { id: "console", rotulo: "VI / IA", Icone: Code2 }, { id: "camadas", rotulo: "Camadas", Icone: Layers },
   { id: "auditoria", rotulo: "Auditoria", Icone: ClipboardCheck }, { id: "atalhos", rotulo: "Atalhos", Icone: Keyboard }, { id: "ajuda", rotulo: "Ajuda", Icone: BookOpen },
 ];
 
-export function Motor({ obraId, podeEditar = true, altura = "calc(100dvh - 7rem)", comandoInicial }: { obraId: string | null; podeEditar?: boolean; altura?: string; comandoInicial?: string | null }) {
+export function Motor({ obraId, podeEditar = true, altura = "calc(100dvh - 7rem)", comandoInicial, selecaoInicial, vistaInicial }: { obraId: string | null; podeEditar?: boolean; altura?: string; comandoInicial?: string | null; selecaoInicial?: string[] | null; vistaInicial?: "2D" | "3D" | null }) {
   const s = useMotor();
   const [aba, setAba] = useState<Aba | null>("propriedades");
-  useEffect(() => { void s.carregar(obraId, podeEditar).then(() => { if (comandoInicial && podeEditar) useMotor.getState().iniciar(comandoInicial); }); // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { void s.carregar(obraId, podeEditar).then(() => {
+    const st = useMotor.getState();
+    if (selecaoInicial?.length) { const ids = selecaoInicial.filter((id) => st.modelo.elemento(id)); const e = ids.length ? st.modelo.elemento(ids[0]!) : undefined; if (e && e.pavimentoId !== st.pavimentoId) st.setPavimento(e.pavimentoId); st.selecionar(ids, "substituir"); st.enquadrarSelecao(); st.setDestacar(ids.length > 0 && vistaInicial === "3D"); setAba("propriedades"); }
+    if (vistaInicial) st.setVista(vistaInicial);
+    if (comandoInicial && podeEditar) st.iniciar(comandoInicial);
+  }); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [obraId, podeEditar]);
   useEffect(() => { if (s.painel !== "nenhum" && s.painel !== "historico") { setAba(s.painel); s.setPainel("nenhum"); } }, [s.painel, s]);
 
@@ -55,7 +61,7 @@ export function Motor({ obraId, podeEditar = true, altura = "calc(100dvh - 7rem)
           </div>
           {aba && (
             <div role="tabpanel" className="min-h-0 flex-1 overflow-y-auto p-3">
-              {aba === "propriedades" && <PainelPropriedades />}{aba === "console" && <ConsoleVI />}{aba === "camadas" && <PainelCamadas />}{aba === "auditoria" && <PainelAuditoria />}{aba === "atalhos" && <PainelAtalhos />}{aba === "ajuda" && <PainelAjuda />}
+              {aba === "propriedades" && <PainelPropriedades />}{aba === "biblioteca" && <PainelBiblioteca />}{aba === "console" && <ConsoleVI />}{aba === "camadas" && <PainelCamadas />}{aba === "auditoria" && <PainelAuditoria />}{aba === "atalhos" && <PainelAtalhos />}{aba === "ajuda" && <PainelAjuda />}
             </div>
           )}
           {aba && <button type="button" onClick={() => setAba(null)} aria-label="Recolher painel" className="tap flex items-center justify-center text-text-3 border-t border-line-soft hover:bg-surface"><X className="size-4" aria-hidden /></button>}

@@ -22,6 +22,7 @@ export function LinhaComando() {
       const alvo = e.target as HTMLElement;
       const emCampo = ["INPUT", "TEXTAREA", "SELECT"].includes(alvo.tagName) || alvo.isContentEditable;
       if (emCampo && alvo !== input.current) return;
+      if (alvo.closest?.("[data-teclado-proprio]")) return; // ex.: 3D em 1ª pessoa usa W/A/S/D para andar
       if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && alvo !== input.current) { input.current?.focus(); }
     };
     window.addEventListener("keydown", f); return () => window.removeEventListener("keydown", f);

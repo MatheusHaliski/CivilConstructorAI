@@ -32,11 +32,13 @@ export function BarraSuperior({ menuAberto, recolhida, alternarMenu, alternarRec
       </Link>
       <BuscaGlobal />
       {empresaAtiva && <Link href="/empresa/dados" title="Empresa ativa (troque em Empresa › Dados)" className="tap ml-auto hidden shrink-0 items-center gap-2 rounded-full border border-line-soft px-3 text-sm text-text-2 hover:bg-surface lg:inline-flex"><Building2 className="size-4" aria-hidden /><span className="max-w-48 truncate">{empresaAtiva}</span></Link>}
-      <Link href="/conta" className={cx("tap flex shrink-0 items-center gap-2 rounded-full py-1 pl-1 pr-1 hover:bg-surface sm:pr-3", empresaAtiva ? "ml-auto lg:ml-0" : "ml-auto")} aria-label={nome ? `Minha conta: ${nome}` : "Minha conta"}>
-        <span className="grid size-9 place-items-center overflow-hidden rounded-full bg-marca-grafite text-sm font-semibold text-white">
+      <Link href="/conta" className={cx("tap flex shrink-0 items-center gap-2 rounded-full py-1 pl-1 pr-1 hover:bg-surface sm:pr-3", empresaAtiva ? "ml-auto lg:ml-0" : "ml-auto")}>
+        {/* nome acessível vem do texto (WCAG 2.5.3: o que se vê faz parte do nome); as iniciais são decorativas */}
+        <span aria-hidden className="grid size-9 place-items-center overflow-hidden rounded-full bg-marca-grafite text-sm font-semibold text-white">
           {perfil.data?.fotoUrl ? <img src={perfil.data.fotoUrl} alt="" className="size-full object-cover" /> : iniciais}
         </span>
         <span className="hidden max-w-40 truncate text-sm font-medium text-text md:block">{nome || "Minha conta"}</span>
+        <span className="sr-only md:hidden">{nome || "Minha conta"}</span>{nome && <span className="sr-only">, minha conta</span>}
       </Link>
     </header>
   );

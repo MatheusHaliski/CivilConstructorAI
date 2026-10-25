@@ -1,52 +1,1051 @@
 {
-  "descricao": "Mesmos comandos, mesmos argumentos: o motor TS (prévia no navegador) e o ModeloBim Java (gravação no servidor) têm de produzir o mesmo resultado. \"$n\" é o id do elemento criado pelo passo n do setup.",
-  "setup": [
-    { "codigo": "LINHA", "args": { "p1": { "x": 0, "y": 0 }, "p2": { "x": 5, "y": 0 } } },
-    { "codigo": "LINHA", "args": { "p1": { "x": 3, "y": -2 }, "p2": { "x": 3, "y": 4 } } },
-    { "codigo": "POLILINHA", "args": { "pontos": [{ "x": 10, "y": 0 }, { "x": 14, "y": 0 }, { "x": 14, "y": 3 }, { "x": 10, "y": 3 }], "fechar": true } },
-    { "codigo": "PAREDE", "args": { "p1": { "x": 0, "y": 10 }, "p2": { "x": 6, "y": 10 }, "esp": 0.15, "h": 2.8 } },
-    { "codigo": "PILAR", "args": { "centro": { "x": 20, "y": 20 }, "b": 0.2, "h": 0.4 } },
-    { "codigo": "LINHA", "args": { "p1": { "x": 0, "y": 6 }, "p2": { "x": 2, "y": 6 } } },
-    { "codigo": "LINHA", "args": { "p1": { "x": 2, "y": 6 }, "p2": { "x": 4, "y": 6 } } }
-  ],
-  "casos": [
-    { "codigo": "CIRCULO", "args": { "centro": { "x": 1, "y": 1 }, "raio": 2 }, "espera": { "criados": 1, "tipo": "CIRCULO", "campo": "raio", "valor": 2 } },
-    { "codigo": "RETANGULO", "args": { "p1": { "x": 0, "y": 0 }, "p2": { "x": 4, "y": 2 } }, "espera": { "criados": 1, "tipo": "RETANGULO" } },
-    { "codigo": "ARCO", "args": { "p1": { "x": 0, "y": 0 }, "p2": { "x": 1, "y": 1 }, "p3": { "x": 2, "y": 0 } }, "espera": { "criados": 1, "tipo": "ARCO" } },
-    { "codigo": "POLIGONO", "args": { "centro": { "x": 0, "y": 0 }, "n": 6, "raio": 1 }, "espera": { "criados": 1 } },
-    { "codigo": "ELIPSE", "args": { "centro": { "x": 0, "y": 0 }, "a": 3, "b": 1 }, "espera": { "criados": 1 } },
-    { "codigo": "PONTO", "args": { "p": { "x": 7, "y": 7 } }, "espera": { "criados": 1, "tipo": "PONTO" } },
-    { "codigo": "ANEL", "args": { "centro": { "x": 0, "y": 0 }, "re": 2, "ri": 1 }, "espera": { "criados": 1, "tipo": "CIRCULO", "campo": "raioInterno", "valor": 1 } },
-    { "codigo": "SPLINE", "args": { "pontos": [{ "x": 0, "y": 0 }, { "x": 1, "y": 2 }, { "x": 3, "y": 1 }] }, "espera": { "criados": 1 } },
-    { "codigo": "LINHA_CONSTRUCAO", "args": { "p": { "x": 0, "y": 0 }, "direcao": { "x": 1, "y": 1 } }, "espera": { "criados": 1 } },
-    { "codigo": "RAIO_CONSTRUCAO", "args": { "p": { "x": 0, "y": 0 }, "direcao": { "x": 1, "y": 0 } }, "espera": { "criados": 1 } },
-    { "codigo": "EIXO", "args": { "p1": { "x": 30, "y": -1 }, "p2": { "x": 30, "y": 9 }, "nome": "Z9" }, "espera": { "eixos": 1 } },
-    { "codigo": "AMBIENTE", "args": { "ponto": { "x": 12, "y": 1 }, "nome": "Sala" }, "espera": { "criados": 1, "tipo": "AMBIENTE" } },
-    { "codigo": "TEXTO", "args": { "p": { "x": 1, "y": 1 }, "texto": "Nota" }, "espera": { "criados": 1, "tipo": "TEXTO" } },
-    { "codigo": "COTA_ALINHADA", "args": { "p1": { "x": 0, "y": 0 }, "p2": { "x": 5, "y": 0 } }, "espera": { "criados": 1, "tipo": "COTA" } },
-    { "codigo": "COTA_LINEAR", "args": { "p1": { "x": 0, "y": 0 }, "p2": { "x": 5, "y": 0 } }, "espera": { "criados": 1, "tipo": "COTA" } },
-    { "codigo": "LINHA_DETALHE", "args": { "p1": { "x": 0, "y": 0 }, "p2": { "x": 1, "y": 0 } }, "espera": { "criados": 1 } },
-    { "codigo": "HACHURA", "args": { "sel": ["$2"], "padrao": "ANSI31" }, "espera": { "criados": 1, "tipo": "HACHURA" } },
-    { "codigo": "ETIQUETA", "args": { "sel": ["$4"] }, "espera": { "criados": 1, "tipo": "ETIQUETA" } },
-    { "codigo": "FUNDACAO", "args": { "sel": ["$4"], "bx": 1.5, "by": 1.5, "h": 0.5 }, "espera": { "criados": 1, "tipo": "SAPATA" } },
-    { "codigo": "MOVER", "args": { "sel": ["$0"], "base": { "x": 0, "y": 0 }, "destino": { "x": 1, "y": 1 } }, "espera": { "alterados": 1, "campo": "p2.x", "valor": 6 } },
-    { "codigo": "COPIAR", "args": { "sel": ["$0"], "base": { "x": 0, "y": 0 }, "destino": { "x": 0, "y": 2 } }, "espera": { "criados": 1 } },
-    { "codigo": "ROTACIONAR", "args": { "sel": ["$0"], "base": { "x": 0, "y": 0 }, "ang": 90 }, "espera": { "alterados": 1, "campo": "p2.y", "valor": 5 } },
-    { "codigo": "ESPELHAR", "args": { "sel": ["$0"], "p1": { "x": 0, "y": 1 }, "p2": { "x": 5, "y": 1 } }, "espera": { "criados": 1, "campo": "p1.y", "valor": 2 } },
-    { "codigo": "ESCALAR", "args": { "sel": ["$0"], "base": { "x": 0, "y": 0 }, "fator": 2 }, "espera": { "alterados": 1, "campo": "p2.x", "valor": 10 } },
-    { "codigo": "DESLOCAR", "args": { "sel": ["$0"], "dist": 1, "lado": { "x": 2, "y": 3 } }, "espera": { "criados": 1, "campo": "p1.y", "valor": 1 } },
-    { "codigo": "ALONGAR", "args": { "sel": ["$0"], "delta": 1 }, "espera": { "alterados": 1 } },
-    { "codigo": "MATRIZ", "args": { "sel": ["$4"], "nx": 3, "ny": 2, "dx": 5, "dy": 5 }, "espera": { "criados": 5 } },
-    { "codigo": "APAGAR", "args": { "sel": ["$0", "$1"] }, "espera": { "removidos": 2 } },
-    { "codigo": "EXPLODIR", "args": { "sel": ["$2"] }, "espera": { "removidos": 1, "criados": 4 } },
-    { "codigo": "APARAR", "args": { "sel": ["$1"], "arestas": ["$0"], "clique": { "x": 3, "y": -1 } }, "espera": { "alterados": 1 } },
-    { "codigo": "ESTENDER", "args": { "sel": ["$5"], "arestas": ["$1"], "clique": { "x": 1.9, "y": 6 } }, "espera": { "alterados": 1, "campo": "p2.x", "valor": 3 } },
-    { "codigo": "PLANO_REF", "args": { "p1": { "x": 0, "y": -5 }, "p2": { "x": 10, "y": -5 } }, "espera": { "criados": 1, "tipo": "PLANO_REF" } },
-    { "codigo": "ESTICAR", "args": { "sel": ["$5"], "base": { "x": 0, "y": 0 }, "destino": { "x": 1, "y": 0 }, "janela": { "min": { "x": -1, "y": 5 }, "max": { "x": 0.5, "y": 7 } } }, "espera": { "alterados": 1, "campo": "p1.x", "valor": 1 } },
-    { "codigo": "UNIR", "args": { "sel": ["$5", "$6"] }, "espera": { "criados": 1, "removidos": 2 } },
-    { "codigo": "VIGA", "args": { "p1": { "x": 0, "y": 30 }, "p2": { "x": 5, "y": 30 }, "b": 0.2, "h": 0.5, "mat": "MAT.ESTRUTURAL.CONC_FCK25" }, "espera": { "criados": 1, "tipo": "VIGA", "materialId": "MAT.CONCRETO.C25" } },
-    { "codigo": "ALTERAR", "args": { "id": "$3", "props": { "mat": "MAT.ARQUITETURA.ALV_BLOCO14" } }, "espera": { "alterados": 1, "materialId": "MAT.ALVENARIA.CERAMICO_VEDACAO_14" } },
-    { "codigo": "PILAR", "args": { "centro": { "x": 30, "y": 30 }, "b": 0.2, "h": 0.4, "mat": "MAT_CONC_FCK30" }, "espera": { "criados": 1, "tipo": "PILAR", "materialId": "MAT.CONCRETO.C30" } },
-    { "codigo": "VIGA", "args": { "p1": { "x": 0, "y": 40 }, "p2": { "x": 5, "y": 40 }, "b": 0.2, "h": 0.5, "mat": "MAT.CONCRETO.C40" }, "espera": { "criados": 1, "tipo": "VIGA", "materialId": "MAT.CONCRETO.C40" } }
-  ]
+ "descricao": "Mesmos comandos, mesmos argumentos: o motor TS (prévia no navegador) e o ModeloBim Java (gravação no servidor) têm de produzir o mesmo resultado. \"$n\" é o id do elemento criado pelo passo n do setup. \"preparo\" roda comandos extras só naquele caso (ids continuam a numeração do setup); \"igual\" compara campos de texto do elemento resultante; \"verifica\" lê campos de outros elementos depois do comando.",
+ "setup": [
+  {
+   "codigo": "LINHA",
+   "args": {
+    "p1": {
+     "x": 0,
+     "y": 0
+    },
+    "p2": {
+     "x": 5,
+     "y": 0
+    }
+   }
+  },
+  {
+   "codigo": "LINHA",
+   "args": {
+    "p1": {
+     "x": 3,
+     "y": -2
+    },
+    "p2": {
+     "x": 3,
+     "y": 4
+    }
+   }
+  },
+  {
+   "codigo": "POLILINHA",
+   "args": {
+    "pontos": [
+     {
+      "x": 10,
+      "y": 0
+     },
+     {
+      "x": 14,
+      "y": 0
+     },
+     {
+      "x": 14,
+      "y": 3
+     },
+     {
+      "x": 10,
+      "y": 3
+     }
+    ],
+    "fechar": true
+   }
+  },
+  {
+   "codigo": "PAREDE",
+   "args": {
+    "p1": {
+     "x": 0,
+     "y": 10
+    },
+    "p2": {
+     "x": 6,
+     "y": 10
+    },
+    "esp": 0.15,
+    "h": 2.8
+   }
+  },
+  {
+   "codigo": "PILAR",
+   "args": {
+    "centro": {
+     "x": 20,
+     "y": 20
+    },
+    "b": 0.2,
+    "h": 0.4
+   }
+  },
+  {
+   "codigo": "LINHA",
+   "args": {
+    "p1": {
+     "x": 0,
+     "y": 6
+    },
+    "p2": {
+     "x": 2,
+     "y": 6
+    }
+   }
+  },
+  {
+   "codigo": "LINHA",
+   "args": {
+    "p1": {
+     "x": 2,
+     "y": 6
+    },
+    "p2": {
+     "x": 4,
+     "y": 6
+    }
+   }
+  }
+ ],
+ "casos": [
+  {
+   "codigo": "CIRCULO",
+   "args": {
+    "centro": {
+     "x": 1,
+     "y": 1
+    },
+    "raio": 2
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "CIRCULO",
+    "campo": "raio",
+    "valor": 2
+   }
+  },
+  {
+   "codigo": "RETANGULO",
+   "args": {
+    "p1": {
+     "x": 0,
+     "y": 0
+    },
+    "p2": {
+     "x": 4,
+     "y": 2
+    }
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "RETANGULO"
+   }
+  },
+  {
+   "codigo": "ARCO",
+   "args": {
+    "p1": {
+     "x": 0,
+     "y": 0
+    },
+    "p2": {
+     "x": 1,
+     "y": 1
+    },
+    "p3": {
+     "x": 2,
+     "y": 0
+    }
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "ARCO"
+   }
+  },
+  {
+   "codigo": "POLIGONO",
+   "args": {
+    "centro": {
+     "x": 0,
+     "y": 0
+    },
+    "n": 6,
+    "raio": 1
+   },
+   "espera": {
+    "criados": 1
+   }
+  },
+  {
+   "codigo": "ELIPSE",
+   "args": {
+    "centro": {
+     "x": 0,
+     "y": 0
+    },
+    "a": 3,
+    "b": 1
+   },
+   "espera": {
+    "criados": 1
+   }
+  },
+  {
+   "codigo": "PONTO",
+   "args": {
+    "p": {
+     "x": 7,
+     "y": 7
+    }
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "PONTO"
+   }
+  },
+  {
+   "codigo": "ANEL",
+   "args": {
+    "centro": {
+     "x": 0,
+     "y": 0
+    },
+    "re": 2,
+    "ri": 1
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "CIRCULO",
+    "campo": "raioInterno",
+    "valor": 1
+   }
+  },
+  {
+   "codigo": "SPLINE",
+   "args": {
+    "pontos": [
+     {
+      "x": 0,
+      "y": 0
+     },
+     {
+      "x": 1,
+      "y": 2
+     },
+     {
+      "x": 3,
+      "y": 1
+     }
+    ]
+   },
+   "espera": {
+    "criados": 1
+   }
+  },
+  {
+   "codigo": "LINHA_CONSTRUCAO",
+   "args": {
+    "p": {
+     "x": 0,
+     "y": 0
+    },
+    "direcao": {
+     "x": 1,
+     "y": 1
+    }
+   },
+   "espera": {
+    "criados": 1
+   }
+  },
+  {
+   "codigo": "RAIO_CONSTRUCAO",
+   "args": {
+    "p": {
+     "x": 0,
+     "y": 0
+    },
+    "direcao": {
+     "x": 1,
+     "y": 0
+    }
+   },
+   "espera": {
+    "criados": 1
+   }
+  },
+  {
+   "codigo": "EIXO",
+   "args": {
+    "p1": {
+     "x": 30,
+     "y": -1
+    },
+    "p2": {
+     "x": 30,
+     "y": 9
+    },
+    "nome": "Z9"
+   },
+   "espera": {
+    "eixos": 1
+   }
+  },
+  {
+   "codigo": "AMBIENTE",
+   "args": {
+    "ponto": {
+     "x": 12,
+     "y": 1
+    },
+    "nome": "Sala"
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "AMBIENTE"
+   }
+  },
+  {
+   "codigo": "TEXTO",
+   "args": {
+    "p": {
+     "x": 1,
+     "y": 1
+    },
+    "texto": "Nota"
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "TEXTO"
+   }
+  },
+  {
+   "codigo": "COTA_ALINHADA",
+   "args": {
+    "p1": {
+     "x": 0,
+     "y": 0
+    },
+    "p2": {
+     "x": 5,
+     "y": 0
+    }
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "COTA"
+   }
+  },
+  {
+   "codigo": "COTA_LINEAR",
+   "args": {
+    "p1": {
+     "x": 0,
+     "y": 0
+    },
+    "p2": {
+     "x": 5,
+     "y": 0
+    }
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "COTA"
+   }
+  },
+  {
+   "codigo": "LINHA_DETALHE",
+   "args": {
+    "p1": {
+     "x": 0,
+     "y": 0
+    },
+    "p2": {
+     "x": 1,
+     "y": 0
+    }
+   },
+   "espera": {
+    "criados": 1
+   }
+  },
+  {
+   "codigo": "HACHURA",
+   "args": {
+    "sel": [
+     "$2"
+    ],
+    "padrao": "ANSI31"
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "HACHURA"
+   }
+  },
+  {
+   "codigo": "ETIQUETA",
+   "args": {
+    "sel": [
+     "$4"
+    ]
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "ETIQUETA"
+   }
+  },
+  {
+   "codigo": "FUNDACAO",
+   "args": {
+    "sel": [
+     "$4"
+    ],
+    "bx": 1.5,
+    "by": 1.5,
+    "h": 0.5
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "SAPATA"
+   }
+  },
+  {
+   "codigo": "MOVER",
+   "args": {
+    "sel": [
+     "$0"
+    ],
+    "base": {
+     "x": 0,
+     "y": 0
+    },
+    "destino": {
+     "x": 1,
+     "y": 1
+    }
+   },
+   "espera": {
+    "alterados": 1,
+    "campo": "p2.x",
+    "valor": 6
+   }
+  },
+  {
+   "codigo": "COPIAR",
+   "args": {
+    "sel": [
+     "$0"
+    ],
+    "base": {
+     "x": 0,
+     "y": 0
+    },
+    "destino": {
+     "x": 0,
+     "y": 2
+    }
+   },
+   "espera": {
+    "criados": 1
+   }
+  },
+  {
+   "codigo": "ROTACIONAR",
+   "args": {
+    "sel": [
+     "$0"
+    ],
+    "base": {
+     "x": 0,
+     "y": 0
+    },
+    "ang": 90
+   },
+   "espera": {
+    "alterados": 1,
+    "campo": "p2.y",
+    "valor": 5
+   }
+  },
+  {
+   "codigo": "ESPELHAR",
+   "args": {
+    "sel": [
+     "$0"
+    ],
+    "p1": {
+     "x": 0,
+     "y": 1
+    },
+    "p2": {
+     "x": 5,
+     "y": 1
+    }
+   },
+   "espera": {
+    "criados": 1,
+    "campo": "p1.y",
+    "valor": 2
+   }
+  },
+  {
+   "codigo": "ESCALAR",
+   "args": {
+    "sel": [
+     "$0"
+    ],
+    "base": {
+     "x": 0,
+     "y": 0
+    },
+    "fator": 2
+   },
+   "espera": {
+    "alterados": 1,
+    "campo": "p2.x",
+    "valor": 10
+   }
+  },
+  {
+   "codigo": "DESLOCAR",
+   "args": {
+    "sel": [
+     "$0"
+    ],
+    "dist": 1,
+    "lado": {
+     "x": 2,
+     "y": 3
+    }
+   },
+   "espera": {
+    "criados": 1,
+    "campo": "p1.y",
+    "valor": 1
+   }
+  },
+  {
+   "codigo": "ALONGAR",
+   "args": {
+    "sel": [
+     "$0"
+    ],
+    "delta": 1
+   },
+   "espera": {
+    "alterados": 1
+   }
+  },
+  {
+   "codigo": "MATRIZ",
+   "args": {
+    "sel": [
+     "$4"
+    ],
+    "nx": 3,
+    "ny": 2,
+    "dx": 5,
+    "dy": 5
+   },
+   "espera": {
+    "criados": 5
+   }
+  },
+  {
+   "codigo": "APAGAR",
+   "args": {
+    "sel": [
+     "$0",
+     "$1"
+    ]
+   },
+   "espera": {
+    "removidos": 2
+   }
+  },
+  {
+   "codigo": "EXPLODIR",
+   "args": {
+    "sel": [
+     "$2"
+    ]
+   },
+   "espera": {
+    "removidos": 1,
+    "criados": 4
+   }
+  },
+  {
+   "codigo": "APARAR",
+   "args": {
+    "sel": [
+     "$1"
+    ],
+    "arestas": [
+     "$0"
+    ],
+    "clique": {
+     "x": 3,
+     "y": -1
+    }
+   },
+   "espera": {
+    "alterados": 1
+   }
+  },
+  {
+   "codigo": "ESTENDER",
+   "args": {
+    "sel": [
+     "$5"
+    ],
+    "arestas": [
+     "$1"
+    ],
+    "clique": {
+     "x": 1.9,
+     "y": 6
+    }
+   },
+   "espera": {
+    "alterados": 1,
+    "campo": "p2.x",
+    "valor": 3
+   }
+  },
+  {
+   "codigo": "PLANO_REF",
+   "args": {
+    "p1": {
+     "x": 0,
+     "y": -5
+    },
+    "p2": {
+     "x": 10,
+     "y": -5
+    }
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "PLANO_REF"
+   }
+  },
+  {
+   "codigo": "ESTICAR",
+   "args": {
+    "sel": [
+     "$5"
+    ],
+    "base": {
+     "x": 0,
+     "y": 0
+    },
+    "destino": {
+     "x": 1,
+     "y": 0
+    },
+    "janela": {
+     "min": {
+      "x": -1,
+      "y": 5
+     },
+     "max": {
+      "x": 0.5,
+      "y": 7
+     }
+    }
+   },
+   "espera": {
+    "alterados": 1,
+    "campo": "p1.x",
+    "valor": 1
+   }
+  },
+  {
+   "codigo": "UNIR",
+   "args": {
+    "sel": [
+     "$5",
+     "$6"
+    ]
+   },
+   "espera": {
+    "criados": 1,
+    "removidos": 2
+   }
+  },
+  {
+   "codigo": "VIGA",
+   "args": {
+    "p1": {
+     "x": 0,
+     "y": 30
+    },
+    "p2": {
+     "x": 5,
+     "y": 30
+    },
+    "b": 0.2,
+    "h": 0.5,
+    "mat": "MAT.ESTRUTURAL.CONC_FCK25"
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "VIGA",
+    "materialId": "MAT.CONCRETO.C25"
+   }
+  },
+  {
+   "codigo": "ALTERAR",
+   "args": {
+    "id": "$3",
+    "props": {
+     "mat": "MAT.ARQUITETURA.ALV_BLOCO14"
+    }
+   },
+   "espera": {
+    "alterados": 1,
+    "materialId": "MAT.ALVENARIA.CERAMICO_VEDACAO_14"
+   }
+  },
+  {
+   "codigo": "PILAR",
+   "args": {
+    "centro": {
+     "x": 30,
+     "y": 30
+    },
+    "b": 0.2,
+    "h": 0.4,
+    "mat": "MAT_CONC_FCK30"
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "PILAR",
+    "materialId": "MAT.CONCRETO.C30"
+   }
+  },
+  {
+   "codigo": "VIGA",
+   "args": {
+    "p1": {
+     "x": 0,
+     "y": 40
+    },
+    "p2": {
+     "x": 5,
+     "y": 40
+    },
+    "b": 0.2,
+    "h": 0.5,
+    "mat": "MAT.CONCRETO.C40"
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "VIGA",
+    "materialId": "MAT.CONCRETO.C40"
+   }
+  },
+  {
+   "codigo": "OBJETO",
+   "args": {
+    "item": "ILUMINACAO.ARANDELA",
+    "pos": {
+     "x": 3,
+     "y": 10.4
+    }
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "OBJETO",
+    "campo": "centro.y",
+    "valor": 10.135,
+    "igual": {
+     "paredeId": "$3",
+     "camada": "eletrica"
+    }
+   }
+  },
+  {
+   "codigo": "OBJETO",
+   "args": {
+    "item": "ILUMINACAO.PENDENTE",
+    "pos": {
+     "x": 3,
+     "y": 12
+    }
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "OBJETO",
+    "campo": "elevacao",
+    "valor": 2.2
+   }
+  },
+  {
+   "codigo": "OBJETO",
+   "args": {
+    "item": "PESSOAS.ADULTO",
+    "pos": {
+     "x": 3,
+     "y": 13
+    },
+    "altura": 1.6
+   },
+   "espera": {
+    "criados": 1,
+    "campo": "dim.l",
+    "valor": 0.457,
+    "igual": {
+     "camada": "humanos"
+    }
+   }
+  },
+  {
+   "codigo": "CONECTAR",
+   "preparo": [
+    {
+     "codigo": "OBJETO",
+     "args": {
+      "item": "INSTALACOES.QUADRO_DISTRIBUICAO",
+      "pos": {
+       "x": 1,
+       "y": 10.3
+      }
+     }
+    },
+    {
+     "codigo": "OBJETO",
+     "args": {
+      "item": "INSTALACOES.TOMADA_10A",
+      "pos": {
+       "x": 4,
+       "y": 10.3
+      }
+     }
+    }
+   ],
+   "args": {
+    "de": "$8",
+    "para": "$7",
+    "circuito": "C3"
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "CONEXAO",
+    "igual": {
+     "de.id": "$7",
+     "de.conector": "S1",
+     "para.id": "$8",
+     "para.conector": "E1",
+     "circuito": "C3",
+     "sistema": "ELETRICA"
+    }
+   }
+  },
+  {
+   "codigo": "MOVER",
+   "preparo": [
+    {
+     "codigo": "PAREDE",
+     "args": {
+      "p1": {
+       "x": 40,
+       "y": 0
+      },
+      "p2": {
+       "x": 43,
+       "y": 0
+      }
+     }
+    },
+    {
+     "codigo": "PAREDE",
+     "args": {
+      "p1": {
+       "x": 43,
+       "y": 0
+      },
+      "p2": {
+       "x": 43,
+       "y": 3.5
+      }
+     }
+    },
+    {
+     "codigo": "PAREDE",
+     "args": {
+      "p1": {
+       "x": 40,
+       "y": 3.5
+      },
+      "p2": {
+       "x": 43,
+       "y": 3.5
+      }
+     }
+    },
+    {
+     "codigo": "PORTA",
+     "args": {
+      "pos": {
+       "x": 41.5,
+       "y": 3.5
+      }
+     }
+    },
+    {
+     "codigo": "COTA_LINEAR",
+     "args": {
+      "p1": {
+       "x": 40,
+       "y": -0.5
+      },
+      "p2": {
+       "x": 43,
+       "y": -0.5
+      }
+     }
+    }
+   ],
+   "args": {
+    "sel": [
+     "$8"
+    ],
+    "base": {
+     "x": 43,
+     "y": 0
+    },
+    "destino": {
+     "x": 43.6,
+     "y": 0
+    }
+   },
+   "espera": {
+    "verifica": [
+     {
+      "ref": "$7",
+      "campo": "p2.x",
+      "valor": 43.6
+     },
+     {
+      "ref": "$9",
+      "campo": "p2.x",
+      "valor": 43.6
+     },
+     {
+      "ref": "$10",
+      "campo": "posicao",
+      "valor": 0.4166666667
+     },
+     {
+      "ref": "$11",
+      "campo": "p2.x",
+      "valor": 43.6
+     },
+     {
+      "ref": "$9",
+      "campo": "p1.x",
+      "valor": 40
+     }
+    ]
+   }
+  },
+  {
+   "codigo": "APAGAR",
+   "preparo": [
+    {
+     "codigo": "OBJETO",
+     "args": {
+      "item": "INSTALACOES.QUADRO_DISTRIBUICAO",
+      "pos": {
+       "x": 1,
+       "y": 10.3
+      }
+     }
+    },
+    {
+     "codigo": "OBJETO",
+     "args": {
+      "item": "INSTALACOES.TOMADA_10A",
+      "pos": {
+       "x": 4,
+       "y": 10.3
+      }
+     }
+    },
+    {
+     "codigo": "CONECTAR",
+     "args": {
+      "de": "$7",
+      "para": "$8"
+     }
+    }
+   ],
+   "args": {
+    "sel": [
+     "$8"
+    ]
+   },
+   "espera": {
+    "removidos": 2
+   }
+  },
+  {
+   "codigo": "CONECTAR",
+   "preparo": [
+    {
+     "codigo": "OBJETO",
+     "args": {
+      "item": "INSTALACOES.QUADRO_DISTRIBUICAO",
+      "pos": {
+       "x": 1,
+       "y": 10.3
+      }
+     }
+    },
+    {
+     "codigo": "OBJETO",
+     "args": {
+      "item": "INSTALACOES.TOMADA_10A",
+      "pos": {
+       "x": 4,
+       "y": 10.3
+      }
+     }
+    },
+    {
+     "codigo": "OBJETO",
+     "args": {
+      "item": "COZINHA.GELADEIRA",
+      "pos": {
+       "x": 4,
+       "y": 10.9
+      }
+     }
+    },
+    {
+     "codigo": "CONECTAR",
+     "args": {
+      "de": "$7",
+      "para": "$8",
+      "circuito": "C5",
+      "disjuntor": 10
+     }
+    }
+   ],
+   "args": {
+    "de": "$9",
+    "para": "$8"
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "CONEXAO",
+    "igual": {
+     "de.id": "$8",
+     "de.conector": "S1",
+     "para.id": "$9",
+     "para.conector": "E1",
+     "circuito": "C5"
+    }
+   }
+  }
+ ]
 }

@@ -8,6 +8,7 @@ import br.com.civilconstructorai.modelo.Enums.OrigemComando;
 import br.com.civilconstructorai.modelo.Enums.TipoElemento;
 import br.com.civilconstructorai.notacao.Geo;
 import br.com.civilconstructorai.notacao.ParserVi;
+import br.com.civilconstructorai.notacao.CatalogoObjetos;
 import br.com.civilconstructorai.notacao.Ponto2D;
 import br.com.civilconstructorai.notacao.TabelaA;
 
@@ -151,7 +152,7 @@ public class ModeloBim {
     public String rotuloAutomatico(Elemento e) {
         var prefixo = switch (e.getTipo()) {
             case PILAR -> "P"; case VIGA -> "V"; case LAJE -> "L"; case PAREDE -> "PAR"; case PORTA -> "PT"; case JANELA -> "J";
-            case SAPATA -> "S"; case BLOCO -> "B"; case RADIER -> "R"; default -> e.getTipo().name().substring(0, 2);
+            case SAPATA -> "S"; case BLOCO -> "B"; case RADIER -> "R"; case OBJETO -> "OB"; case CONEXAO -> "CX"; default -> e.getTipo().name().substring(0, 2);
         };
         int idx = 0, meu = 0;
         for (var x : elementos) {
@@ -538,15 +539,29 @@ public class ModeloBim {
                 criar(diff, novo(cmd, pav, TipoElemento.HACHURA, Camada.anotacao, props("contorno", new ArrayList<Object>(contorno), "padrao", str(a, "padrao", "CONCRETO"))));
             }
             // ------------------------------------------------------------ modificação
+            // ------------------------------------------------------------ objetos e conexões prediais (AUD-02/03/04)
+            case "OBJETO" -> criarObjeto(cmd, a, pav, diff);
+            case "CONECTAR" -> conectar(cmd, a, pav, diff);
             case "MOVER", "COPIAR" -> {
                 var d = pt(a, "destino").menos(pt(a, "base"));
-                for (var e : selecao(a)) {
+                var sel = selecao(a);
+                var ids = new HashSet<UUID>();
+                sel.forEach(e -> ids.add(e.getId()));
+                for (var e : sel) {
                     var alvo = cmd.codigo().equals("COPIAR") ? copiaNova(e, cmd) : e;
+                    if (alvo != e && alvo.getTipo() == TipoElemento.OBJETO) {
+                        alvo.getProps().remove("paredeId");
+                    }
+                    var antesP1 = alvo.getTipo() == TipoElemento.PAREDE ? alvo.ponto("p1") : null;
+                    var antesP2 = alvo.getTipo() == TipoElemento.PAREDE ? alvo.ponto("p2") : null;
                     alvo.mapearPontos(p -> p.mais(d));
                     if (alvo == e) {
                         diff.alterados.add(e);
                     } else {
                         criar(diff, alvo);
+                    }
+                    if (cmd.codigo().equals("MOVER") && antesP1 != null) {
+                        propagarParede(alvo, antesP1, antesP2, d, ids, diff);
                     }
                 }
             }
@@ -554,9 +569,15 @@ public class ModeloBim {
                 var b = pt(a, "base");
                 double ang = num(a, "ang", 90.0);
                 for (var e : selecao(a)) {
+                    if (e.getTipo() == TipoElemento.CONEXAO) {
+                        continue;
+                    }
                     e.mapearPontos(p -> Geo.rotacionar(p, b, ang));
                     if (e.getTipo() == TipoElemento.PILAR) {
                         e.setNum("rotacao", (e.num("rotacao", 0) + ang) % 360);
+                    }
+                    if (e.getTipo() == TipoElemento.OBJETO) {
+                        e.setNum("rotacao", ObjetosPrediais.r3((((e.num("rotacao", 0) + ang) % 360) + 360) % 360));
                     }
                     diff.alterados.add(e);
                 }
@@ -568,6 +589,13 @@ public class ModeloBim {
                 for (var e : selecao(a)) {
                     var alvo = apagar ? e : copiaNova(e, cmd);
                     alvo.mapearPontos(p -> Geo.espelhar(p, p1, p2));
+                    if (alvo.getTipo() == TipoElemento.OBJETO) {
+                        double ang = Math.toDegrees(Math.atan2(p2.y() - p1.y(), p2.x() - p1.x()));
+                        alvo.setNum("rotacao", ObjetosPrediais.r3((((2 * ang - alvo.num("rotacao", 0) - 180) % 360) + 360) % 360));
+                        if (alvo != e) {
+                            alvo.getProps().remove("paredeId");
+                        }
+                    }
                     if (alvo == e) {
                         diff.alterados.add(e);
                     } else {
@@ -581,6 +609,17 @@ public class ModeloBim {
                 for (var e : selecao(a)) {
                     if (e.getTipo().construtivo()) {
                         throw erro("VI-003", e.getTipo() + " não pode ser escalado: use as propriedades.");
+                    }
+                    if (e.getTipo() == TipoElemento.OBJETO) {
+                        var it = ObjetosPrediais.item(e).orElse(null);
+                        if (it != null && it.alturaVariavel() != null) {
+                            throw erro("VI-003", it.nome() + ": mude a altura nas propriedades (a escala da pessoa é uniforme).");
+                        }
+                        if (it == null || !it.redimensionavel()) {
+                            throw erro("VI-003", (it == null ? e.texto("item") : it.nome()) + " tem dimensões de produto e não pode ser escalado.");
+                        }
+                        var dd = ObjetosPrediais.dim(e);
+                        ObjetosPrediais.setDim(e, dd[0] * k, dd[1] * k, dd[2] * k);
                     }
                     e.mapearPontos(p -> b.mais(p.menos(b).vezes(k)));
                     if (e.getTipo() == TipoElemento.CIRCULO) {
@@ -659,8 +698,20 @@ public class ModeloBim {
             case "APAGAR" -> {
                 var ids = new HashSet<UUID>();
                 selecao(a).forEach(e -> ids.add(e.getId()));
+                // hospedados (aberturas e objetos de parede) saem com a parede; conexões saem com qualquer extremidade
                 for (var e : elementos) {
                     if ((e.getTipo() == TipoElemento.PORTA || e.getTipo() == TipoElemento.JANELA) && ids.contains(e.uuid("paredeId"))) {
+                        ids.add(e.getId());
+                    }
+                }
+                for (var e : elementos) {
+                    if (e.getTipo() == TipoElemento.OBJETO && e.texto("paredeId") != null && ids.contains(e.uuid("paredeId"))) {
+                        ids.add(e.getId());
+                    }
+                }
+                for (var e : elementos) {
+                    if (e.getTipo() == TipoElemento.CONEXAO && (ids.stream().anyMatch(id -> id.toString().equals(String.valueOf(ObjetosPrediais.ponta(e, "de").get("id"))))
+                            || ids.stream().anyMatch(id -> id.toString().equals(String.valueOf(ObjetosPrediais.ponta(e, "para").get("id")))))) {
                         ids.add(e.getId());
                     }
                 }
@@ -720,6 +771,10 @@ public class ModeloBim {
                             e.setRotulo(String.valueOf(v));
                         } else if (chave.equals("materialId") || chave.equals("mat")) {
                             e.setMaterialId(TabelaA.normalizarId(String.valueOf(v)));
+                        } else if (chave.equals("altura") && e.getTipo() == TipoElemento.OBJETO && v instanceof Number nv) {
+                            var dd = ObjetosPrediais.dim(e);
+                            double kk = nv.doubleValue() / dd[2];
+                            ObjetosPrediais.setDim(e, dd[0] * kk, dd[1] * kk, nv.doubleValue());
                         } else if (!chave.equals("id") && !chave.equals("tipo")) {
                             e.getProps().put(chave, v);
                         }
@@ -749,6 +804,249 @@ public class ModeloBim {
     private void criar(DiffModelo diff, Elemento e) {
         elementos.add(e);
         diff.criados.add(e);
+    }
+
+    // ------------------------------------------------------------------ objetos e conexões (porte de modelo.ts)
+    private void criarObjeto(ComandoVi cmd, Map<String, Object> a, UUID pav, DiffModelo diff) {
+        if (a.get("item") == null) {
+            throw erro("VI-002", "Argumento obrigatório \"item\" ausente (código da biblioteca de objetos).");
+        }
+        var it = CatalogoObjetos.padrao().item(String.valueOf(a.get("item"))).orElseThrow(() -> erro("VI-003", "Objeto \"" + a.get("item") + "\" não existe na biblioteca."));
+        double l = it.dim().l(), p = it.dim().p(), h = it.dim().a();
+        if (it.alturaVariavel() != null && a.get("altura") != null) {
+            double k = num(a, "altura", h) / h;
+            l = ObjetosPrediais.r3(l * k);
+            p = ObjetosPrediais.r3(p * k);
+            h = ObjetosPrediais.r3(h * k);
+        }
+        if (a.get("l") != null) {
+            l = num(a, "l", l);
+        }
+        if (a.get("p") != null) {
+            p = num(a, "p", p);
+        }
+        if (a.get("a") != null) {
+            h = num(a, "a", h);
+        }
+        var pos = a.get("pos") != null ? pt(a, "pos") : pt(a, "centro");
+        var o = novo(cmd, pav, TipoElemento.OBJETO, Camada.valueOf(it.disciplina()), props("item", it.id(), "centro", pos,
+                "rotacao", ObjetosPrediais.r3(num(a, "rot", 0.0)), "elevacao", it.elevacao() == null ? 0.0 : it.elevacao()));
+        ObjetosPrediais.setDim(o, l, p, h);
+        if (it.temLuz()) {
+            o.getProps().put("ligada", !Boolean.FALSE.equals(a.get("ligada")));
+        }
+        if ("PAREDE".equals(it.montagem())) {
+            var w = encontrarParede(a.get("parede") == null ? null : UUID.fromString(String.valueOf(a.get("parede"))), pos, pav, 0.6);
+            if (w != null) {
+                var proj = Geo.projetarNoSegmento(pos, w.ponto("p1"), w.ponto("p2")).ponto();
+                var u = w.ponto("p2").menos(w.ponto("p1"));
+                double lu = Math.hypot(u.x(), u.y());
+                if (lu == 0) {
+                    lu = 1;
+                }
+                var nrm = new Ponto2D(-u.y() / lu, u.x() / lu);
+                if (nrm.x() * (pos.x() - proj.x()) + nrm.y() * (pos.y() - proj.y()) < 0) {
+                    nrm = new Ponto2D(-nrm.x(), -nrm.y());
+                }
+                double off = w.num("espessura", 0.15) / 2 + p / 2;
+                o.setPonto("centro", new Ponto2D(proj.x() + nrm.x() * off, proj.y() + nrm.y() * off));
+                o.setNum("rotacao", ObjetosPrediais.r3(((Math.toDegrees(Math.atan2(nrm.y(), nrm.x())) - 90 + 360) % 360)));
+                o.getProps().put("paredeId", w.getId());
+            }
+        }
+        if ("TETO".equals(it.montagem())) {
+            o.setNum("elevacao", ObjetosPrediais.r3(ObjetosPrediais.teto(this, pav) - h));
+        }
+        if (a.get("elev") != null) {
+            o.setNum("elevacao", num(a, "elev", 0.0));
+        }
+        criar(diff, o);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static String[] refConector(Object v, String nome) {
+        if (v instanceof String s) {
+            var partes = s.split(":", 2);
+            return new String[]{partes[0], partes.length > 1 ? partes[1] : null};
+        }
+        if (v instanceof Map<?, ?> m && m.get("id") != null) {
+            return new String[]{String.valueOf(m.get("id")), m.get("conector") == null ? null : String.valueOf(m.get("conector"))};
+        }
+        throw erro("VI-002", "Argumento obrigatório \"" + nome + "\" ausente (objeto e conector, ex.: de=\"id:E1\").");
+    }
+
+    private boolean conectorLivre(Elemento o, CatalogoObjetos.Conector c) {
+        long usadas = elementos.stream().filter(e -> e.getTipo() == TipoElemento.CONEXAO
+                && ((o.getId().toString().equals(String.valueOf(ObjetosPrediais.ponta(e, "de").get("id"))) && c.id().equals(String.valueOf(ObjetosPrediais.ponta(e, "de").get("conector"))))
+                || (o.getId().toString().equals(String.valueOf(ObjetosPrediais.ponta(e, "para").get("id"))) && c.id().equals(String.valueOf(ObjetosPrediais.ponta(e, "para").get("conector")))))).count();
+        return usadas < c.maxConexoes();
+    }
+
+    private void conectar(ComandoVi cmd, Map<String, Object> a, UUID pav, DiffModelo diff) {
+        var de = refConector(a.get("de"), "de");
+        var para = refConector(a.get("para"), "para");
+        Elemento oDe = idObjeto(de[0]), oPara = idObjeto(para[0]);
+        if (oDe == null || oPara == null) {
+            throw erro("VI-003", "CONECTAR liga dois objetos da biblioteca (equipamento, louça, luminária, ponto de instalação).");
+        }
+        String sistemaPedido = a.get("sistema") == null ? null : String.valueOf(a.get("sistema"));
+        var iDe = ObjetosPrediais.item(oDe).orElse(null);
+        var iPara = ObjetosPrediais.item(oPara).orElse(null);
+        if (de[1] == null || para[1] == null) {
+            String[] achado = null;
+            outer:
+            for (var par : List.of(new Elemento[]{oDe, oPara}, new Elemento[]{oPara, oDe})) {
+                var ix = ObjetosPrediais.item(par[0]).orElse(null);
+                var iy = ObjetosPrediais.item(par[1]).orElse(null);
+                if (ix == null || iy == null) {
+                    continue;
+                }
+                for (var cx : ix.conectores()) {
+                    for (var cy : iy.conectores()) {
+                        boolean conectorPedido = de[1] == null || (par[0] == oDe ? cx.id() : cy.id()).equals(de[1]);
+                        if ("SAI".equals(cx.fluxo()) && "ENTRA".equals(cy.fluxo()) && cx.sistema().equals(cy.sistema()) && (sistemaPedido == null || cx.sistema().equals(sistemaPedido))
+                                && conectorPedido && conectorLivre(par[0], cx) && conectorLivre(par[1], cy)) {
+                            achado = new String[]{par[0].getId().toString(), cx.id(), par[1].getId().toString(), cy.id()};
+                            break outer;
+                        }
+                    }
+                }
+            }
+            if (achado == null) {
+                throw erro("VI-003", "Não há par de conectores compatível entre " + nomeObjeto(oDe, iDe) + " [" + listaConectores(iDe) + "] e "
+                        + nomeObjeto(oPara, iPara) + " [" + listaConectores(iPara) + "].");
+            }
+            de = new String[]{achado[0], achado[1]};
+            para = new String[]{achado[2], achado[3]};
+        } else {
+            var cDe = iDe == null ? null : iDe.conector(de[1]).orElse(null);
+            var cPara = iPara == null ? null : iPara.conector(para[1]).orElse(null);
+            if (cDe != null && cPara != null && "ENTRA".equals(cDe.fluxo()) && "SAI".equals(cPara.fluxo())) {
+                var t = de;
+                de = para;
+                para = t;
+            }
+        }
+        final String deId = de[0], deConector = de[1], paraId = para[0], paraConector = para[1];
+        var cA = ObjetosPrediais.item(idObjeto(deId)).flatMap(i -> i.conector(deConector)).orElse(null);
+        var cB = ObjetosPrediais.item(idObjeto(paraId)).flatMap(i -> i.conector(paraConector)).orElse(null);
+        String sistema = cA != null ? cA.sistema() : cB != null ? cB.sistema() : sistemaPedido != null ? sistemaPedido : "ELETRICA";
+        var mapaDe = new LinkedHashMap<String, Object>();
+        mapaDe.put("id", de[0]);
+        mapaDe.put("conector", deConector);
+        var mapaPara = new LinkedHashMap<String, Object>();
+        mapaPara.put("id", para[0]);
+        mapaPara.put("conector", para[1]);
+        var pr = props("sistema", sistema, "de", mapaDe, "para", mapaPara, "materialId", str(a, "mat", ObjetosPrediais.MATERIAL_PADRAO.get(sistema)));
+        if ("ELETRICA".equals(sistema)) {
+            // cabo de aparelho numa tomada pertence ao circuito que alimenta a tomada (sem isso o aparelho "sairia" do circuito)
+            String circuitoDaTomada = cA != null && "TOMADA".equals(cA.papel()) ? elementos.stream().filter(x -> x.getTipo() == TipoElemento.CONEXAO
+                    && deId.equals(String.valueOf(ObjetosPrediais.ponta(x, "para").get("id")))).map(x -> x.texto("circuito")).filter(java.util.Objects::nonNull).findFirst().orElse(null) : null;
+            pr.put("circuito", str(a, "circuito", circuitoDaTomada != null ? circuitoDaTomada : "C1"));
+            pr.put("secaoMm2", num(a, "secao", 2.5));
+            pr.put("condutores", a.get("condutores") instanceof List<?> l ? new ArrayList<Object>(l) : new ArrayList<Object>(List.of("F", "N", "PE")));
+            if (a.get("disjuntor") != null) {
+                pr.put("disjuntorA", num(a, "disjuntor", 0.0));
+            }
+        } else {
+            double dnPadrao = Math.max(cA == null || cA.dnMm() == null ? 0 : cA.dnMm(), cB == null || cB.dnMm() == null ? 0 : cB.dnMm());
+            pr.put("dnMm", num(a, "dn", dnPadrao > 0 ? dnPadrao : 20.0));
+            if ("ESGOTO".equals(sistema)) {
+                pr.put("declividade", num(a, "declividade", ObjetosPrediais.DECLIVIDADE_PADRAO));
+            }
+        }
+        criar(diff, novo(cmd, pav, TipoElemento.CONEXAO, "ELETRICA".equals(sistema) ? Camada.eletrica : Camada.hidrossanitaria, pr));
+    }
+
+    private Elemento idObjeto(String id) {
+        try {
+            return elemento(UUID.fromString(id)).filter(e -> e.getTipo() == TipoElemento.OBJETO).orElse(null);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return null;
+        }
+    }
+
+    private static String nomeObjeto(Elemento o, CatalogoObjetos.Item it) {
+        return it == null ? o.texto("item") : it.nome();
+    }
+
+    private static String listaConectores(CatalogoObjetos.Item it) {
+        if (it == null || it.conectores().isEmpty()) {
+            return "nenhum conector";
+        }
+        return String.join(", ", it.conectores().stream().map(c -> c.id() + " (" + c.sistema().toLowerCase() + ", " + ("SAI".equals(c.fluxo()) ? "saída" : "entrada") + ")").toList());
+    }
+
+    /** AUD-01: parede deslocada leva junto paredes ligadas, aberturas delas, cotas sobre o eixo e objetos fixados (igual ao TS) */
+    private void propagarParede(Elemento w, Ponto2D antesP1, Ponto2D antesP2, Ponto2D d, Set<UUID> movidos, DiffModelo diff) {
+        var u = antesP2.menos(antesP1);
+        double L = Math.hypot(u.x(), u.y());
+        if (L < 1e-9) {
+            return;
+        }
+        double ux = u.x() / L, uy = u.y() / L;
+        double dot = d.x() * ux + d.y() * uy;
+        var dn = new Ponto2D(d.x() - dot * ux, d.y() - dot * uy);
+        java.util.function.BiPredicate<Ponto2D, Double> naLinha = (pp, folga) -> {
+            double t = (pp.x() - antesP1.x()) * ux + (pp.y() - antesP1.y()) * uy;
+            double dl = Math.abs((pp.x() - antesP1.x()) * uy - (pp.y() - antesP1.y()) * ux);
+            return dl <= 0.005 && t >= -folga - 1e-9 && t <= L + folga + 1e-9;
+        };
+        for (var o : elementosDo(w.getPavimentoId())) {
+            if (movidos.contains(o.getId()) || o.getId().equals(w.getId())) {
+                continue;
+            }
+            if (o.getTipo() == TipoElemento.PAREDE) {
+                var v = o.ponto("p2").menos(o.ponto("p1"));
+                double lo = Math.hypot(v.x(), v.y());
+                if (lo < 1e-9 || Math.abs((v.x() / lo) * uy - (v.y() / lo) * ux) < Math.sin(Math.toRadians(5))) {
+                    continue;
+                }
+                var a1 = o.ponto("p1");
+                var a2 = o.ponto("p2");
+                boolean mudou = false;
+                for (var k : List.of("p1", "p2")) {
+                    if (!naLinha.test(o.ponto(k), 0.0)) {
+                        continue;
+                    }
+                    var ip = Geo.intersecaoSegmentos(o.ponto("p1"), o.ponto("p2"), w.ponto("p1"), w.ponto("p2"), true).orElse(null);
+                    if (ip != null) {
+                        o.setPonto(k, ip);
+                        mudou = true;
+                    }
+                }
+                if (!mudou) {
+                    continue;
+                }
+                diff.alterados.add(o);
+                double novoL = o.ponto("p1").distancia(o.ponto("p2")), velhoL = a1.distancia(a2);
+                boolean p1Fixo = o.ponto("p1").distancia(a1) < 1e-9;
+                for (var ab : elementos) {
+                    if ((ab.getTipo() == TipoElemento.PORTA || ab.getTipo() == TipoElemento.JANELA) && o.getId().equals(ab.uuid("paredeId"))) {
+                        double s0 = ab.num("posicao", 0.5) * velhoL;
+                        double ns = p1Fixo ? s0 : novoL - (velhoL - s0);
+                        ab.setNum("posicao", ns / novoL);
+                        diff.alterados.add(ab);
+                    }
+                }
+            }
+            if (o.getTipo() == TipoElemento.COTA) {
+                boolean mudou = false;
+                for (var k : List.of("p1", "p2")) {
+                    if (naLinha.test(o.ponto(k), 2.0)) {
+                        o.setPonto(k, o.ponto(k).mais(dn));
+                        mudou = true;
+                    }
+                }
+                if (mudou) {
+                    diff.alterados.add(o);
+                }
+            }
+            if (o.getTipo() == TipoElemento.OBJETO && o.texto("paredeId") != null && w.getId().equals(o.uuid("paredeId"))) {
+                o.setPonto("centro", o.ponto("centro").mais(d));
+                diff.alterados.add(o);
+            }
+        }
     }
 
     private Elemento copiaNova(Elemento e, ComandoVi cmd) {
@@ -874,6 +1172,10 @@ public class ModeloBim {
     }
 
     private Elemento encontrarParede(UUID id, Ponto2D pos, UUID pav) {
+        return encontrarParede(id, pos, pav, 0.15);
+    }
+
+    private Elemento encontrarParede(UUID id, Ponto2D pos, UUID pav, double alcance) {
         if (id != null) {
             return elemento(id).orElse(null);
         }
@@ -887,7 +1189,7 @@ public class ModeloBim {
                 continue;
             }
             double d = Geo.projetarNoSegmento(pos, e.ponto("p1"), e.ponto("p2")).ponto().distancia(pos);
-            if (d <= e.num("espessura", 0.15) + 0.15 && d < melhorD) {
+            if (d <= e.num("espessura", 0.15) + alcance && d < melhorD) {
                 melhor = e;
                 melhorD = d;
             }

@@ -2,7 +2,7 @@
  * Osnap (RF28 CA-04): candidatos a ponto notável com prioridade EIX > EXT > INT > MED > CEN > PER > TAN > NOD > QUA > PRX > NIV.
  * Devolve o melhor dentro do raio de atração (em pixels, convertido para metros pela escala atual).
  */
-import { dist, intersecaoSegmentos, projetarNoSegmento, type Elemento, type ModeloBim, type ModoOsnap, type Ponto2D, PRIORIDADE_OSNAP } from "@cca/notacao-vi";
+import { cantosObjeto, dist, intersecaoSegmentos, percursoConexao, projetarNoSegmento, type Elemento, type ModeloBim, type ModoOsnap, type Ponto2D, PRIORIDADE_OSNAP } from "@cca/notacao-vi";
 
 export type Candidato = { modo: ModoOsnap; p: Ponto2D; rotulo: string };
 
@@ -15,6 +15,7 @@ function segmentos(e: Elemento): [Ponto2D, Ponto2D][] {
     case "LAJE": case "HACHURA": return e.contorno.map((p, i, arr) => [p, arr[(i + 1) % arr.length]!] as [Ponto2D, Ponto2D]);
     case "POLILINHA": return e.pontos.slice(0, e.fechada ? undefined : -1).map((p, i) => [p, e.pontos[(i + 1) % e.pontos.length]!] as [Ponto2D, Ponto2D]);
     case "PILAR": { const b = e.b / 2, h = e.h / 2, c = e.centro; const q = [{ x: c.x - b, y: c.y - h }, { x: c.x + b, y: c.y - h }, { x: c.x + b, y: c.y + h }, { x: c.x - b, y: c.y + h }]; return q.map((p, i) => [p, q[(i + 1) % 4]!] as [Ponto2D, Ponto2D]); }
+    case "OBJETO": { const q = cantosObjeto(e); return q.map((p, i) => [p, q[(i + 1) % 4]!] as [Ponto2D, Ponto2D]); }
     case "SAPATA": case "BLOCO": case "RADIER": { const b = e.bx / 2, h = e.by / 2, c = e.centro; const q = [{ x: c.x - b, y: c.y - h }, { x: c.x + b, y: c.y - h }, { x: c.x + b, y: c.y + h }, { x: c.x - b, y: c.y + h }]; return q.map((p, i) => [p, q[(i + 1) % 4]!] as [Ponto2D, Ponto2D]); }
     default: return [];
   }
@@ -72,6 +73,7 @@ export function distanciaAoElemento(e: Elemento, p: Ponto2D, modelo: ModeloBim):
     for (const [a, b] of segs) d = Math.min(d, dist(projetarNoSegmento(p, a, b).ponto, p));
     if (e.tipo === "PAREDE") d = Math.max(0, d - e.espessura / 2);
     if (e.tipo === "VIGA") d = Math.max(0, d - e.b / 2);
+    if (e.tipo === "OBJETO" && pontoNoRetangulo(p, cantosObjeto(e))) d = 0;
     return d;
   }
   switch (e.tipo) {
@@ -81,6 +83,7 @@ export function distanciaAoElemento(e: Elemento, p: Ponto2D, modelo: ModeloBim):
     case "AMBIENTE": return dist(e.ponto, p) - 0.3;
     case "TEXTO": case "ETIQUETA": return dist(e.p, p) - 0.3;
     case "PORTA": case "JANELA": return dist(modelo.pontoRepresentativo(e), p) - e.largura / 2;
+    case "CONEXAO": { const pts = percursoConexao(modelo, e); let d = Infinity; for (let i = 1; i < pts.length; i++) d = Math.min(d, dist(projetarNoSegmento(p, pts[i - 1]!, pts[i]!).ponto, p)); return d; }
     default: return Infinity;
   }
 }
@@ -91,6 +94,13 @@ export function caixaElemento(e: Elemento, modelo: ModeloBim): { min: Ponto2D; m
   for (const s of segmentos(e)) pts.push(...s);
   if (e.tipo === "CIRCULO") pts.push({ x: e.centro.x - e.raio, y: e.centro.y - e.raio }, { x: e.centro.x + e.raio, y: e.centro.y + e.raio });
   if (e.tipo === "ARCO") pts.push(e.p1, e.p2, e.p3);
+  if (e.tipo === "CONEXAO") pts.push(...percursoConexao(modelo, e));
   if (!pts.length) { const p = modelo.pontoRepresentativo(e); pts.push(p); }
   return { min: { x: Math.min(...pts.map((p) => p.x)), y: Math.min(...pts.map((p) => p.y)) }, max: { x: Math.max(...pts.map((p) => p.x)), y: Math.max(...pts.map((p) => p.y)) } };
+}
+
+function pontoNoRetangulo(p: Ponto2D, q: Ponto2D[]): boolean {
+  let sinal = 0;
+  for (let i = 0; i < q.length; i++) { const a = q[i]!, b = q[(i + 1) % q.length]!; const c = (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x); if (Math.abs(c) < 1e-12) continue; const sg = Math.sign(c); if (sinal && sg !== sinal) return false; sinal = sg; }
+  return true;
 }

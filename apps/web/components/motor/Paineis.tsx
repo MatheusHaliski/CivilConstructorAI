@@ -1,6 +1,6 @@
 "use client";
 /** Painéis laterais: camadas (VG/LA), propriedades (PR, formulário H5), atalhos (KS), ajuda, auditoria. */
-import { CATALOGO, CATALOGO_MATERIAIS, conflitosDeAlias, MODOS_OSNAP, TECLAS_RESERVADAS_NAVEGADOR, type Camada, type Elemento } from "@cca/notacao-vi";
+import { CATALOGO, CATALOGO_MATERIAIS, comprimentoPercurso, conflitosDeAlias, itemObjeto, MODOS_OSNAP, percursoConexao, problemasConexao, problemasObjeto, rotuloSistema, TECLAS_RESERVADAS_NAVEGADOR, type Camada, type Conexao, type Elemento, type Objeto } from "@cca/notacao-vi";
 import { useMotor } from "@/lib/motor/estado";
 import { Alternar, Botao, Etiqueta, cx } from "@/components/ui";
 import { SeletorMaterial } from "./SeletorMaterial";
@@ -8,6 +8,7 @@ import { SeletorMaterial } from "./SeletorMaterial";
 const CAMADAS: { id: Camada; rotulo: string; cor: string }[] = [
   { id: "arquitetura", rotulo: "Arquitetura", cor: "#2A2420" }, { id: "estrutura", rotulo: "Estrutura", cor: "#1D4ED8" }, { id: "fundacao", rotulo: "Fundação", cor: "#7C4A1E" },
   { id: "desenho", rotulo: "Desenho auxiliar", cor: "#6B7280" }, { id: "anotacao", rotulo: "Anotação", cor: "#166534" }, { id: "ia-rascunho", rotulo: "Rascunho de IA", cor: "#A855F7" },
+  { id: "mobiliario", rotulo: "Mobiliário", cor: "#B45309" }, { id: "eletrica", rotulo: "Elétrica", cor: "#CA8A04" }, { id: "hidrossanitaria", rotulo: "Hidrossanitária", cor: "#0284C7" }, { id: "humanos", rotulo: "Pessoas (humanos)", cor: "#BE185D" },
 ];
 
 export function PainelCamadas() {
@@ -20,6 +21,7 @@ export function PainelCamadas() {
           <input type="checkbox" checked={s.camadasVisiveis.has(c.id)} onChange={() => s.alternarCamada(c.id)} className="size-4 accent-[var(--brand)]" />
           <span className="inline-block size-3 rounded-sm" style={{ background: c.cor }} aria-hidden />{c.rotulo}
           <span className="ml-auto text-xs text-text-3">{s.modelo.elementosDo(s.pavimentoId).filter((e) => e.camada === c.id).length}</span>
+          <button type="button" onClick={(ev) => { ev.preventDefault(); s.soCamada(c.id); }} className="rounded border border-line-soft px-1.5 text-[11px] text-text-3 hover:bg-surface" aria-label={`Isolar disciplina ${c.rotulo}`}>isolar</button>
         </label>
       ))}
       <h3 className="text-sm font-semibold mt-2">Atração a objetos (Osnap)</h3>
@@ -48,7 +50,15 @@ export function PainelPropriedades() {
   const ids = [...s.selecao];
   const e = ids.length === 1 ? s.modelo.elemento(ids[0]!) : undefined;
   if (!ids.length) return <p className="text-sm text-text-3">Selecione um elemento na planta ou no 3D para ver as propriedades.</p>;
-  if (!e) return <p className="text-sm text-text-2">{ids.length} elementos selecionados. <Botao pequeno variante="secundario" onClick={() => s.iniciar("E")}>Apagar (E)</Botao></p>;
+  if (!e) return (
+    <div className="flex flex-col gap-2 text-sm">
+      <p className="text-text-2">{ids.length} elementos selecionados:</p>
+      <ul className="flex flex-col gap-1">{ids.map((id) => { const x = s.modelo.elemento(id); if (!x) return null; const nome = x.tipo === "OBJETO" ? itemObjeto(x.item)?.nome ?? x.item : x.tipo; return <li key={id}><button type="button" className="underline text-left" onClick={() => s.selecionar([id], "substituir")}>{nome} ({x.rotulo ?? s.modelo.rotuloAutomatico(x)})</button></li>; })}</ul>
+      <Botao pequeno variante="secundario" onClick={() => s.iniciar("E")} disabled={!s.podeEditar}>Apagar (E)</Botao>
+    </div>
+  );
+  if (e.tipo === "OBJETO") return <PainelObjeto o={e} />;
+  if (e.tipo === "CONEXAO") return <PainelConexao c={e} />;
   const campos = CAMPOS[e.tipo] ?? [];
   const pav = s.modelo.pavimento(e.pavimentoId);
   const enviar = (campo: string, valor: unknown) => void s.alterarPropriedade(e.id, campo, valor);
@@ -70,6 +80,102 @@ export function PainelPropriedades() {
       {CATALOGO_MATERIAIS.materiais.some((m) => m.aplicacoes.includes(e.tipo)) && <SeletorMaterial key={e.id} elemento={e} />}
       <p className="text-[11px] text-text-3">Enter aplica (gera <code className="mono">VI(ALTERAR)</code> e passa pelo auditor).</p>
       <div className="flex gap-2"><Botao pequeno variante="secundario" onClick={() => s.iniciar("TG")}>Etiquetar (TG)</Botao><Botao pequeno variante="perigo" onClick={() => s.iniciar("E")} disabled={!s.podeEditar}>Apagar</Botao></div>
+    </div>
+  );
+}
+
+function Campo({ rotulo, valor, onEnviar, desabilitado, unidade }: { rotulo: string; valor: number | string | undefined; onEnviar: (v: number) => void; desabilitado?: boolean; unidade?: string }) {
+  return (
+    <label className="flex flex-col gap-1 text-xs"><span className="text-text-3">{rotulo}{unidade ? ` (${unidade})` : ""}</span>
+      <input key={String(valor)} defaultValue={String(valor ?? "")} disabled={desabilitado} inputMode="decimal" className="mono min-h-9 rounded border border-line bg-bg px-2 text-sm"
+        onKeyDown={(ev) => { if (ev.key === "Enter") { const n = Number((ev.target as HTMLInputElement).value.replace(",", ".")); if (Number.isFinite(n)) onEnviar(n); } }}
+        onBlur={(ev) => { const n = Number(ev.target.value.replace(",", ".")); if (Number.isFinite(n) && String(n) !== String(valor)) onEnviar(n); }} />
+    </label>
+  );
+}
+
+function Problemas({ lista }: { lista: { codigo: string; mensagem: string }[] }) {
+  if (!lista.length) return null;
+  return <ul role="alert" className="flex flex-col gap-1 rounded border border-danger bg-danger-bg p-2 text-xs text-danger">{lista.map((p, i) => <li key={i}><strong className="mono">{p.codigo}</strong> {p.mensagem}</li>)}</ul>;
+}
+
+/** objeto da biblioteca: dimensões (sem deformar equipamentos), montagem, estado da luminária e conectores com "Conectar a…" */
+function PainelObjeto({ o }: { o: Objeto }) {
+  const s = useMotor(); const m = s.modelo; const it = itemObjeto(o.item);
+  const host = o.paredeId ? m.elemento(o.paredeId) : undefined;
+  const conexoes = m.elementos.filter((x): x is Conexao => x.tipo === "CONEXAO" && (x.de.id === o.id || x.para.id === o.id));
+  const enviar = (campo: string, valor: unknown) => void s.alterarPropriedade(o.id, campo, valor);
+  const ed = !s.podeEditar;
+  const nome = (id: string) => { const x = m.elemento(id); return x ? `${x.tipo === "OBJETO" ? itemObjeto(x.item)?.nome ?? x.item : x.tipo} (${x.rotulo ?? m.rotuloAutomatico(x)})` : id; };
+  return (
+    <div className="flex flex-col gap-3 text-sm">
+      <div className="flex items-center gap-2 flex-wrap"><span className="font-semibold">{it?.nome ?? o.item}</span><Etiqueta tom="marca">{o.rotulo ?? m.rotuloAutomatico(o)}</Etiqueta><Etiqueta>{o.camada}</Etiqueta></div>
+      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-text-2">
+        <dt>Item</dt><dd className="mono">{o.item}</dd><dt>Centro</dt><dd className="mono">[{o.centro.x.toFixed(3)}; {o.centro.y.toFixed(3)}]</dd>
+        <dt>Montagem</dt><dd>{it?.montagem === "PAREDE" ? `parede ${host ? host.rotulo ?? m.rotuloAutomatico(host) : "— sem parede"}` : it?.montagem === "TETO" ? "teto" : "piso"}</dd>
+        <dt>IFC</dt><dd className="mono">{it?.ifc || "não exportado (pessoa)"}</dd><dt>Fabricante</dt><dd>genérico (dimensões típicas adotadas)</dd>
+      </dl>
+      <div className="grid grid-cols-2 gap-2">
+        <Campo rotulo="Rotação" unidade="°" valor={o.rotacao} onEnviar={(v) => enviar("rotacao", v)} desabilitado={ed} />
+        <Campo rotulo="Elevação" unidade="m" valor={o.elevacao} onEnviar={(v) => enviar("elevacao", v)} desabilitado={ed} />
+        {it?.alturaVariavel ? <Campo rotulo={`Altura ${it.alturaVariavel.min}–${it.alturaVariavel.max}`} unidade="m" valor={o.dim.a} onEnviar={(v) => enviar("altura", v)} desabilitado={ed} />
+          : (["l", "p", "a"] as const).map((k) => <Campo key={k} rotulo={k === "l" ? "Largura" : k === "p" ? "Profundidade" : "Altura"} unidade="m" valor={o.dim[k]} onEnviar={(v) => enviar("dim", { ...o.dim, [k]: v })} desabilitado={ed || !it?.redimensionavel} />)}
+      </div>
+      {!it?.redimensionavel && !it?.alturaVariavel && <p className="text-[11px] text-text-3">Equipamento com dimensões de produto: não é deformado. Troque por outro item da biblioteca se precisar de outra medida.</p>}
+      {it?.alturaVariavel && <p className="text-[11px] text-text-3">Pessoas escalam de modo uniforme pela altura; não entram em quantitativos, orçamento nem cargas.</p>}
+      {it?.luz && <><Alternar rotulo="Luminária acesa (efeito visual)" ligado={o.ligada !== false} onChange={(x) => enviar("ligada", x)} disabled={ed} /><p className="text-[11px] text-text-3">{it.luz.fluxoLm} lm · {it.luz.temperaturaK} K · alcance {it.luz.alcanceM} m. Apagar aqui não desliga o circuito nem remove a conexão.</p></>}
+      {it?.disciplina === "humanos" && <Botao pequeno variante="secundario" onClick={() => s.setPrimeiraPessoa(o.id)}>Ver em 1ª pessoa (3D)</Botao>}
+      {it && it.conectores.length > 0 && (
+        <div className="flex flex-col gap-1"><h4 className="text-xs font-semibold">Conectores</h4>
+          <ul className="flex flex-col gap-1">{it.conectores.map((k) => {
+            const ligadas = conexoes.filter((c) => (c.de.id === o.id && c.de.conector === k.id) || (c.para.id === o.id && c.para.conector === k.id));
+            const max = k.maxConexoes ?? 1;
+            return (
+              <li key={k.id} className="flex flex-col gap-1 rounded border border-line-soft p-1.5 text-xs">
+                <span><strong className="mono">{k.id}</strong> · {rotuloSistema(k.sistema)} · {k.fluxo === "SAI" ? "saída" : "entrada"}{k.tensaoV ? ` · ${k.tensaoV} V` : ""}{k.potenciaW ? ` · ${k.potenciaW} W` : ""}{k.correnteMaxA ? ` · até ${k.correnteMaxA} A` : ""}{k.dnMm ? ` · DN${k.dnMm}` : ""}</span>
+                <span className="text-text-3">{ligadas.length ? `ligado a ${ligadas.map((c) => nome(c.de.id === o.id ? c.para.id : c.de.id)).join(", ")}` : "livre"} ({ligadas.length}/{max})</span>
+                {ligadas.length < max && <Botao pequeno variante="secundario" disabled={ed} onClick={() => { s.setVista("2D"); s.iniciar("CONECTAR", { valores: { de: `${o.id}:${k.id}` }, selecoes: [[o.id]] }); }}>Conectar {k.id} a…</Botao>}
+              </li>
+            );
+          })}</ul>
+        </div>
+      )}
+      {it && it.conectores.length === 0 && <p className="text-xs text-text-3">Este objeto não tem conexões elétricas nem hidráulicas.</p>}
+      <Problemas lista={problemasObjeto(m, o)} />
+      <div className="flex gap-2"><Botao pequeno variante="secundario" onClick={() => s.iniciar("M")} disabled={ed}>Mover</Botao><Botao pequeno variante="secundario" onClick={() => s.iniciar("RO")} disabled={ed}>Girar</Botao><Botao pequeno variante="perigo" onClick={() => s.iniciar("E")} disabled={ed}>Apagar</Botao></div>
+    </div>
+  );
+}
+
+/** conexão: ligação lógica (circuito/sistema), conexão física (conectores, condutores, DN) e representação gráfica (percurso derivado) */
+function PainelConexao({ c }: { c: Conexao }) {
+  const s = useMotor(); const m = s.modelo; const ed = !s.podeEditar;
+  const enviar = (campo: string, valor: unknown) => void s.alterarPropriedade(c.id, campo, valor);
+  const nome = (id: string) => { const x = m.elemento(id); return x?.tipo === "OBJETO" ? `${itemObjeto(x.item)?.nome ?? x.item} (${x.rotulo ?? m.rotuloAutomatico(x)})` : id; };
+  const pts = percursoConexao(m, c); const cordao = pts.length === 2;
+  return (
+    <div className="flex flex-col gap-3 text-sm">
+      <div className="flex items-center gap-2 flex-wrap"><span className="font-semibold">Conexão de {rotuloSistema(c.sistema)}</span><Etiqueta tom="marca">{c.rotulo ?? m.rotuloAutomatico(c)}</Etiqueta></div>
+      <section className="flex flex-col gap-2 rounded border border-line-soft p-2"><h4 className="text-xs font-semibold">Ligação lógica</h4>
+        {c.sistema === "ELETRICA" ? <div className="grid grid-cols-2 gap-2">
+          <label className="flex flex-col gap-1 text-xs"><span className="text-text-3">Circuito</span><input key={c.circuito} defaultValue={c.circuito ?? "C1"} disabled={ed} className="mono min-h-9 rounded border border-line bg-bg px-2 text-sm" onKeyDown={(ev) => { if (ev.key === "Enter") enviar("circuito", (ev.target as HTMLInputElement).value.trim()); }} onBlur={(ev) => { if (ev.target.value.trim() !== (c.circuito ?? "C1")) enviar("circuito", ev.target.value.trim()); }} /></label>
+          <Campo rotulo="Disjuntor" unidade="A" valor={c.disjuntorA} onEnviar={(v) => enviar("disjuntorA", v)} desabilitado={ed} />
+        </div> : <p className="text-xs text-text-2">Sistema de {rotuloSistema(c.sistema)} (rede verificada pela coordenação → instalações).</p>}
+      </section>
+      <section className="flex flex-col gap-2 rounded border border-line-soft p-2"><h4 className="text-xs font-semibold">Conexão física</h4>
+        <p className="text-xs text-text-2">{nome(c.de.id)}.<span className="mono">{c.de.conector}</span> (saída) → {nome(c.para.id)}.<span className="mono">{c.para.conector}</span> (entrada)</p>
+        <div className="grid grid-cols-2 gap-2">
+          {c.sistema === "ELETRICA" ? <><Campo rotulo="Seção" unidade="mm²" valor={c.secaoMm2} onEnviar={(v) => enviar("secaoMm2", v)} desabilitado={ed} /><p className="text-xs text-text-2 self-end">Condutores: {(c.condutores ?? []).join(", ") || "—"}</p></>
+            : <><Campo rotulo="Diâmetro nominal" unidade="mm" valor={c.dnMm} onEnviar={(v) => enviar("dnMm", v)} desabilitado={ed} />{c.sistema === "ESGOTO" && <Campo rotulo="Declividade" unidade="m/m" valor={c.declividade} onEnviar={(v) => enviar("declividade", v)} desabilitado={ed} />}</>}
+        </div>
+        <p className="text-[11px] text-text-3">Material: <span className="mono">{c.materialId ?? "—"}</span></p>
+      </section>
+      <section className="flex flex-col gap-1 rounded border border-line-soft p-2"><h4 className="text-xs font-semibold">Representação gráfica</h4>
+        <p className="text-xs text-text-2">{cordao ? "Cabo do próprio aparelho (tomada → plugue), em linha direta." : c.sistema === "ESGOTO" ? "Percurso esquemático sob o piso, com a declividade da conexão." : "Percurso esquemático: sobe ao forro, corre em X e Y e desce."} Comprimento {comprimentoPercurso(pts).toFixed(2)} m.</p>
+        <p className="text-[11px] text-text-3">Derivado das posições dos conectores (não é traçado de obra): mover um dos objetos recalcula o desenho sem desfazer a ligação.</p>
+      </section>
+      <Problemas lista={problemasConexao(m, c)} />
+      <Botao pequeno variante="perigo" onClick={() => s.iniciar("E")} disabled={ed}>Desfazer conexão (apagar)</Botao>
     </div>
   );
 }

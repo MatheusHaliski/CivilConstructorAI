@@ -29,8 +29,8 @@
       "d": "Há 1 problema(s) nos dados enviados.",
       "e": [
         {
-          "mensagem": "Informe a posição da carga pontual: distância em metros a partir do início da viga (0 a 5.00 m).",
-          "campo": "posicao"
+          "campo": "posicao",
+          "mensagem": "Informe a posição da carga pontual: distância em metros a partir do início da viga (0 a 5.00 m)."
         }
       ]
     }
@@ -231,7 +231,7 @@
     "id": "j5-3d",
     "descricao": "3D oferece raio X, corte e armaduras do último dimensionamento",
     "ok": true,
-    "evidencia": "Cena 3D com 13 elementos e 457 barras de armadura"
+    "evidencia": "Cena 3D em modo Realista · dia, 13 elementos e 457 barras"
   },
   {
     "rf": "UX",

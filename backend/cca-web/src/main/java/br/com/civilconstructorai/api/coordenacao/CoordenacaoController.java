@@ -32,6 +32,13 @@ public class CoordenacaoController {
         return coordenacao.verificar(obraId);
     }
 
+    /** verificação das redes de instalações a partir das conexões do modelo (AUD-03/04) */
+    @GetMapping("/instalacoes")
+    public CoordenacaoService.VerificacaoRedes instalacoes(@PathVariable UUID obraId, @org.springframework.web.bind.annotation.RequestParam(required = false) Double tensao,
+                                                          @org.springframework.web.bind.annotation.RequestParam(required = false) Double fp) {
+        return coordenacao.verificarRedes(obraId, tensao, fp);
+    }
+
     public record Decisao(String estado, String justificativa) {
     }
 

@@ -15,7 +15,7 @@ public final class Enums {
         PAREDE, PILAR, VIGA, LAJE, PORTA, JANELA, AMBIENTE,
         LINHA, POLILINHA, CIRCULO, RETANGULO, ARCO, PONTO, PLANO_REF,
         CONTRAVENTAMENTO, SAPATA, BLOCO, RADIER, ESTACA,
-        COTA, TEXTO, ETIQUETA, HACHURA;
+        COTA, TEXTO, ETIQUETA, HACHURA, OBJETO, CONEXAO;
 
         public boolean construtivo() {
             return switch (this) {
@@ -25,7 +25,7 @@ public final class Enums {
         }
     }
 
-    public enum Camada { arquitetura, estrutura, fundacao, desenho, anotacao, ia_rascunho;
+    public enum Camada { arquitetura, estrutura, fundacao, desenho, anotacao, ia_rascunho, mobiliario, eletrica, hidrossanitaria, humanos;
         public String rotulo() {
             return this == ia_rascunho ? "ia-rascunho" : name();
         }

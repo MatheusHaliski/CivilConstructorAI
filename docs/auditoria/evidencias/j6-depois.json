@@ -1,0 +1,503 @@
+[
+  {
+    "rf": "AUD-01",
+    "id": "divisoria-12cm",
+    "descricao": "divisória de 12 cm com bloco cerâmico de 9 cm (material disponível no catálogo)",
+    "ok": true,
+    "evidencia": {
+      "s": 201
+    }
+  },
+  {
+    "rf": "CT-01",
+    "id": "planta",
+    "descricao": "planta com sala, cozinha, banheiro e dois quartos (11 paredes, 4 portas, 2 janelas, 5 ambientes)",
+    "ok": true,
+    "evidencia": {
+      "paredes": 11,
+      "versao": 25
+    }
+  },
+  {
+    "rf": "AUD-01",
+    "id": "mover-parede",
+    "descricao": "parede da cozinha deslocada 60 cm",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "p1": {
+        "x": 3.6,
+        "y": 0
+      },
+      "p2": {
+        "x": 3.6,
+        "y": 3.5
+      }
+    }
+  },
+  {
+    "rf": "AUD-01",
+    "id": "parede-ligada",
+    "descricao": "parede ligada (divisa cozinha|banheiro) acompanha: termina em x = 3,60",
+    "ok": true,
+    "evidencia": {
+      "norte": {
+        "id": "01a17560-a92d-74e5-87e6-5b8aca603048",
+        "tipo": "PAREDE",
+        "pavimentoId": "eb78ee64-113c-33ad-9bb8-30ce2e7702d0",
+        "camada": "arquitetura",
+        "materialId": "MAT.ALVENARIA.CERAMICO_VEDACAO_14",
+        "origem": "CANVAS",
+        "props": {
+          "p1": {
+            "x": 0,
+            "y": 3.5
+          },
+          "p2": {
+            "x": 3.6,
+            "y": 3.5
+          },
+          "altura": 2.8,
+          "externa": true,
+          "espessura": 0.15,
+          "materialId": "MAT.ALVENARIA.CERAMICO_VEDACAO_14"
+        },
+        "p1": {
+          "x": 0,
+          "y": 3.5
+        },
+        "p2": {
+          "x": 3.6,
+          "y": 3.5
+        },
+        "altura": 2.8,
+        "externa": true,
+        "espessura": 0.15
+      }
+    }
+  },
+  {
+    "rf": "AUD-01",
+    "id": "porta-dependente",
+    "descricao": "porta da cozinha mantém a posição absoluta (x = 1,50 m)",
+    "ok": true,
+    "evidencia": {
+      "antes": 1.5,
+      "depois": 1.5
+    }
+  },
+  {
+    "rf": "AUD-01",
+    "id": "cota",
+    "descricao": "cota da largura da cozinha passa a medir 3,60 m",
+    "ok": true,
+    "evidencia": {
+      "cota": [
+        {
+          "x": 0,
+          "y": -0.5
+        },
+        {
+          "x": 3.6,
+          "y": -0.5
+        }
+      ]
+    }
+  },
+  {
+    "rf": "AUD-01",
+    "id": "parede-continua",
+    "descricao": "parede do banheiro, que continuava a da cozinha, não é deslocada junto",
+    "ok": true,
+    "evidencia": {
+      "banho": [
+        {
+          "x": 3,
+          "y": 3.5
+        },
+        {
+          "x": 3,
+          "y": 5.5
+        }
+      ]
+    }
+  },
+  {
+    "rf": "CT-03",
+    "id": "mobiliario",
+    "descricao": "15 objetos inseridos (sala, cozinha, dormitórios, banheiro, serviço, decoração)",
+    "ok": true,
+    "evidencia": {
+      "falhos": []
+    }
+  },
+  {
+    "rf": "AUD-02",
+    "id": "encaixe-parede",
+    "descricao": "TV de parede encosta na face da parede e fica a 1,00 m do piso",
+    "ok": true,
+    "evidencia": {
+      "centro": {
+        "x": 3.715,
+        "y": 1.6
+      },
+      "elevacao": 1,
+      "paredeId": "01a17560-a90d-7c4b-93cb-bee5737d244b"
+    }
+  },
+  {
+    "rf": "AUD-02",
+    "id": "sem-deformacao",
+    "descricao": "deformar a geladeira (altura 2,40 m) é recusado; dimensões do produto preservadas",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Geladeira com dispensador de água tem dimensões de produto (0.9 × 0.75 × 1.85 m) e não pode ser deformado. Escolha outro modelo da biblioteca."
+    }
+  },
+  {
+    "rf": "AUD-02",
+    "id": "redimensionavel",
+    "descricao": "mesa (móvel redimensionável) aceita 2,20 m de comprimento",
+    "ok": true,
+    "evidencia": {
+      "s": 201
+    }
+  },
+  {
+    "rf": "AUD-02",
+    "id": "teto",
+    "descricao": "pendente vai ao teto livre: elevação = 3,00 − 0,12 (laje) − 0,60 (altura) = 2,28 m",
+    "ok": true,
+    "evidencia": {
+      "elevacao": 2.28
+    }
+  },
+  {
+    "rf": "AUD-02",
+    "id": "biblioteca",
+    "descricao": "biblioteca pela API: busca \"geladeira 70\" acha só a geladeira de 0,70 m; categoria BANHEIRO lista louças",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "achados": [
+        "COZINHA.GELADEIRA"
+      ],
+      "banheiro": 5,
+      "fabricante": "genérico (dimensões típicas adotadas, não de fabricante)"
+    }
+  },
+  {
+    "rf": "AUD-02",
+    "id": "rota-inexistente",
+    "descricao": "endereço inexistente responde 404 (antes: 500)",
+    "ok": true,
+    "evidencia": {
+      "s": 404
+    }
+  },
+  {
+    "rf": "CT-04",
+    "id": "eletrica",
+    "descricao": "12 ligações elétricas (quadro → tomadas → aparelhos; quadro → luminárias e chuveiro)",
+    "ok": true,
+    "evidencia": {
+      "falhos": []
+    }
+  },
+  {
+    "rf": "AUD-03",
+    "id": "sentido",
+    "descricao": "ligação pedida na ordem geladeira → tomada é gravada no sentido saída → entrada (tomada.S1 → geladeira.E1)",
+    "ok": true,
+    "evidencia": {
+      "de": {
+        "id": "01a17560-ae62-7d7e-992e-dc79f32b3204",
+        "conector": "S1"
+      },
+      "para": {
+        "id": "01a17560-ac63-77b7-90af-55de45171f62",
+        "conector": "E1"
+      }
+    }
+  },
+  {
+    "rf": "AUD-03",
+    "id": "incompativel",
+    "descricao": "chuveiro 5500 W/220 V numa tomada de 10 A/127 V é recusado com motivo (tensão e corrente)",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "codigos": [
+        "CON-TENSAO",
+        "CON-CORRENTE",
+        "CON-OCUPADO"
+      ],
+      "msg": [
+        "Tensão incompatível: Chuveiro elétrico é 220 V e Tomada 10 A fornece 127 V.",
+        "Chuveiro elétrico (5500 W em 220 V → 25.0 A) excede a Tomada 10 A (10 A). Ligue em circuito próprio a partir do quadro.",
+        "O conector E1 de Chuveiro elétrico já está ligado (1 de 1)."
+      ]
+    }
+  },
+  {
+    "rf": "AUD-04",
+    "id": "sofa",
+    "descricao": "sofá não oferece conexão: pedido recusado explicando que não há conectores compatíveis",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Há 1 problema(s) nos dados enviados."
+    }
+  },
+  {
+    "rf": "AUD-03",
+    "id": "mover-conectado",
+    "descricao": "mover a geladeira conectada mantém a conexão e avisa o percurso recalculado",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "avisos": [
+        "Conexão Tomada 10 A → Geladeira com dispensador de água continua ligada; percurso esquemático recalculado: 0.73 m."
+      ]
+    }
+  },
+  {
+    "rf": "AUD-07",
+    "id": "luminaria-desligada",
+    "descricao": "apagar a luminária (efeito visual) não remove a conexão nem a carga do circuito",
+    "ok": true,
+    "evidencia": {
+      "s": 201
+    }
+  },
+  {
+    "rf": "CT-05",
+    "id": "hidrossanitaria",
+    "descricao": "13 ligações de água fria, água quente, esgoto e ventilação",
+    "ok": true,
+    "evidencia": {
+      "falhos": []
+    }
+  },
+  {
+    "rf": "AUD-04",
+    "id": "sistema-incompativel",
+    "descricao": "água fria direto na entrada de água quente da pia é recusada",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "msg": [
+        "Sistemas incompatíveis: água fria (Entrada de água fria (hidrômetro)) com água quente (Pia de cozinha).",
+        "O conector AQ1 de Pia de cozinha já está ligado (1 de 1)."
+      ]
+    }
+  },
+  {
+    "rf": "AUD-03",
+    "id": "rede-verificada",
+    "descricao": "verificador de redes lê as conexões do modelo (componentes, trechos, circuitos, declividade)",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "componentes": 30,
+      "trechos": 25,
+      "estado": "DADOS_INSUFICIENTES",
+      "porCodigo": {
+        "MEP-ESG-01:ATENDIDA": 4,
+        "MEP-ESG-05:NAO_VERIFICADA": 1,
+        "MEP-VEN-02:NAO_VERIFICADA": 1,
+        "MEP-AGU-04:NAO_VERIFICADA": 2,
+        "MEP-ELE-05:ATENDIDA": 4,
+        "MEP-ELE-06:DADOS_INSUFICIENTES": 4,
+        "MEP-ELE-07:DADOS_INSUFICIENTES": 4,
+        "MEP-ELE-05:DADOS_INSUFICIENTES": 1
+      }
+    }
+  },
+  {
+    "rf": "AUD-05",
+    "id": "cenario",
+    "descricao": "os cinco conflitos do cenário AUD-05 são detectados, com objetos envolvidos e explicação",
+    "ok": true,
+    "evidencia": {
+      "tubulação × viga": {
+        "regra": "MEP-01",
+        "tipo": "GEOMETRICO",
+        "mensagem": "O percurso de água fria Entrada de água fria (hidrômetro) (OB25) → Lavatório (OB13) atravessa a viga V1. O CivilConstructor não abre furos em elementos estruturais: desvie o percurso ou submeta a passagem à validação do engenheiro estrutural.",
+        "evidencia": "percurso esquemático cruza o sólido em (2.50; 1.94; z = 2.68)"
+      },
+      "eletroduto × tubulação": {
+        "regra": "MEP-02",
+        "tipo": "GEOMETRICO",
+        "mensagem": "Os percursos de elétrica Quadro de distribuição (OB19) → Tomada 10 A (OB23) e de água fria Entrada de água fria (hidrômetro) (OB25) → Lavatório (OB13) se interceptam. Correção: desloque um dos pontos ou altere a cota do trecho.",
+        "evidencia": "distância entre eixos 0.005 m em (2.50; 5.42; z = 2.68); limite de verificação 0.063 m (soma dos raios + folga adotada de 0.05 m)"
+      },
+      "porta × geladeira": {
+        "regra": "OBJ-03",
+        "tipo": "FUNCIONAL",
+        "mensagem": "Geladeira (OB29) impede a abertura da porta PT3. Correção: desloque o objeto para fora do raio de 0.80 m da folha ou inverta o sentido de abertura da porta.",
+        "evidencia": "área de giro: quarto de círculo de raio 0.80 m a partir da dobradiça"
+      },
+      "luminária × laje": {
+        "regra": "OBJ-04",
+        "tipo": "GEOMETRICO",
+        "mensagem": "Luminária pendente (OB30) está dentro da laje L1. Correção: posicione o objeto sob o teto (elevação máx. 2.28 m) ou use um modelo embutido validado pelo projetista.",
+        "evidencia": "topo do objeto em z = 3.10 m; face inferior da laje em z = 2.88 m (contorno pela caixa envolvente)"
+      },
+      "equipamento em outro ambiente": {
+        "regra": "MEP-03",
+        "tipo": "FUNCIONAL",
+        "mensagem": "A ligação de Máquina de lavar roupa (OB15) à Tomada 10 A (OB21) atravessa a parede PAR5: o aparelho está em outro ambiente. Correção: ligue o aparelho a uma tomada do ambiente onde ele está, volte-o ao ambiente original ou desfaça a conexão.",
+        "evidencia": "linha tomada (0.50; 0.10) → aparelho (8.50; 0.60) cruza a parede"
+      }
+    }
+  },
+  {
+    "rf": "AUD-05",
+    "id": "sem-furo",
+    "descricao": "nenhuma mensagem propõe abrir furo automaticamente; passagem em estrutura exige validação",
+    "ok": true,
+    "evidencia": {}
+  },
+  {
+    "rf": "CT-07",
+    "id": "coordenacao",
+    "descricao": "verificação de conflitos roda no modelo",
+    "ok": true,
+    "evidencia": {
+      "s": 200,
+      "detectados": 21,
+      "regras": [
+        "LIG-01",
+        "OBJ-04",
+        "OBJ-03",
+        "OBJ-02",
+        "MEP-01",
+        "MEP-02",
+        "MEP-03"
+      ],
+      "naoVerificado": [
+        "FOLGA: só entre percursos de sistemas diferentes (MEP-02), sobre o traçado esquemático derivado das conexões (sobe ao forro, corre em X e Y, desce); o traçado real de obra, bandejas e folgas de manutenção não são verificados. Folga adotada de 5 cm, não normativa.",
+        "FUNCIONAL: giro de porta, pessoas e aparelho ligado a tomada de outro ambiente são verificados; acesso a registros, quadros e caixas de inspeção não.",
+        "Lajes com contorno não retangular: sobreposição avaliada pela caixa envolvente."
+      ],
+      "conflitos": [
+        "LIG-01: Extremidade p1 da viga V1 não chega a pilar nem a outra viga.",
+        "LIG-01: Extremidade p2 da viga V1 não chega a pilar nem a outra viga.",
+        "OBJ-04: Plafon (OB17) invade a viga V1. Correção: reduza a elevação do objeto para 2.42 m ou desloque-o para fora da projeção da viga.",
+        "OBJ-03: Geladeira (OB29) impede a abertura da porta PT3. Correção: desloque o objeto para fora do raio de 0.80 m da folha ou inverta o sentido de abertura da porta.",
+        "OBJ-04: Luminária pendente (OB30) está dentro da laje L1. Correção: posicione o objeto sob o teto (elevação máx. 2.28 m) ou use um modelo embutido validado pelo projetista.",
+        "OBJ-02: Geladeira com dispensador de água (OB6) e Tomada 10 A (OB20) ocupam o mesmo espaço. Correção: afaste um deles 0.02 m.",
+        "MEP-01: O percurso de elétrica Quadro de distribuição (OB19) → Tomada 10 A (OB21) atravessa a viga V1. O CivilConstructor não abre furos em elementos estruturais: desvie o percurso ou submeta a passagem à validação do engenheiro estrutural.",
+        "MEP-01: O percurso de elétrica Quadro de distribuição (OB19) → Tomada 10 A (OB22) atravessa a viga V1. O CivilConstructor não abre furos em elementos estruturais: desvie o percurso ou submeta a passagem à validação do engenheiro estrutural.",
+        "MEP-01: O percurso de elétrica Quadro de distribuição (OB19) → Plafon (OB17) atravessa a viga V1. O CivilConstructor não abre furos em elementos estruturais: desvie o percurso ou submeta a passagem à validação do engenheiro estrutural.",
+        "MEP-01: O percurso de elétrica Quadro de distribuição (OB19) → Tomada 10 A (OB24) atravessa a viga V1. O CivilConstructor não abre furos em elementos estruturais: desvie o percurso ou submeta a passagem à validação do engenheiro estrutural.",
+        "MEP-01: O percurso de água fria Entrada de água fria (hidrômetro) (OB25) → Lavatório (OB13) atravessa a viga V1. O CivilConstructor não abre furos em elementos estruturais: desvie o percurso ou submeta a passagem à validação do engenheiro estrutural.",
+        "MEP-01: O percurso de água fria Entrada de água fria (hidrômetro) (OB25) → Vaso sanitário com caixa acoplada (OB12) atravessa a viga V1. O CivilConstructor não abre furos em elementos estruturais: desvie o percurso ou submeta a passagem à validação do engenheiro estrutural.",
+        "MEP-01: O percurso de água fria Entrada de água fria (hidrômetro) (OB25) → Chuveiro elétrico (OB14) atravessa a viga V1. O CivilConstructor não abre furos em elementos estruturais: desvie o percurso ou submeta a passagem à validação do engenheiro estrutural.",
+        "MEP-01: O percurso de água fria Entrada de água fria (hidrômetro) (OB25) → Geladeira com dispensador de água (OB6) atravessa a viga V1. O CivilConstructor não abre furos em elementos estruturais: desvie o percurso ou submeta a passagem à validação do engenheiro estrutural.",
+        "MEP-01: O percurso de água fria Entrada de água fria (hidrômetro) (OB25) → Aquecedor de passagem (OB26) atravessa a viga V1. O CivilConstructor não abre furos em elementos estruturais: desvie o percurso ou submeta a passagem à validação do engenheiro estrutural.",
+        "MEP-01: O percurso de água fria Entrada de água fria (hidrômetro) (OB25) → Pia de cozinha (OB8) atravessa a viga V1. O CivilConstructor não abre furos em elementos estruturais: desvie o percurso ou submeta a passagem à validação do engenheiro estrutural.",
+        "MEP-02: Os percursos de elétrica Quadro de distribuição (OB19) → Tomada 10 A (OB20) e de água fria Entrada de água fria (hidrômetro) (OB25) → Chuveiro elétrico (OB14) se interceptam. Correção: desloque um dos pontos ou altere a cota do trecho.",
+        "MEP-02: Os percursos de elétrica Quadro de distribuição (OB19) → Tomada 10 A (OB21) e de ventilação Vaso sanitário com caixa acoplada (OB12) → Terminal de ventilação (OB28) ficam muito próximos. Correção: desloque um dos pontos ou altere a cota do trecho.",
+        "MEP-02: Os percursos de elétrica Quadro de distribuição (OB19) → Tomada 10 A (OB23) e de água fria Entrada de água fria (hidrômetro) (OB25) → Lavatório (OB13) se interceptam. Correção: desloque um dos pontos ou altere a cota do trecho.",
+        "MEP-02: Os percursos de elétrica Quadro de distribuição (OB19) → Tomada 10 A (OB24) e de água fria Entrada de água fria (hidrômetro) (OB25) → Aquecedor de passagem (OB26) se interceptam. Correção: desloque um dos pontos ou altere a cota do trecho.",
+        "MEP-03: A ligação de Máquina de lavar roupa (OB15) à Tomada 10 A (OB21) atravessa a parede PAR5: o aparelho está em outro ambiente. Correção: ligue o aparelho a uma tomada do ambiente onde ele está, volte-o ao ambiente original ou desfaça a conexão."
+      ]
+    }
+  },
+  {
+    "rf": "CT-09",
+    "id": "humano",
+    "descricao": "pessoa adulta com altura 1,60 m: escala uniforme (largura proporcional) na camada humanos",
+    "ok": true,
+    "evidencia": {
+      "dim": {
+        "a": 1.6,
+        "l": 0.457,
+        "p": 0.274
+      },
+      "camada": "humanos"
+    }
+  },
+  {
+    "rf": "AUD-08",
+    "id": "sem-deformar",
+    "descricao": "deformar a pessoa (largura 1,20 m) é recusado",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Pessoa adulta: a escala é uniforme (altura define as proporções); não deforme a figura."
+    }
+  },
+  {
+    "rf": "AUD-08",
+    "id": "altura-limite",
+    "descricao": "altura fora de 1,40–2,10 m é recusada",
+    "ok": true,
+    "evidencia": {
+      "s": 422,
+      "d": "Pessoa adulta: altura entre 1.4 e 2.1 m (informado 2.6 m)."
+    }
+  },
+  {
+    "rf": "AUD-08",
+    "id": "quantitativos",
+    "descricao": "pessoas não entram em quantitativos nem orçamento",
+    "ok": true,
+    "evidencia": {
+      "s": 200
+    }
+  },
+  {
+    "rf": "CT-10",
+    "id": "reabrir",
+    "descricao": "reabrir em outra sessão preserva todos os elementos, propriedades, objetos e conexões",
+    "ok": true,
+    "evidencia": {
+      "versao": 92,
+      "elementos": 82,
+      "objetos": 32,
+      "conexoes": 25,
+      "diferentes": 0
+    }
+  },
+  {
+    "rf": "RF15",
+    "id": "exportar",
+    "descricao": "pedido de exportação IFC aceito para a planta fechada",
+    "ok": true,
+    "evidencia": {
+      "s": 202,
+      "v": []
+    }
+  },
+  {
+    "rf": "RF15",
+    "id": "ifc-arquitetura",
+    "descricao": "IFC com paredes, portas, janelas e ambientes",
+    "ok": true,
+    "evidencia": {
+      "paredes": 11,
+      "portas": 4,
+      "janelas": 2,
+      "espacos": 5
+    }
+  },
+  {
+    "rf": "RF15",
+    "id": "ifc-objetos",
+    "descricao": "IFC com todos os objetos (exceto pessoas), uma porta por conector e uma IfcRelConnectsPorts por conexão",
+    "ok": true,
+    "evidencia": {
+      "objetosModelo": 30,
+      "objetosIfc": 30,
+      "conexoesModelo": 25,
+      "relConnectsPorts": 25,
+      "portas": 55,
+      "circuitos": 5,
+      "sistemas": 4
+    }
+  }
+]

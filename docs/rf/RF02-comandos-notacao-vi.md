@@ -390,3 +390,10 @@ Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10
 - **Corrigido:** catálogo de materiais único (`packages/notacao-vi/catalogo/materiais.json`) lido pelo Java (`CatalogoMateriais`) e pelo TS (`tabela-a.ts`); códigos legados resolvem para o canônico; a IA do texto natural só propõe comandos de criação (`ModeloService.COMANDOS_IA`), passa por `ServicoIa` (registro de uso, recusa, truncamento) e o rascunho guarda as versões do modelo.
 - **Evidência:** paridade 38 casos (`ModeloBimParidadeTest`) e 51 no TS; `CaminhoIaIT` (4).
 - **Pendente:** IA real não exercitada em desenvolvimento.
+
+## Auditoria AUD-CC-3D-001
+
+([relatório](../auditoria/AUDITORIA_AUD-CC-3D-001.md)) Novas funções VI de extensão: `VI(OBJETO, item, <pos>, rot, altura?)` e
+`VI(CONECTAR, <origem[:conector]>, <destino[:conector]>, circuito?)`, com o mesmo resultado no navegador e no
+servidor (fixture de paridade, 45 casos). Recusas explicam o motivo (tensão, corrente, sistema, sentido, conector
+ocupado, "não há par de conectores compatível").

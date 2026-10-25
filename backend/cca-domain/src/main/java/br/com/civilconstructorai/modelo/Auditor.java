@@ -96,6 +96,38 @@ public class Auditor {
             }
         }
 
+        // objetos e conexões prediais (AUD-02/03/04): mesmas regras do auditor TS
+        var novos = diff.novosOuAlterados();
+        for (var e : novos) {
+            if (e.getTipo() == TipoElemento.OBJETO) {
+                ObjetosPrediais.problemasObjeto(m, e).forEach(p -> v1.add(Violacao.de(p.codigo(), "Biblioteca de objetos", p.mensagem(), e)));
+            }
+            if (e.getTipo() == TipoElemento.CONEXAO) {
+                ObjetosPrediais.problemasConexao(m, e).forEach(p -> v1.add(Violacao.de(p.codigo(), "Conexões prediais", p.mensagem(), e)));
+            }
+        }
+        var mudaram = new java.util.HashSet<String>();
+        novos.stream().filter(e -> e.getTipo() == TipoElemento.OBJETO).forEach(e -> mudaram.add(e.getId().toString()));
+        var avisosConexao = new ArrayList<Violacao>();
+        for (var c : m.elementos()) {
+            if (c.getTipo() != TipoElemento.CONEXAO || novos.contains(c)) {
+                continue;
+            }
+            String deId = String.valueOf(ObjetosPrediais.ponta(c, "de").get("id")), paraId = String.valueOf(ObjetosPrediais.ponta(c, "para").get("id"));
+            if (!mudaram.contains(deId) && !mudaram.contains(paraId)) {
+                continue;
+            }
+            var probs = ObjetosPrediais.problemasConexao(m, c);
+            String rotulo = c.getRotulo() != null ? c.getRotulo() : m.rotuloAutomatico(c);
+            probs.forEach(p -> v1.add(Violacao.de(p.codigo(), "Conexões prediais", "Conexão " + rotulo + " ficou inválida: " + p.mensagem(), c)));
+            if (probs.isEmpty()) {
+                String nomes = ObjetosPrediais.objeto(m, ObjetosPrediais.ponta(c, "de")).flatMap(ObjetosPrediais::item).map(i -> i.nome()).orElse(deId) + " → "
+                        + ObjetosPrediais.objeto(m, ObjetosPrediais.ponta(c, "para")).flatMap(ObjetosPrediais::item).map(i -> i.nome()).orElse(paraId);
+                avisosConexao.add(new Violacao("CON-RECALCULADA", Enums.Severidade.AVISO, "Conexões prediais", c.getId(),
+                        String.format(Locale.ROOT, "Conexão %s continua ligada; percurso esquemático recalculado: %.2f m.", nomes, ObjetosPrediais.comprimento(ObjetosPrediais.percurso(m, c))), null, null));
+            }
+        }
+
         caixaCartesiana(m, diff, opts, v1, correcoes);
 
         boolean l1 = v1.isEmpty();
@@ -109,6 +141,7 @@ public class Auditor {
                 avisos.add(a);
             }
         }
+        avisos.addAll(avisosConexao);
         boolean l2 = v2.isEmpty();
         return new RelatorioAuditoria(new RelatorioAuditoria.Laco(l1, v1), new RelatorioAuditoria.Laco2(l2, v2, avisos), correcoes, l1 && l2, 0);
     }

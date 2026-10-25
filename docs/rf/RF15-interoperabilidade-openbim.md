@@ -341,3 +341,12 @@ Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10
 - **Corrigido:** IFC deixa de exportar "FireRating" como propriedade do material (depende do elemento) e passa a exportar a versão do catálogo.
 - **Evidência:** `EscritorIfcTest`, `ExportacaoIfcIT`.
 - **Pendente:** —
+
+## Auditoria AUD-CC-3D-001
+
+([relatório](../auditoria/AUDITORIA_AUD-CC-3D-001.md))
+
+- **Corrigido:** `IfcShapeRepresentation` sem `ContextOfItems` (atributo obrigatório) e texto não ASCII sem o escape STEP — os dois pré-existentes; exportação bloqueada pela envoltória aberta ao mover parede.
+- **Novo:** objetos com a entidade do catálogo (`IfcFurniture`, `IfcElectricAppliance`, `IfcSanitaryTerminal`, `IfcLightFixture`, `IfcOutlet`, `IfcElectricDistributionBoard`…), `IfcDistributionPort` por conector (SOURCE/SINK, sistema) aninhada ao objeto, uma porta por ligação, `IfcRelConnectsPorts` por conexão, `IfcDistributionCircuit`/`IfcDistributionSystem` com os membros, `IfcSpace` por ambiente, Pset do objeto. Pessoas não são exportadas.
+- **Evidência:** `arquivos/j6-depois.ifc` validado com ifcopenshell 0.9.0 (IFC4X3_ADD2): 0 erros.
+- **Pendente:** corpo dos objetos pela caixa envolvente; importação não traz objetos para o modelo.

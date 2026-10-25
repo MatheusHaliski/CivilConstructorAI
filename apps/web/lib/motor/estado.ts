@@ -36,10 +36,17 @@ type Estado = {
   selecao: Set<string>; maquina: EstadoMaquina; comando: ComandoAtivo | null; ultimoComando: Comando | null; log: LinhaLog[]; viewport: Viewport;
   cursor: Ponto2D | null; ultimoPonto: Ponto2D | null; painel: Painel; relatorio: RelatorioAuditoria | null; comandosServidor: string[]; paletaAberta: boolean;
   podeEditar: boolean;
+  /** pessoa do modelo usada como câmera em 1ª pessoa no 3D (AUD-08); só visualização */
+  primeiraPessoa: string | null;
+  setPrimeiraPessoa: (id: string | null) => void;
+  /** chegou por link de conflito: o 3D liga o Raio X e enquadra a seleção */
+  destacar: boolean;
+  setDestacar: (v: boolean) => void;
   // ações
   carregar: (obraId: string | null, podeEditar: boolean) => Promise<void>;
   registrar: (tipo: LinhaLog["tipo"], texto: string) => void;
-  iniciar: (texto: string) => void;
+  /** inicia um comando; `preset` preenche passos do roteiro (ex.: item da biblioteca, conector de origem) */
+  iniciar: (texto: string, preset?: { valores?: Record<string, unknown>; selecoes?: string[][] }) => void;
   entradaTexto: (texto: string) => Promise<void>;
   entradaPonto: (p: Ponto2D) => Promise<void>;
   entradaSelecao: (ids: string[], substituir?: boolean) => Promise<void>;
@@ -56,6 +63,8 @@ type Estado = {
   setPainel: (p: Painel) => void;
   setPaleta: (aberta: boolean) => void;
   alternarCamada: (c: Camada) => void;
+  /** isola uma disciplina (as demais camadas ficam ocultas) */
+  soCamada: (c: Camada) => void;
   selecionar: (ids: string[], modo?: "substituir" | "adicionar" | "alternar") => void;
   aplicar: (codigo: string, args: Record<string, unknown>, origem?: "CANVAS" | "CONSOLE_VI" | "IA") => Promise<boolean>;
   aplicarLote: (lote: { codigo: string; args: Record<string, unknown> }[], origem?: "CANVAS" | "CONSOLE_VI" | "IA") => Promise<boolean>;
@@ -64,12 +73,14 @@ type Estado = {
   desfazer: () => Promise<void>;
   refazer: () => void;
   enquadrarTudo: (largura: number, altura: number) => void;
+  /** centraliza a planta na seleção (mantém a escala, com folga mínima para ver o entorno) */
+  enquadrarSelecao: () => void;
   alterarPropriedade: (id: string, campo: string, valor: unknown) => Promise<boolean>;
 };
 
 let seqLog = 0;
 const TODOS_OSNAP = new Set<ModoOsnap>(PRIORIDADE_OSNAP);
-const CAMADAS: Camada[] = ["arquitetura", "estrutura", "fundacao", "desenho", "anotacao", "ia-rascunho"];
+const CAMADAS: Camada[] = ["arquitetura", "estrutura", "fundacao", "desenho", "anotacao", "ia-rascunho", "mobiliario", "eletrica", "hidrossanitaria", "humanos"];
 const CONSTRUTIVOS = new Set(["PAREDE", "PILAR", "VIGA", "LAJE", "PORTA", "JANELA", "SAPATA", "BLOCO", "RADIER", "ESTACA"]);
 
 function resumoViolacoes(v: Violacao[]) { return v.map((x) => `${x.codigo}: ${x.mensagem}`).join(" · "); }
@@ -197,6 +208,7 @@ export const useMotor = create<Estado>((set, get) => {
       case "ALINHAR": { const m = get().modelo; const ref = m.elemento(sels[0]?.[0] ?? ""); const alvos = sels[1] ?? []; if (!ref) return []; const pr = m.pontoRepresentativo(ref); return alvos.map((id) => { const e = m.elemento(id)!; const pe = m.pontoRepresentativo(e); const vertical = "p1" in ref && "p2" in ref ? Math.abs(ref.p2.x - ref.p1.x) < Math.abs(ref.p2.y - ref.p1.y) : true; const d = vertical ? { x: pr.x - pe.x, y: 0 } : { x: 0, y: pr.y - pe.y }; return { codigo: "MOVER", args: { sel: [id], base: pe, destino: { x: pe.x + d.x, y: pe.y + d.y } } }; }); }
       case "COPIAR_PROPRIEDADES": { const m = get().modelo; const o = m.elemento(sels[0]?.[0] ?? ""); if (!o) return []; return (sels[1] ?? []).map((id) => ({ codigo: "ALTERAR", args: { id, props: { camada: o.camada, materialId: o.materialId } } })); }
       case "ALONGAR": return [{ codigo: "ALONGAR", args: { sel, delta: v["delta"] } }];
+      case "CONECTAR": return [{ codigo: "CONECTAR", args: { de: v["de"] ?? sels[0]?.[0], para: v["para"] ?? sels[1]?.[0], ...(v["circuito"] ? { circuito: v["circuito"] } : {}) } }];
       case "ESTICAR": return [{ codigo: "ESTICAR", args: { sel, base: v["base"], destino: v["destino"] } }];
       case "MOVER": case "ROTACIONAR": case "ESCALAR": return [{ codigo: c.def.codigo, args: { sel, ...v } }];
       default: return [{ codigo: c.def.codigo, args: { ...v, ...(c.def.roteiro.some((p) => p.tipo === "SELECAO") ? { sel } : {}) } }];
@@ -266,6 +278,9 @@ export const useMotor = create<Estado>((set, get) => {
     camadasVisiveis: new Set(CAMADAS), ocultos: new Set(), isolados: null, selecao: new Set(), maquina: "OCIOSO", comando: null, ultimoComando: null,
     log: [{ id: 0, tipo: "info", texto: "Motor pronto. Digite um comando (ex.: WA parede, CL pilar, MALHA) ou Ctrl+K para a paleta." }],
     viewport: { cx: 10, cy: 8, escala: 40 }, cursor: null, ultimoPonto: null, painel: "nenhum", relatorio: null, comandosServidor: [], paletaAberta: false, podeEditar: true,
+    primeiraPessoa: null, destacar: false,
+    setDestacar: (destacar) => set({ destacar }),
+    setPrimeiraPessoa: (primeiraPessoa) => set({ primeiraPessoa, ...(primeiraPessoa ? { vista: "3D" as const } : {}) }),
 
     registrar: log,
     carregar: async (obraId, podeEditar) => {
@@ -276,7 +291,7 @@ export const useMotor = create<Estado>((set, get) => {
       try { await recarregarServidor(obraId); log("info", `Modelo da obra carregado (v${get().versaoServidor}).`); }
       catch (e) { log("erro", `Não foi possível carregar o modelo: ${mensagemDeErro(e)}`); set({ erroSync: mensagemDeErro(e) }); }
     },
-    iniciar: (texto) => {
+    iniciar: (texto, preset) => {
       const s = get();
       const t = texto.trim();
       if (!t) { get().repetirUltimo(); return; }
@@ -287,9 +302,11 @@ export const useMotor = create<Estado>((set, get) => {
       const alteraModelo = ["DESENHO", "MODIFICACAO", "ANOTACAO"].includes(def.categoria) && !["ESTILO_COTA", "BLOCO", "INSERIR", "LOCALIZAR"].includes(def.codigo);
       if (alteraModelo && !s.podeEditar) { log("erro", `${def.nomePtBr}: seu papel nesta obra permite só visualizar o modelo (RF21).`); return; }
       if (def.papeis && !s.podeEditar) { log("erro", `${def.nomePtBr} exige papel ${def.papeis.join(" ou ")} nesta obra.`); return; }
-      const c: ComandoAtivo = { def, passo: 0, valores: {}, pontos: [], selecoes: [] };
+      const c: ComandoAtivo = { def, passo: 0, valores: { ...(preset?.valores ?? {}) }, pontos: [], selecoes: [...(preset?.selecoes ?? [])] };
+      // passos já preenchidos pelo preset (biblioteca, "Conectar a…") são pulados, na ordem do roteiro
+      if (preset) { while (c.passo < def.roteiro.length) { const p = def.roteiro[c.passo]!; if (p.tipo === "SELECAO" ? c.selecoes.length > def.roteiro.slice(0, c.passo).filter((x) => x.tipo === "SELECAO").length : p.nome in c.valores) c.passo++; else break; } }
       // seleção prévia (substantivo-verbo, PICKFIRST): pula o passo de seleção
-      if (def.roteiro[0]?.tipo === "SELECAO" && s.selecao.size && def.roteiro.filter((p) => p.tipo === "SELECAO").length === 1) { c.selecoes.push([...s.selecao]); c.passo = 1; }
+      else if (def.roteiro[0]?.tipo === "SELECAO" && s.selecao.size && def.roteiro.filter((p) => p.tipo === "SELECAO").length === 1) { c.selecoes.push([...s.selecao]); c.passo = 1; }
       set({ comando: c, maquina: "COMANDO_ATIVO" });
       void avancar(c);
     },
@@ -362,6 +379,7 @@ export const useMotor = create<Estado>((set, get) => {
     setCursor: (cursor) => set({ cursor }),
     setPainel: (painel) => set({ painel }),
     setPaleta: (paletaAberta) => set({ paletaAberta }),
+    soCamada: (c) => set({ camadasVisiveis: new Set([c]) }),
     alternarCamada: (c) => set((s) => { const n = new Set(s.camadasVisiveis); if (n.has(c)) n.delete(c); else n.add(c); return { camadasVisiveis: n }; }),
     selecionar: (ids, modo = "substituir") => set((s) => {
       const n = modo === "substituir" ? new Set(ids) : new Set(s.selecao);
@@ -410,6 +428,13 @@ export const useMotor = create<Estado>((set, get) => {
       const minx = Math.min(...pts.map((p) => p.x)), maxx = Math.max(...pts.map((p) => p.x)), miny = Math.min(...pts.map((p) => p.y)), maxy = Math.max(...pts.map((p) => p.y));
       const w = Math.max(maxx - minx, 2), h = Math.max(maxy - miny, 2);
       set({ viewport: { cx: (minx + maxx) / 2, cy: (miny + maxy) / 2, escala: Math.max(2, Math.min(400, 0.85 * Math.min(largura / w, altura / h))) }, comando: null });
+    },
+    enquadrarSelecao: () => {
+      const s = get(); const pts: Ponto2D[] = [];
+      for (const id of s.selecao) { const e = s.modelo.elemento(id); if (e) { const c = caixaElemento(e, s.modelo); pts.push(c.min, c.max); } }
+      if (!pts.length) return;
+      const minx = Math.min(...pts.map((p) => p.x)), maxx = Math.max(...pts.map((p) => p.x)), miny = Math.min(...pts.map((p) => p.y)), maxy = Math.max(...pts.map((p) => p.y));
+      set({ viewport: { cx: (minx + maxx) / 2, cy: (miny + maxy) / 2, escala: Math.max(20, Math.min(120, 500 / Math.max(maxx - minx + 2, maxy - miny + 2))) } });
     },
     alterarPropriedade: (id, campo, valor) => aplicarInterno([{ codigo: "ALTERAR", args: { id, props: { [campo]: valor } } }], "CANVAS"),
   };
