@@ -12,7 +12,9 @@ até a aprovação de um profissional habilitado (ART/RRT).
 
 | Documento | Conteúdo |
 |---|---|
-| [`docs/rf/README.md`](docs/rf/README.md) | Catálogo dos 27 requisitos funcionais, um doc por RF com 6 diagramas Mermaid |
+| [`docs/rf/README.md`](docs/rf/README.md) | Catálogo dos 28 requisitos funcionais, um doc por RF com 6 diagramas Mermaid |
+| [`docs/CATALOGO_COMANDOS.md`](docs/CATALOGO_COMANDOS.md) | Comandos e atalhos do motor de desenho (AutoCAD/Revit/Civil 3D → Notação VI) |
+| [`docs/DECISOES_DE_NEGOCIO.md`](docs/DECISOES_DE_NEGOCIO.md) | Decisões de negócio tomadas (DN-01…DN-07) |
 | [`docs/PESQUISA_TECNOLOGIAS.md`](docs/PESQUISA_TECNOLOGIAS.md) | ADRs e levantamento de mercado |
 | [`docs/TAXONOMIA_ATORES_E_CARDS.md`](docs/TAXONOMIA_ATORES_E_CARDS.md) | Atores, papéis por obra e anatomia dos cards |
 | [`docs/DIAGRAMA_CASOS_DE_USO.md`](docs/DIAGRAMA_CASOS_DE_USO.md) | Casos de uso por ator e módulo |
@@ -30,7 +32,7 @@ Quadro do Trello: [CivilConstructorAI · CAD/BIM Generativo](https://trello.com/
 | Módulo | RFs |
 |---|---|
 | M0 Identidade & Acesso | RF18–RF23 |
-| M1 Concepção Arquitetônica | RF01–RF03 |
+| M1 Concepção Arquitetônica | RF01–RF03, RF28 |
 | M2 Análise Estrutural & Esforços | RF04–RF06 |
 | M3 Dimensionamento Normativo | RF07–RF08 |
 | M4 Geotecnia & Fundações | RF09–RF10 |

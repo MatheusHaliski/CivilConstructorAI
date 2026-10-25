@@ -68,6 +68,12 @@ regerar.
 - [ ] **CA-06** Cotas totais por direção batem com a envoltória real auditada (RF06) com erro 0.
 - [ ] **CA-07** DXF abre no AutoCAD/LibreCAD com camadas `EIXOS`, `COTAS`, `CORTADO`, `VISTA`, `OCULTO`, `TEXTO`.
 - [ ] **CA-08** Planta de formas só para `ENGENHEIRO`; pedido por outro papel → 403 com motivo em pt-BR.
+- [ ] **CA-09** A prancha gerada pode ser complementada à mão com os comandos de anotação do motor de desenho
+  (RF28, [catálogo](../CATALOGO_COMANDOS.md)): `DLI` cota linear, `DAL`/`DI` cota alinhada, `DCO` cota
+  contínua, `D` estilo de cota (NBR 10126), `EL` cota de nível, `DL` linha de detalhe, `TX`/`MT` texto, `TG`
+  etiqueta por categoria, `H` hachura por material, `B`/`I` blocos (símbolos e carimbo), `BREAKLINE` linha de
+  quebra, `FIND` busca e substitui em textos. Anotações manuais ficam em camada própria (`anotacao`) e
+  sobrevivem à regeneração da prancha quando o elemento referenciado ainda existe.
 
 ## 4. Regras de negócio
 

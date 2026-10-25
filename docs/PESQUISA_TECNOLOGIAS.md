@@ -140,6 +140,23 @@ Cada RF tem `docs/rf/RFnn-slug.md` com seis diagramas Mermaid. `scripts/check_rf
 exige doc atualizado quando o código de um RF muda e renderiza todo Mermaid com `@mermaid-js/mermaid-cli`
 (job "Docs por RF" em `.github/workflows/docs-rf.yml`). O Trello é espelhado em `docs/TRELLO_BACKLOG.md`.
 
+### ADR-011 · Motor de desenho no modelo AutoCAD/Revit
+
+- **Contexto.** O guia de comandos e atalhos (AutoCAD, Revit, Civil 3D) define o vocabulário que os
+  projetistas já dominam. Reinventar a interação do canvas custaria adoção.
+- **Decisão.** O canvas adota linha de comando, aliases por perfil, entrada dinâmica, modos de cursor e
+  seleção substantivo-verbo (RF28). Cada comando de desenho/modificação é uma função da Tabela B, a **mesma**
+  que o console de texto natural (RF02) produz; comandos de vista/visibilidade agem só na cena (RF13) e os de
+  anotação na prancha (RF14). Catálogo em `docs/CATALOGO_COMANDOS.md`; pacote `packages/notacao-vi` é a fonte
+  única das funções e aliases, consumida pelo front e pelo backend.
+- **Consequências.** Motor determinístico (sem IA); teclas reservadas pelo navegador (F1, F5, F11, F12) ganham
+  aliases alternativos; o mesmo `ComandoVI` chega ao auditor por três caminhos (mouse, linha de comando, IA).
+
+### ADR-012 · Decisões de negócio
+
+As decisões que dependiam do negócio (controladora/DPO, visão do cliente, retenção, rotas de IA, camadas D/E/F,
+pyRevit, tipografia e marca) estão em [`docs/DECISOES_DE_NEGOCIO.md`](DECISOES_DE_NEGOCIO.md) (DN-01 a DN-07).
+
 ## 3. Levantamento de mercado (planilha)
 
 Resumo das 60 entradas da planilha, agrupadas pelo que inspira cada módulo do produto.

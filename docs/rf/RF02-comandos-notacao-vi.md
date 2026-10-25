@@ -42,9 +42,17 @@ NFC → remoção de caracteres de controle e símbolos não previstos (º, ª c
 `UnicodeDecodeError` no transporte HTTP e no IronPython (RF15).
 
 Camadas da Notação VI usadas aqui: **Tabela A** (Data Model: materiais), **Tabela B** (Funções: `PAREDE`,
-`PILAR`, `VIGA`, `LAJE`, `ABERTURA`, `GRID`, `PAVIMENTO`, `MOVER`, `EXCLUIR`…), **Tabela C** (Controle e fluxo:
-`REPETIR`, `PARA_CADA eixo EM grid`, `SE`), **Tabela H** (UI: componentes que exibem o comando) e **Tabela J**
-(objetos nativos do kernel). As demais camadas aguardam definição (card "Decisões de negócio pendentes").
+`PILAR`, `VIGA`, `LAJE`, `PORTA`, `JANELA`, `EIXO`/`MALHA`, `PAVIMENTO`, `MOVER`, `COPIAR`, `APAGAR`…), **Tabela C**
+(Controle e fluxo: `REPETIR`, `PARA_CADA eixo EM malha`, `SE`), **Tabela H** (UI: componentes que exibem o
+comando) e **Tabela J** (objetos nativos do kernel). As camadas D, E e F seguem a decisão DN-05 em
+[`docs/DECISOES_DE_NEGOCIO.md`](../DECISOES_DE_NEGOCIO.md).
+
+**A Tabela B é o mesmo catálogo do motor de desenho (RF28).** Cada função tem um alias de teclado herdado do
+AutoCAD/Revit ([`docs/CATALOGO_COMANDOS.md`](../CATALOGO_COMANDOS.md)): `WA` → `PAREDE`, `CL` → `PILAR`, `BM` →
+`VIGA`, `SB` → `LAJE`, `GR` → `EIXO`, `LL` → `PAVIMENTO`, `M` → `MOVER`, `CO` → `COPIAR`, `O` → `DESLOCAR`…
+Assim, "faça três vigas de 5 m a partir do eixo A" no console e `BM` no canvas produzem o mesmo `VI(VIGA, …)`,
+validado pelo mesmo parser e pelo mesmo auditor. O autocompletar do console (CA-08) mostra o alias ao lado do
+nome da função.
 
 ## 2. Atores
 

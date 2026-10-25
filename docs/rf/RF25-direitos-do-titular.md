@@ -98,7 +98,10 @@ veem o conteúdo (RF21). Nunca entra em URL, log, analytics, notificação push 
 - **RN-03** O `export.json` não inclui dados de **outras** pessoas (ex.: nomes de colegas em um RDO viram
   `pessoa:<pseudônimo>`).
 - **RN-04** A empresa não pode configurar retenção abaixo do prazo legal das categorias trabalhistas e de
-  segurança; o mínimo vem de configuração revisada pelo jurídico.
+  segurança; os mínimos são os da [DN-03](../DECISOES_DE_NEGOCIO.md#dn-03--prazos-de-retenção-de-dados-de-trabalhadores):
+  saúde ocupacional e treinamentos de segurança **20 anos** após o desligamento (NR-7, NR-1), documentos
+  trabalhistas **5 anos** (CLT), fotos com trabalhadores identificáveis obra + 5 anos, contato operacional
+  membro + 90 dias. Configurar abaixo → `422` com a base legal na mensagem.
 - **RN-05** Exportação gerada com chave de dados do usuário (DEK) — se a conta for eliminada (RF26) antes do
   download, o arquivo fica ilegível e é apagado.
 

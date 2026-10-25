@@ -72,6 +72,11 @@ A cena é **somente leitura** aqui; a edição é do RF01, que usa o mesmo geren
 - [ ] **CA-07** Elementos de `RascunhoIA` não aprovado aparecem com o estilo `--ai-draft-*` + selo "gerado por IA".
 - [ ] **CA-08** Cliente só recebe versões com `liberadaCliente = true`; pedir outra versão → 404.
 - [ ] **CA-09** Perda de contexto WebGL (`webglcontextlost`) é recuperada sem recarregar a página.
+- [ ] **CA-10** Comandos de vista e visibilidade do motor de desenho (RF28, [catálogo](../CATALOGO_COMANDOS.md))
+  agem só na cena e por sessão, sem gerar `ComandoVI`: `Z`/`ZE`/`ZA` zoom e enquadrar, `P` pan, `RE` reconstruir
+  a cena do modelo, `HH` ocultar, `HI` isolar, `EU`/`VU` reexibir elemento/categoria, `VG` painel de
+  visibilidade e estilos (Tabela H), `LA` camadas (`arquitetura`, `estrutura`, `fundacao`, `desenho`,
+  `anotacao`, `ia-rascunho`), `MA` copiar propriedades visuais.
 
 ## 4. Regras de negócio
 
