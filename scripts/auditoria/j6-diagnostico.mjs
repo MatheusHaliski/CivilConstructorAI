@@ -166,6 +166,23 @@ const quant = await eng.call("GET", `${O}/quantitativos`);
 const txtQ = JSON.stringify(quant.j);
 registrar("AUD-08", "quantitativos", "pessoas não entram em quantitativos nem orçamento", quant.s === 200 && !/PESSOAS\.|humanos/i.test(txtQ), { s: quant.s });
 
+// ---------- AUD-08: escada até a cobertura, pessoa sobre o degrau; AUD-01: cota ancorada
+const escada = await cmd("ESCADA", { p1: p(4.5, 4.3), p2: p(4.5, 7.6) });
+const esc = el(criado(escada)?.id);
+registrar("AUD-08", "escada", "escada do térreo à cobertura: desnível 3,00 m, 17 degraus de 17,6 cm (espelho adotado 17,5 cm, ajustável)", escada.s === 201 && esc?.desnivel === 3 && esc?.degraus === 17, { s: escada.s, desnivel: esc?.desnivel, degraus: esc?.degraus, d: escada.j?.detail });
+const rampa = await cmd("RAMPA", { p1: p(10.5, 0.5), p2: p(16.5, 0.5), desnivel: 0.5 });
+registrar("AUD-08", "rampa", "rampa externa de 6 m com 0,50 m de desnível gravada (inclinação calculada 8,33 %)", rampa.s === 201, { s: rampa.s, d: rampa.j?.detail });
+const subindo = await ob("PESSOAS.ADULTO", p(4.5, 5.9));
+registrar("AUD-08", "pessoa-na-escada", "pessoa posta sobre a escada fica na altura do degrau (9º de 17: 1,588 m)", subindo.r.s === 201 && Math.abs(el(subindo.id).elevacao - 1.588) < 0.002, { elevacao: el(subindo.id)?.elevacao });
+const coord2 = await eng.call("POST", `${O}/coordenacao/verificar`);
+const cir = (coord2.j?.conflitos ?? []).find((c) => c.regra === "CIR-01" && c.elementos.includes(esc.id) && c.estado !== "RESOLVIDO");
+registrar("AUD-05", "escada-laje", "escada que atravessa a laje da cobertura sem abertura é apontada (o modelo ainda não tem abertura em laje)", !!cir, { mensagem: cir?.mensagem, evidencia: cir?.evidencia });
+const aux = criado(await cmd("LINHA", { p1: p(12, -3), p2: p(14, -3) }))?.id;
+const cotaAnc = criado(await cmd("COTA_LINEAR", { p1: p(12, -3), p2: p(14, -3), afast: 0.5 }))?.id;
+await cmd("ALTERAR", { id: aux, props: { p2: p(15.25, -3) } });
+const ca = el(cotaAnc);
+registrar("AUD-01", "cota-ancorada", "cota ancorada nas extremidades acompanha qualquer edição do elemento (2,00 → 3,25 m)", ca?.p2?.x === 15.25 && !!ca?.ancoras?.p2, { p1: ca?.p1, p2: ca?.p2, ancoras: ca?.ancoras });
+
 // ---------- CT-10: salvar, reabrir, exportar
 const reaberto = (await entrar(dono.email, { segredo: mfa.segredo }));
 const m2 = (await reaberto.call("GET", `${O}/modelo`)).j;
@@ -183,6 +200,7 @@ if (e?.estado === "CONCLUIDO") { const dl = await eng.call("GET", `${O}/exportac
 const arqIfc = new URL(`../../docs/auditoria/evidencias/arquivos/j6-${FASE}.ifc`, import.meta.url).pathname;
 fs.writeFileSync(arqIfc, ifc);
 const conta = (ent) => (ifc.match(new RegExp(`=\\s*${ent}\\(`, "g")) ?? []).length;
+registrar("RF15", "ifc-circulacao", "IFC com escada (IfcStair) e rampa (IfcRamp), com número e altura de espelhos", conta("IFCSTAIR") === 1 && conta("IFCRAMP") === 1 && /'NumberOfRiser'/.test(ifc), { escadas: conta("IFCSTAIR"), rampas: conta("IFCRAMP") });
 registrar("RF15", "ifc-arquitetura", "IFC com paredes, portas, janelas e ambientes", conta("IFCWALL") === nParedes && conta("IFCDOOR") === 4 && conta("IFCSPACE") === 5, { paredes: conta("IFCWALL"), portas: conta("IFCDOOR"), janelas: conta("IFCWINDOW"), espacos: conta("IFCSPACE") });
 const nObj = m.elementos.filter((x) => x.tipo === "OBJETO" && !String(x.props?.item ?? "").startsWith("PESSOAS.")).length;
 const nCon = m.elementos.filter((x) => x.tipo === "CONEXAO").length;
@@ -192,5 +210,5 @@ registrar("RF15", "ifc-objetos", "IFC com todos os objetos (exceto pessoas), uma
 
 salvar(new URL(`../../docs/auditoria/evidencias/j6-${FASE}.json`, import.meta.url).pathname);
 // dados da sessão para a jornada pela interface (j6-interface.mjs); fora do repositório
-if (process.env.CCA_SESSAO) fs.writeFileSync(process.env.CCA_SESSAO, JSON.stringify({ email: dono.email, segredo: mfa.segredo, obra: obra.id, ids: { gelD: mob.gelD.id, tomLivre: tomLivre.id, adulto: adulto.id, lum: lum.id, gelPorta: gelPorta.id, lumLaje: lumLaje.id, lav: hid.lav.id, viga, maq: mob.maq.id } }));
+if (process.env.CCA_SESSAO) fs.writeFileSync(process.env.CCA_SESSAO, JSON.stringify({ email: dono.email, segredo: mfa.segredo, obra: obra.id, ids: { subindo: subindo.id, gelD: mob.gelD.id, tomLivre: tomLivre.id, adulto: adulto.id, lum: lum.id, gelPorta: gelPorta.id, lumLaje: lumLaje.id, lav: hid.lav.id, viga, maq: mob.maq.id } }));
 console.log(JSON.stringify({ email: dono.email, obra: obra.id, ifc: arqIfc }));

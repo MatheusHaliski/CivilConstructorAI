@@ -15,11 +15,11 @@ public final class Enums {
         PAREDE, PILAR, VIGA, LAJE, PORTA, JANELA, AMBIENTE,
         LINHA, POLILINHA, CIRCULO, RETANGULO, ARCO, PONTO, PLANO_REF,
         CONTRAVENTAMENTO, SAPATA, BLOCO, RADIER, ESTACA,
-        COTA, TEXTO, ETIQUETA, HACHURA, OBJETO, CONEXAO;
+        COTA, TEXTO, ETIQUETA, HACHURA, OBJETO, CONEXAO, ESCADA, RAMPA;
 
         public boolean construtivo() {
             return switch (this) {
-                case PAREDE, PILAR, VIGA, LAJE, PORTA, JANELA, SAPATA, BLOCO, RADIER, ESTACA, CONTRAVENTAMENTO -> true;
+                case PAREDE, PILAR, VIGA, LAJE, PORTA, JANELA, SAPATA, BLOCO, RADIER, ESTACA, CONTRAVENTAMENTO, ESCADA, RAMPA -> true;
                 default -> false;
             };
         }

@@ -421,3 +421,7 @@ Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10
 - **Laço 2 (novo):** `CON-RECALCULADA` avisa que a ligação continua e o percurso foi recalculado quando um objeto conectado se move.
 - **Coordenação:** OBJ-01…04, MEP-01…03 e HUM-01, com explicação, evidência numérica e correção; nenhuma propõe furo em estrutura. Corrigido o 409 da verificação (chave duplicada de LIG-01 nas duas pontas de uma viga).
 - **Evidência:** `j6-depois.json` (AUD-05: os cinco casos do enunciado), `DetectorConflitosTest`, `RedeDoModeloTest`.
+
+### 2ª rodada (2026-10-31)
+
+Laço 1: `ESCADA`/`RAMPA` recusam lance menor que 0,30 m, desnível ou largura não positivos e desnível omitido sem pavimento acima. Coordenação: **CIR-01** (construtivo) aponta escada ou rampa que atravessa a laje do pavimento de cima, porque abertura em laje ainda não é modelada; a mensagem pede o registro do vão e a validação do engenheiro, sem propor furo ([§10 do relatório](../auditoria/AUDITORIA_AUD-CC-3D-001.md)).

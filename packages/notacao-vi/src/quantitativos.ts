@@ -49,7 +49,7 @@ export function quantificar(modelo: ModeloBim): Quantitativo {
       }
       case "PAREDE": {
         const w = e as Parede; const L = dist(w.p1, w.p2);
-        const aberturas = modelo.elementos.filter((x) => (x.tipo === "PORTA" || x.tipo === "JANELA") && x.paredeId === w.id).reduce((s, x) => s + ("largura" in x ? x.largura * x.altura : 0), 0);
+        const aberturas = modelo.elementos.filter((x) => (x.tipo === "PORTA" || x.tipo === "JANELA") && x.paredeId === w.id).reduce((s, x) => s + (x.tipo === "PORTA" || x.tipo === "JANELA" ? x.largura * x.altura : 0), 0);
         l.alvenaria_m2 = Math.max(0, L * w.altura - aberturas); break;
       }
       case "SAPATA": case "BLOCO": case "RADIER": {

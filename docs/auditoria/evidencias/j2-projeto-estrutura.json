@@ -35,8 +35,8 @@
       "d": "Há 1 problema(s) nos dados enviados.",
       "e": [
         {
-          "campo": "VI-003",
-          "mensagem": "O modelo já tem os eixos A, B, 1, 2. Para acrescentar eixos use EIXO; para refazer a malha, apague a atual primeiro."
+          "mensagem": "O modelo já tem os eixos A, B, 1, 2. Para acrescentar eixos use EIXO; para refazer a malha, apague a atual primeiro.",
+          "campo": "VI-003"
         }
       ]
     }
@@ -51,8 +51,8 @@
       "d": "Há 1 problema(s) nos dados enviados.",
       "e": [
         {
-          "campo": "VI-003",
-          "mensagem": "Espaçamento de eixo deve ser de pelo menos 0,05 m (ShortCurveTolerance)."
+          "mensagem": "Espaçamento de eixo deve ser de pelo menos 0,05 m (ShortCurveTolerance).",
+          "campo": "VI-003"
         }
       ]
     }
@@ -84,8 +84,8 @@
       "d": "Há 1 problema(s) nos dados enviados.",
       "e": [
         {
-          "campo": "VI-003",
-          "mensagem": "Pé-direito de 1,00 m fora do intervalo 2,20–12,00 m. Se for intencional (mezanino, reservatório), confirme com confirmar=true."
+          "mensagem": "Pé-direito de 1,00 m fora do intervalo 2,20–12,00 m. Se for intencional (mezanino, reservatório), confirme com confirmar=true.",
+          "campo": "VI-003"
         }
       ]
     }
@@ -104,7 +104,7 @@
     "ok": true,
     "evidencia": {
       "s": 200,
-      "j": "{\"comandos\":[{\"linha\":1,\"conhecido\":true,\"codigo\":\"PAREDE\"}],\"erros\":[],\"valido\":true}"
+      "j": "{\"comandos\":[{\"linha\":1,\"codigo\":\"PAREDE\",\"conhecido\":true}],\"valido\":true,\"erros\":[]}"
     }
   },
   {
@@ -131,7 +131,7 @@
     "ok": true,
     "evidencia": {
       "s": 200,
-      "j": "{\"comandos\":[{\"linha\":1,\"conhecido\":true,\"codigo\":\"PAREDE\"},{\"linha\":2,\"conhecido\":false,\"codigo\":\"VIGAA\"}],\"erros\":[{\"linha\":2,\"mensagem\":\"Função desconhecida VIGAA.\",\"coluna\":4,\"codigo\":\"VI-001\"},{\"codigo\":\"VI-000\",\"mensagem\":\"Esperado VI(CODIGO, arg=valor, …)\",\"linha\":3,\"coluna\":1}],\"valido\":false}"
+      "j": "{\"comandos\":[{\"linha\":1,\"codigo\":\"PAREDE\",\"conhecido\":true},{\"linha\":2,\"codigo\":\"VIGAA\",\"conhecido\":false}],\"valido\":false,\"erros\":[{\"mensagem\":\"Função desconhecida VIGAA.\",\"linha\":2,\"codigo\":\"VI-001\",\"coluna\":4},{\"codigo\":\"VI-000\",\"mensagem\":\"Esperado VI(CODIGO, arg=valor, …)\",\"linha\":3,\"coluna\":1}]}"
     }
   },
   {
@@ -219,14 +219,14 @@
     "evidencia": {
       "n": 7,
       "ex": {
-        "id": "01a17559-d8f0-7043-a1bc-40f83db1ab60",
+        "id": "01a19308-087d-72d8-b1f5-222c591f3b88",
         "codigo": "DESFAZER",
-        "vi": "VI(DESFAZER, comando=\"01a17559-d8b8-7bee-a6b3-4899ecb8bc03\")",
+        "vi": "VI(DESFAZER, comando=\"01a19308-083a-77e6-834a-a152eae48094\")",
         "origem": "CANVAS",
-        "autorId": "01a17559-d503-7ba6-886d-7a35388f021e",
+        "autorId": "01a19308-032d-7967-9dc7-b3596db8a7db",
         "versaoBase": 6,
         "versaoNova": 7,
-        "criadoEm": "2026-10-25T23:16:24.944032Z",
+        "criadoEm": "2026-10-31T17:35:39.645195Z",
         "correcoesAuditor": 0
       }
     }
@@ -251,12 +251,12 @@
       "d": "Comando reprovado pelo auditor: 2 violação(ões).",
       "e": [
         {
-          "campo": "C-SECAO_MIN_PILAR",
-          "mensagem": "Pilar 10x10 cm: menor lado deve ser ≥ 19 cm."
+          "mensagem": "Pilar 10x10 cm: menor lado deve ser ≥ 19 cm.",
+          "campo": "C-SECAO_MIN_PILAR"
         },
         {
-          "campo": "C-AREA_MIN_PILAR",
-          "mensagem": "Área da seção do pilar deve ser ≥ 360 cm²."
+          "mensagem": "Área da seção do pilar deve ser ≥ 360 cm².",
+          "campo": "C-AREA_MIN_PILAR"
         }
       ]
     }
@@ -459,7 +459,7 @@
     "descricao": "catálogo de comandos servido pela API",
     "ok": true,
     "evidencia": {
-      "n": 87
+      "n": 89
     }
   },
   {
@@ -479,7 +479,7 @@
     "ok": true,
     "evidencia": {
       "s": 200,
-      "j": "{\"categoria\":\"DESENHO\",\"nomePtBr\":\"LINHA\",\"roteiro\":[{\"nome\":\"p1\",\"mensagem\":\"Ponto inicial:\",\"tipo\":\"PONTO\",\"opcional\":"
+      "j": "{\"categoria\":\"DESENHO\",\"codigo\":\"LINHA\",\"roteiro\":[{\"nome\":\"p1\",\"mensagem\":\"Ponto inicial:\",\"tipo\":\"PONTO\",\"opcional\":fa"
     }
   }
 ]

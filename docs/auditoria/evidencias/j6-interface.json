@@ -5,7 +5,7 @@
     "descricao": "planta abre com os objetos e conexões gravados",
     "ok": true,
     "evidencia": {
-      "objetos": 32,
+      "objetos": 33,
       "conexoes": 25
     }
   },
@@ -23,8 +23,8 @@
     "ok": true,
     "evidencia": {
       "achados": 1,
-      "id": "01a17561-6186-7ad3-9aeb-655a6d69aee6",
-      "versao": 93
+      "id": "01a19303-aafc-7a40-85ca-dd31e5fb9bc8",
+      "versao": 99
     }
   },
   {
@@ -34,14 +34,23 @@
     "ok": true,
     "evidencia": {
       "de": {
-        "id": "01a17560-b01d-7d8c-a826-adb68ab2417c",
+        "id": "01a19302-f150-799a-9b5d-0df054d25e45",
         "conector": "S1"
       },
       "para": {
-        "id": "01a17561-6186-7ad3-9aeb-655a6d69aee6",
+        "id": "01a19303-aafc-7a40-85ca-dd31e5fb9bc8",
         "conector": "E1"
       },
       "circuito": "C5"
+    }
+  },
+  {
+    "rf": "RF28",
+    "id": "ui-propriedade",
+    "descricao": "editar a rotação no painel de propriedades grava no servidor (90°)",
+    "ok": true,
+    "evidencia": {
+      "rotacao": 90
     }
   },
   {
@@ -49,7 +58,7 @@
     "id": "ui-separacao",
     "descricao": "propriedades da conexão separam ligação lógica, conexão física e representação gráfica",
     "ok": true,
-    "evidencia": "Propriedades Biblioteca VI / IA Camadas Auditoria Atalhos Ajuda Conexão de elétrica CX26 Ligação lógica Circuito Disjuntor (A) Conexão física Tomada 10 A (OB24).S1 (saída) → Geladeira (OB33).E1 (entrada) Seção (mm²) Condutores: F, N, PE Material: MAT.CONDUTOR.COBRE_PVC_70 Representação gráfica Cabo "
+    "evidencia": "Propriedades Biblioteca VI / IA Camadas Auditoria Atalhos Ajuda Conexão de elétrica CX26 Ligação lógica Circuito Disjuntor (A) Conexão física Tomada 10 A (OB24).S1 (saída) → Geladeira (OB34).E1 (entrada) Seção (mm²) Condutores: F, N, PE Material: MAT.CONDUTOR.COBRE_PVC_70 Representação gráfica Cabo "
   },
   {
     "rf": "AUD-06",
@@ -77,9 +86,9 @@
     "descricao": "quadros por segundo medidos (WebGL por software; não representa GPU real)",
     "ok": null,
     "evidencia": {
-      "realista-dia": 9.3,
-      "solido": 26.2,
-      "malha": 17.5
+      "realista-dia": 6.7,
+      "solido": 21.9,
+      "malha": 16.3
     }
   },
   {
@@ -87,7 +96,7 @@
     "id": "ui-sol",
     "descricao": "posição do sol muda com a hora (elevação e azimute mostrados)",
     "ok": true,
-    "evidencia": "Sol: elevação 18.9°, azimute 263° (norte = +y da planta) Materiais PBR, sol pela hora, data e latitude, sombras e exposição."
+    "evidencia": "Sol: elevação 19.6°, azimute 261° (norte = +y da planta) Materiais PBR, sol pela hora, data e latitude, sombras e exposição."
   },
   {
     "rf": "AUD-07",
@@ -104,11 +113,25 @@
     "evidencia": "Colisão: parede PAR9. A pessoa não atravessa paredes nem objetos."
   },
   {
+    "rf": "AUD-08",
+    "id": "ui-escada",
+    "descricao": "em 1ª pessoa a pessoa sobe a escada até o nível de cima (3,00 m) e a posição gravada fica no servidor",
+    "ok": true,
+    "evidencia": {
+      "piso": "Piso a 3.00 m",
+      "elevacao": 3,
+      "centro": {
+        "x": 4.5,
+        "y": 7.9
+      }
+    }
+  },
+  {
     "rf": "AUD-05",
     "id": "ui-destacar",
     "descricao": "do painel de falhas, \"Ver no modelo\" abre o 3D com os objetos do conflito selecionados",
     "ok": true,
-    "evidencia": "http://localhost:3000/obras/01a17560-a883-7c8b-b58c-a171c663b7b5/modelo?sel=01a17560-aa57-7315-9ee5-d87d2aaf7364,01a17560-b2f7-799e-88c4-d4cbe7521539&vista=3D"
+    "evidencia": "http://localhost:3000/obras/01a19302-e0ed-7174-91b8-a154289e7665/modelo?sel=01a19302-e694-7aa7-9146-e83404c5c6ca,01a19302-f53c-7761-9d78-2d45ce210411&vista=3D"
   },
   {
     "rf": "CT-10",
@@ -116,8 +139,8 @@
     "descricao": "recarregar a página não perde objetos nem conexões feitos pela interface",
     "ok": true,
     "evidencia": {
-      "versao": 94,
-      "elementos": 84
+      "versao": 103,
+      "elementos": 89
     }
   },
   {

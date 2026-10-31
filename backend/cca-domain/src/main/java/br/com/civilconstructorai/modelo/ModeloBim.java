@@ -399,6 +399,33 @@ public class ModeloBim {
                         "paredeId", parede.getId(), "posicao", posicao, "largura", num(a, "larg", porta ? 0.8 : 1.2), "altura", num(a, "alt", porta ? 2.1 : 1.2),
                         "peitoril", porta ? 0.0 : num(a, "peitoril", 1.0), "materialId", porta ? "MAT.COMPONENTE.PORTA_MADEIRA_80x210" : "MAT.COMPONENTE.VIDRO_TEMPERADO_8")));
             }
+            case "ESCADA", "RAMPA" -> {
+                var p1 = pt(a, "p1");
+                var p2 = pt(a, "p2");
+                boolean escada = cmd.codigo().equals("ESCADA");
+                if (p1.distancia(p2) < 0.3) {
+                    throw erro("VI-002", (escada ? "Escada" : "Rampa") + " precisa de pelo menos 0,30 m entre o pé e o topo.");
+                }
+                var acima = pavimentoAcima(pav).orElse(null);
+                if (a.get("desnivel") == null && acima == null) {
+                    throw erro("VI-002", "Informe o desnível: não há pavimento acima para chegar.");
+                }
+                double elevPav = pavimento(pav).map(Pavimento::elevacao).orElse(0.0);
+                double desnivel = ObjetosPrediais.r3(num(a, "desnivel", acima != null ? acima.elevacao() - elevPav : 0.0));
+                double largura = num(a, "larg", escada ? 1.0 : 1.2);
+                if (!(desnivel > 0) || !(largura > 0)) {
+                    throw erro("VI-002", "Desnível e largura precisam ser positivos.");
+                }
+                var pr = props("p1", p1, "p2", p2, "largura", largura, "desnivel", desnivel);
+                if (escada) {
+                    long g = Math.round(num(a, "degraus", (double) Math.max(1, Math.round(desnivel / Circulacao.ESPELHO_ADOTADO))));
+                    if (g < 1) {
+                        throw erro("VI-002", "A escada precisa de ao menos 1 degrau.");
+                    }
+                    pr.put("degraus", (int) g);
+                }
+                criar(diff, novo(cmd, pav, escada ? TipoElemento.ESCADA : TipoElemento.RAMPA, Camada.arquitetura, pr));
+            }
             case "AMBIENTE" -> criar(diff, novo(cmd, pav, TipoElemento.AMBIENTE, Camada.arquitetura, props("ponto", pt(a, "ponto"), "nome", str(a, "nome", "Ambiente"))));
             case "LINHA", "PLANO_REF", "LINHA_DETALHE" -> criar(diff, novo(cmd, pav,
                     cmd.codigo().equals("PLANO_REF") ? TipoElemento.PLANO_REF : TipoElemento.LINHA,
@@ -521,8 +548,21 @@ public class ModeloBim {
                 if (p1 == null || p2 == null) {
                     throw erro("VI-002", "Cota precisa de p1 e p2 (ou p).");
                 }
-                criar(diff, novo(cmd, pav, TipoElemento.COTA, Camada.anotacao, props("p1", p1, "p2", p2, "afastamento", num(a, "afast", 1.0),
-                        "estilo", cmd.codigo().equals("COTA_LINEAR") ? "LINEAR" : cmd.codigo().equals("COTA_NIVEL") ? "NIVEL" : "ALINHADA")));
+                var cota = novo(cmd, pav, TipoElemento.COTA, Camada.anotacao, props("p1", p1, "p2", p2, "afastamento", num(a, "afast", 1.0),
+                        "estilo", cmd.codigo().equals("COTA_LINEAR") ? "LINEAR" : cmd.codigo().equals("COTA_NIVEL") ? "NIVEL" : "ALINHADA"));
+                var ancoras = new LinkedHashMap<String, Object>();
+                var a1 = ancoraEm(p1, pav);
+                var a2 = ancoraEm(p2, pav);
+                if (a1 != null) {
+                    ancoras.put("p1", a1);
+                }
+                if (a2 != null) {
+                    ancoras.put("p2", a2);
+                }
+                if (!ancoras.isEmpty()) {
+                    cota.getProps().put("ancoras", ancoras);
+                }
+                criar(diff, cota);
             }
             case "TEXTO" -> criar(diff, novo(cmd, pav, TipoElemento.TEXTO, Camada.anotacao, props("p", pt(a, "p"), "texto", str(a, "texto", ""), "altura", num(a, "altura", 0.25))));
             case "ETIQUETA" -> {
@@ -555,6 +595,9 @@ public class ModeloBim {
                     var antesP1 = alvo.getTipo() == TipoElemento.PAREDE ? alvo.ponto("p1") : null;
                     var antesP2 = alvo.getTipo() == TipoElemento.PAREDE ? alvo.ponto("p2") : null;
                     alvo.mapearPontos(p -> p.mais(d));
+                    if (alvo.getTipo() == TipoElemento.OBJETO && ObjetosPrediais.item(alvo).map(it -> "humanos".equals(it.disciplina())).orElse(false)) {
+                        alvo.setNum("elevacao", Circulacao.elevacaoNoPiso(this, alvo.getPavimentoId(), alvo.ponto("centro")));
+                    }
                     if (alvo == e) {
                         diff.alterados.add(e);
                     } else {
@@ -798,7 +841,75 @@ public class ModeloBim {
             }
             default -> throw erro("VI-001", "Função \"" + cmd.codigo() + "\" não existe na Tabela B.");
         }
+        atualizarCotasAssociadas(diff);
         return diff;
+    }
+
+    /** extremidade (p1/p2) ou centro de um elemento do pavimento coincidente com o ponto (1 mm): âncora da cota */
+    private Map<String, Object> ancoraEm(Ponto2D p, UUID pav) {
+        for (var e : elementosDo(pav)) {
+            var t = e.getTipo();
+            if (t == TipoElemento.PAREDE || t == TipoElemento.VIGA || t == TipoElemento.LINHA || t == TipoElemento.PLANO_REF || Circulacao.eh(e)) {
+                for (var k : List.of("p1", "p2")) {
+                    if (e.ponto(k) != null && e.ponto(k).distancia(p) <= 1e-3) {
+                        return ancora(e, k);
+                    }
+                }
+            }
+            if (t == TipoElemento.PILAR && e.ponto("centro") != null && e.ponto("centro").distancia(p) <= 1e-3) {
+                return ancora(e, "centro");
+            }
+        }
+        return null;
+    }
+
+    private static Map<String, Object> ancora(Elemento e, String ponto) {
+        var m = new LinkedHashMap<String, Object>();
+        m.put("id", e.getId().toString());
+        m.put("ponto", ponto);
+        return m;
+    }
+
+    /** cotas ancoradas seguem os elementos alterados; âncora de elemento apagado é descartada (mesma regra no TS) */
+    @SuppressWarnings("unchecked")
+    private void atualizarCotasAssociadas(DiffModelo diff) {
+        var mudou = new HashSet<String>();
+        diff.alterados.forEach(e -> mudou.add(e.getId().toString()));
+        diff.removidos.forEach(id -> mudou.add(id.toString()));
+        if (mudou.isEmpty()) {
+            return;
+        }
+        for (var c : elementos) {
+            if (c.getTipo() != TipoElemento.COTA || !(c.getProps().get("ancoras") instanceof Map<?, ?> an)) {
+                continue;
+            }
+            var ancoras = (Map<String, Object>) an;
+            boolean alterou = false;
+            for (var lado : List.of("p1", "p2")) {
+                if (!(ancoras.get(lado) instanceof Map<?, ?> ref) || !mudou.contains(String.valueOf(ref.get("id")))) {
+                    continue;
+                }
+                Ponto2D p = null;
+                try {
+                    p = elemento(UUID.fromString(String.valueOf(ref.get("id")))).map(e -> e.ponto(String.valueOf(ref.get("ponto")))).orElse(null);
+                } catch (IllegalArgumentException ignored) {
+                    // id inválido: a âncora é descartada abaixo
+                }
+                if (p == null) {
+                    ancoras.remove(lado);
+                    alterou = true;
+                } else if (p.distancia(c.ponto(lado)) > 1e-9) {
+                    c.setPonto(lado, p);
+                    alterou = true;
+                }
+            }
+            if (ancoras.isEmpty()) {
+                c.getProps().remove("ancoras");
+            }
+            if (alterou && !diff.alterados.contains(c)) {
+                diff.alterados.add(c);
+            }
+        }
     }
 
     private void criar(DiffModelo diff, Elemento e) {
@@ -856,6 +967,9 @@ public class ModeloBim {
         }
         if ("TETO".equals(it.montagem())) {
             o.setNum("elevacao", ObjetosPrediais.r3(ObjetosPrediais.teto(this, pav) - h));
+        }
+        if ("humanos".equals(it.disciplina())) {
+            o.setNum("elevacao", Circulacao.elevacaoNoPiso(this, pav, o.ponto("centro"))); // pessoa sobre escada/rampa
         }
         if (a.get("elev") != null) {
             o.setNum("elevacao", num(a, "elev", 0.0));

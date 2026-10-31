@@ -232,6 +232,29 @@ public final class EscritorIfc {
                 var pre = e.getTipo() == TipoElemento.PORTA ? ".DOOR." : ".WINDOW.";
                 return b.add(tipo + "(" + gid + ",#" + hist + "," + nome + ",$,$,#" + lp + ",$,$," + d(e.num("altura", 2.1)) + "," + d(e.num("largura", 0.8)) + "," + pre + ",$,$)");
             }
+            case ESCADA, RAMPA -> {
+                // perfil lateral (dente de serra ou cunha) no plano vertical do lance, extrudado pela largura
+                var a = e.ponto("p1");
+                var b2 = e.ponto("p2");
+                double L = a.distancia(b2), larg = e.num("largura", 1.0);
+                double ux = (b2.x() - a.x()) / L, uy = (b2.y() - a.y()) / L;
+                var coords = new ArrayList<String>();
+                for (var q : br.com.civilconstructorai.modelo.Circulacao.perfil(e)) {
+                    coords.add("#" + b.add("IFCCARTESIANPOINT((" + d(q[0]) + "," + d(q[1]) + "))"));
+                }
+                int poly = b.add("IFCPOLYLINE((" + String.join(",", coords) + "," + coords.get(0) + "))");
+                int prof = b.add("IFCARBITRARYCLOSEDPROFILEDEF(.AREA.,$,#" + poly + ")");
+                // eixo Z do sólido = lado direito do lance (uy, −ux); X = sentido do lance; Y = Z × X = vertical
+                int pos = b.add("IFCAXIS2PLACEMENT3D(#" + b.add("IFCCARTESIANPOINT((" + d(a.x() - uy * larg / 2) + "," + d(a.y() + ux * larg / 2) + ",0.))") + ",#"
+                        + b.add("IFCDIRECTION((" + d(uy) + "," + d(-ux) + ",0.))") + ",#" + b.add("IFCDIRECTION((" + d(ux) + "," + d(uy) + ",0.))") + ")");
+                int solid = b.add("IFCEXTRUDEDAREASOLID(#" + prof + ",#" + pos + ",#" + dirZ + "," + d(larg) + ")");
+                int shape = b.add("IFCSHAPEREPRESENTATION(#" + b.ctx + ",'Body','SweptSolid',(#" + solid + "))");
+                int pds = b.add("IFCPRODUCTDEFINITIONSHAPE($,$,(#" + shape + "))");
+                int lp = b.add("IFCLOCALPLACEMENT(#" + lpStorey + ",#" + b.add("IFCAXIS2PLACEMENT3D(#" + b.add("IFCCARTESIANPOINT((0.,0.,0.))") + ",#" + dirZ + ",#" + dirX + ")") + ")");
+                return e.getTipo() == TipoElemento.ESCADA
+                        ? b.add("IFCSTAIR(" + gid + ",#" + hist + "," + nome + ",$,$,#" + lp + ",#" + pds + ",$,.STRAIGHT_RUN_STAIR.)")
+                        : b.add("IFCRAMP(" + gid + ",#" + hist + "," + nome + ",$,$,#" + lp + ",#" + pds + ",$,.STRAIGHT_RUN_RAMP.)");
+            }
             case SAPATA, BLOCO, RADIER -> {
                 var c = e.ponto("centro");
                 int rep = extrusaoRetangulo(b, c.x() - e.num("bx", 1.5) / 2, c.y() - e.num("by", 1.5) / 2, 0, e.num("bx", 1.5), e.num("by", 1.5), e.num("h", 0.5), lpStorey, dirZ, dirX);
@@ -363,6 +386,18 @@ public final class EscritorIfc {
         var props = new ArrayList<String>();
         props.add("#" + b.add("IFCPROPERTYSINGLEVALUE('Camada',$,IFCLABEL(" + s(e.getCamada().rotulo()) + "),$)"));
         props.add("#" + b.add("IFCPROPERTYSINGLEVALUE('Origem',$,IFCLABEL(" + s(e.getOrigem().name()) + "),$)"));
+        if (br.com.civilconstructorai.modelo.Circulacao.eh(e)) {
+            double L = e.ponto("p1").distancia(e.ponto("p2"));
+            props.add("#" + b.add("IFCPROPERTYSINGLEVALUE('Desnivel',$,IFCLENGTHMEASURE(" + d(e.num("desnivel", 0)) + "),$)"));
+            props.add("#" + b.add("IFCPROPERTYSINGLEVALUE('Comprimento',$,IFCLENGTHMEASURE(" + d(L) + "),$)"));
+            props.add("#" + b.add("IFCPROPERTYSINGLEVALUE('Largura',$,IFCLENGTHMEASURE(" + d(e.num("largura", 1.0)) + "),$)"));
+            if (e.getTipo() == TipoElemento.ESCADA) {
+                int n = br.com.civilconstructorai.modelo.Circulacao.degraus(e);
+                props.add("#" + b.add("IFCPROPERTYSINGLEVALUE('NumberOfRiser',$,IFCCOUNTMEASURE(" + n + "),$)"));
+                props.add("#" + b.add("IFCPROPERTYSINGLEVALUE('RiserHeight',$,IFCPOSITIVELENGTHMEASURE(" + d(e.num("desnivel", 0) / n) + "),$)"));
+                props.add("#" + b.add("IFCPROPERTYSINGLEVALUE('TreadLength',$,IFCPOSITIVELENGTHMEASURE(" + d(L / n) + "),$)"));
+            }
+        }
         if (e.getTipo() == TipoElemento.OBJETO) {
             var dim = ObjetosPrediais.dim(e);
             props.add("#" + b.add("IFCPROPERTYSINGLEVALUE('Item',$,IFCIDENTIFIER(" + s(e.texto("item")) + "),$)"));

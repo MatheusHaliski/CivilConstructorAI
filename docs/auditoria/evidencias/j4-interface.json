@@ -18,14 +18,14 @@
     "id": "UX-corrigir-email",
     "descricao": "na verificação dá para corrigir o e-mail digitado errado",
     "ok": true,
-    "evidencia": "Confirme seu e-mail Isso ativa a sua conta. Enviamos um código de 6 dígitos para o seu e-mail. Destino: ui-1792970246056@exemplo.cca. Código * Ativar conta Reenviar código E-mail errado? Cadastrar com outro e-mail. O código atual vale 30 minutos."
+    "evidencia": "Confirme seu e-mail Isso ativa a sua conta. Enviamos um código de 6 dígitos para o seu e-mail. Destino: ui-1793468205600@exemplo.cca. Código * Ativar conta Reenviar código E-mail errado? Cadastrar com outro e-mail. O código atual vale 30 minutos."
   },
   {
     "rf": "RF18",
     "id": "UX-codigo-errado",
     "descricao": "código errado explica e informa tentativas restantes",
     "ok": true,
-    "evidencia": "Confirme seu e-mail Isso ativa a sua conta. Enviamos um código de 6 dígitos para o seu e-mail. Destino: ui-1792970246056@exemplo.cca. codigo: Código incorreto. Restam 4 tentativa(s). Código * Ativar conta Reenviar código E-mail errado? Cadastrar com "
+    "evidencia": "Confirme seu e-mail Isso ativa a sua conta. Enviamos um código de 6 dígitos para o seu e-mail. Destino: ui-1793468205600@exemplo.cca. codigo: Código incorreto. Restam 4 tentativa(s). Código * Ativar conta Reenviar código E-mail errado? Cadastrar com "
   },
   {
     "rf": "UX",
@@ -56,7 +56,7 @@
     "id": "UX-contexto",
     "descricao": "a lateral mostra a obra atual e todas as abas dela",
     "ok": true,
-    "evidencia": "http://localhost:3000/obras/01a1755a-f875-7697-a1ed-64fea3420e12"
+    "evidencia": "http://localhost:3000/obras/01a19309-3b99-753d-9875-bffc5eb1a8b3"
   },
   {
     "rf": "RF29",
@@ -91,21 +91,21 @@
     "id": "UX-email",
     "descricao": "e-mail diz quem convidou, a obra, o papel legível e a validade em pt-BR",
     "ok": true,
-    "evidencia": "\r Prado Engenharia convidou voc=C3=AA para a obra \"Edif=C3=ADcio Jacarand=C3=A1\" com o papel de arquiteto(a).\r \r Para aceitar, abra o link abaixo e entre (ou crie a conta) com este mesmo e-mail:\r http://localhost:3000/convite/qa2-8drqfDONqWLt9ewyqBp-t-VuRTtXeK33umyDGbQ\r \r O convite vale at=C3=A9 1 d"
+    "evidencia": "\r Prado Engenharia convidou voc=C3=AA para a obra \"Edif=C3=ADcio Jacarand=C3=A1\" com o papel de arquiteto(a).\r \r Para aceitar, abra o link abaixo e entre (ou crie a conta) com este mesmo e-mail:\r http://localhost:3000/convite/aKWry1JO9lOX3JP8qu1zsNP3LHRo5Gh3_2lt11gJiCM\r \r O convite vale at=C3=A9 7 d"
   },
   {
     "rf": "RF20",
     "id": "UX-convite",
     "descricao": "página do convite mostra empresa, obra e papel e orienta a criar conta/entrar",
     "ok": true,
-    "evidencia": "Convite para Prado Engenharia Ltda Obra: Edifício Jacarandá Papel Arquiteto(a) E-mail convidado Válido até 1 de novembro de 2026 Entre com a conta do e-mail convidado para aceitar. Entrar Criar conta"
+    "evidencia": "Convite para Prado Engenharia Ltda Obra: Edifício Jacarandá Papel Arquiteto(a) E-mail convidado Válido até 7 de novembro de 2026 Entre com a conta do e-mail convidado para aceitar. Entrar Criar conta"
   },
   {
     "rf": "RF20",
     "id": "UX-volta-convite",
     "descricao": "depois do cadastro a pessoa volta ao convite para aceitar",
     "ok": true,
-    "evidencia": "http://localhost:3000/convite/qa2-8drqfDONqWLt9ewyqBp-t-VuRTtXeK33umyDGbQ"
+    "evidencia": "http://localhost:3000/convite/aKWry1JO9lOX3JP8qu1zsNP3LHRo5Gh3_2lt11gJiCM"
   },
   {
     "rf": "RF19",
@@ -113,7 +113,7 @@
     "descricao": "papel que aprova exige 2FA: o app explica, configura e oferece voltar à obra",
     "ok": true,
     "evidencia": {
-      "destino": "/obras/01a1755a-f875-7697-a1ed-64fea3420e12"
+      "destino": "/obras/01a19309-3b99-753d-9875-bffc5eb1a8b3"
     }
   },
   {
@@ -121,28 +121,28 @@
     "id": "UX-aceite",
     "descricao": "ao aceitar, cai direto na obra do convite",
     "ok": true,
-    "evidencia": "http://localhost:3000/obras/01a1755a-f875-7697-a1ed-64fea3420e12"
+    "evidencia": "http://localhost:3000/obras/01a19309-3b99-753d-9875-bffc5eb1a8b3"
   },
   {
     "rf": "RF19",
     "id": "UX-voltar",
     "descricao": "URL protegida sem sessão leva ao login guardando o destino",
     "ok": true,
-    "evidencia": "http://localhost:3000/entrar?voltar=%2Fobras%2F01a1755a-f875-7697-a1ed-64fea3420e12%2Fgeotecnia%2Ffuros"
+    "evidencia": "http://localhost:3000/entrar?voltar=%2Fobras%2F01a19309-3b99-753d-9875-bffc5eb1a8b3%2Fgeotecnia%2Ffuros"
   },
   {
     "rf": "RF19",
     "id": "UX-voltar-b",
     "descricao": "após login (com 2FA) volta para a URL pedida",
     "ok": true,
-    "evidencia": "http://localhost:3000/obras/01a1755a-f875-7697-a1ed-64fea3420e12/geotecnia/furos"
+    "evidencia": "http://localhost:3000/obras/01a19309-3b99-753d-9875-bffc5eb1a8b3/geotecnia/furos"
   },
   {
     "rf": "RF19",
     "id": "UX-sessao-perdida",
     "descricao": "sessão perdida leva ao login sem tela quebrada",
     "ok": true,
-    "evidencia": "http://localhost:3000/entrar?voltar=%2Fobras%2F01a1755a-f875-7697-a1ed-64fea3420e12%2Festrutura%2Fcargas"
+    "evidencia": "http://localhost:3000/entrar?voltar=%2Fobras%2F01a19309-3b99-753d-9875-bffc5eb1a8b3%2Festrutura%2Fcargas"
   },
   {
     "rf": "UX",

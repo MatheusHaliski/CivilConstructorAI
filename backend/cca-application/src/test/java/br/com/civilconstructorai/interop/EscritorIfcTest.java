@@ -54,6 +54,8 @@ class EscritorIfcTest {
         var tom2 = m.aplicarAuditado("OBJETO", Map.of("item", "INSTALACOES.TOMADA_10A", "pos", p(3, 0.1)), OrigemComando.CANVAS, null).diff().criados.getFirst().getId();
         m.aplicarAuditado("CONECTAR", Map.of("de", qd.toString(), "para", tom.toString()), OrigemComando.CANVAS, null);
         m.aplicarAuditado("CONECTAR", Map.of("de", qd.toString(), "para", tom2.toString()), OrigemComando.CANVAS, null);
+        m.aplicarAuditado("ESCADA", Map.of("p1", p(1, 3), "p2", p(4, 3), "desnivel", 2.8), OrigemComando.CANVAS, null);
+        m.aplicarAuditado("RAMPA", Map.of("p1", p(0, 6), "p2", p(6, 6), "desnivel", 0.5), OrigemComando.CANVAS, null);
         var ifc = EscritorIfc.escrever(m, "Obra Teste", "Eng. Responsável", Instant.parse("2026-10-25T00:00:00Z"));
         // cópia para validação externa do esquema (ifcopenshell.validate), fora do repositório
         java.nio.file.Files.writeString(java.nio.file.Path.of("target", "ifc-objetos.ifc"), ifc);
@@ -61,8 +63,8 @@ class EscritorIfcTest {
         assertThat(resumo.valido()).as(resumo.problemas().toString()).isTrue();
         assertThat(resumo.porTipo()).containsEntry("IFCOUTLET", 2).containsEntry("IFCELECTRICDISTRIBUTIONBOARD", 1).containsEntry("IFCELECTRICAPPLIANCE", 1).containsEntry("IFCFURNITURE", 1)
                 .containsEntry("IFCDISTRIBUTIONPORT", 7).containsEntry("IFCRELNESTS", 4).containsEntry("IFCRELCONNECTSPORTS", 3)
-                .containsEntry("IFCDISTRIBUTIONCIRCUIT", 2).containsEntry("IFCSPACE", 1);
-        assertThat(ifc).contains("Pset_TabelaA").contains("'COZINHA.GELADEIRA'").contains(".SOURCE.").contains(".SINK.").contains("'Circuito C3'").contains("'S1/1'").contains("'S1/2'")
+                .containsEntry("IFCDISTRIBUTIONCIRCUIT", 2).containsEntry("IFCSTAIR", 1).containsEntry("IFCRAMP", 1).containsEntry("IFCSPACE", 1);
+        assertThat(ifc).contains("Pset_TabelaA").contains("'COZINHA.GELADEIRA'").contains(".SOURCE.").contains(".SINK.").contains("'Circuito C3'").contains("'S1/1'").contains("'S1/2'").contains("'NumberOfRiser'")
                 .doesNotContain("PESSOAS.ADULTO").contains("IFCPOWERMEASURE(");
     }
 

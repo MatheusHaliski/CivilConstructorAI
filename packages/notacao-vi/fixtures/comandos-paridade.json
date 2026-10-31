@@ -1046,6 +1046,128 @@
      "circuito": "C5"
     }
    }
+  },
+  {
+   "codigo": "ESCADA",
+   "args": {
+    "p1": {
+     "x": 30,
+     "y": 0
+    },
+    "p2": {
+     "x": 30,
+     "y": 4
+    },
+    "desnivel": 2.8,
+    "larg": 1.1
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "ESCADA",
+    "igual": {
+     "degraus": "16",
+     "largura": "1.1",
+     "desnivel": "2.8",
+     "camada": "arquitetura"
+    }
+   }
+  },
+  {
+   "codigo": "RAMPA",
+   "args": {
+    "p1": {
+     "x": 34,
+     "y": 0
+    },
+    "p2": {
+     "x": 40,
+     "y": 0
+    },
+    "desnivel": 0.5
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "RAMPA",
+    "igual": {
+     "largura": "1.2",
+     "desnivel": "0.5"
+    }
+   }
+  },
+  {
+   "codigo": "OBJETO",
+   "preparo": [
+    {
+     "codigo": "ESCADA",
+     "args": {
+      "p1": {
+       "x": 30,
+       "y": 0
+      },
+      "p2": {
+       "x": 30,
+       "y": 4
+      },
+      "desnivel": 2.8
+     }
+    }
+   ],
+   "args": {
+    "item": "PESSOAS.ADULTO",
+    "pos": {
+     "x": 30,
+     "y": 2.1
+    }
+   },
+   "espera": {
+    "criados": 1,
+    "tipo": "OBJETO",
+    "igual": {
+     "elevacao": "1.575"
+    }
+   }
+  },
+  {
+   "codigo": "ALTERAR",
+   "preparo": [
+    {
+     "codigo": "COTA_LINEAR",
+     "args": {
+      "p1": {
+       "x": 0,
+       "y": 10
+      },
+      "p2": {
+       "x": 6,
+       "y": 10
+      },
+      "afast": 0.5
+     }
+    }
+   ],
+   "args": {
+    "id": "$3",
+    "props": {
+     "p2": {
+      "x": 7.5,
+      "y": 10
+     }
+    }
+   },
+   "espera": {
+    "verifica": [
+     {
+      "ref": "$7",
+      "campo": "p2.x",
+      "valor": 7.5
+     },
+     {
+      "ref": "$7",
+      "campo": "p1.x",
+      "valor": 0
+     }
+    ]
+   }
   }
  ]
 }

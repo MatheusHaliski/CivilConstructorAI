@@ -14,17 +14,19 @@ import { Canvas, useThree } from "@react-three/fiber";
 import { Grid, OrbitControls, Text } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
-import { cantosObjeto, itemObjeto, pontoDentroPoligono, type Elemento, type Objeto, type Ponto2D } from "@cca/notacao-vi";
+import { alturaCirculacao, cantosObjeto, itemObjeto, pontoDentroPoligono, posicaoNaCirculacao, type Elemento, type Objeto, type Ponto2D } from "@cca/notacao-vi";
 import { elementosVisiveis, useMotor } from "@/lib/motor/estado";
 import { alturaPav, luzesDoModelo, pecasDoElemento, type Peca3D } from "@/lib/motor/cena";
 import { PBR, corDaTemperatura, posicaoSolar, vetorSolar } from "@/lib/motor/formas";
 
 const SEL = "#F06000";
+/** luminárias que projetam sombra (cada uma custa seis renderizações de mapa de sombra por quadro) */
+const SOMBRAS_LUZES = 4;
 
 export type Preset = "realista-dia" | "realista-noite" | "luzes-off" | "unlit" | "solido" | "linhas-ocultas" | "arestas" | "malha" | "nos" | "pontos";
 export const PRESETS: { id: Preset; rotulo: string; desc: string }[] = [
   { id: "realista-dia", rotulo: "Realista · dia", desc: "Materiais PBR, sol pela hora, data e latitude, sombras e exposição." },
-  { id: "realista-noite", rotulo: "Realista · noite", desc: "Céu noturno: iluminam só as luminárias ligadas, com fluxo (lm) e temperatura de cor (K) do catálogo." },
+  { id: "realista-noite", rotulo: "Realista · noite", desc: "Céu noturno: iluminam só as luminárias ligadas, com fluxo (lm) e temperatura de cor (K) do catálogo; as 4 primeiras projetam sombra." },
   { id: "luzes-off", rotulo: "Luzes artificiais desligadas", desc: "Noite com todas as luminárias apagadas (efeito visual: circuitos e conexões não mudam)." },
   { id: "unlit", rotulo: "Sem iluminação (unlit)", desc: "Cor própria de cada material, sem cálculo de luz nem sombra." },
   { id: "solido", rotulo: "Sólido simplificado", desc: "Sólidos com sombreamento simples e cor por disciplina, sem materiais nem sombras." },
@@ -156,22 +158,52 @@ export function Cena3D() {
 
   // primeira pessoa: olho a 93% da altura da pessoa, olhando para a frente dela
   const pessoa = s.primeiraPessoa ? s.modelo.elemento(s.primeiraPessoa) as Objeto | undefined : undefined;
-  const [passo, setPasso] = useState<{ x: number; y: number; ang: number } | null>(null);
-  useEffect(() => { setPasso(pessoa ? { x: pessoa.centro.x, y: pessoa.centro.y, ang: ((pessoa.rotacao + 90) * Math.PI) / 180 } : null); }, [pessoa?.id]); // eslint-disable-line react-hooks/exhaustive-deps
-  const zPessoa = pessoa ? (s.modelo.pavimento(pessoa.pavimentoId)?.elevacao ?? 0) + pessoa.elevacao + pessoa.dim.a * 0.93 : 0;
+  // piso: cota absoluta sob os pés (sobe e desce escadas e rampas do pavimento da pessoa)
+  const [passo, setPasso] = useState<{ x: number; y: number; ang: number; piso: number } | null>(null);
+  const elevPav = pessoa ? s.modelo.pavimento(pessoa.pavimentoId)?.elevacao ?? 0 : 0;
+  useEffect(() => { setPasso(pessoa ? { x: pessoa.centro.x, y: pessoa.centro.y, ang: ((pessoa.rotacao + 90) * Math.PI) / 180, piso: elevPav + pessoa.elevacao } : null); }, [pessoa?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const zPessoa = pessoa && passo ? passo.piso + pessoa.dim.a * 0.93 : 0;
+  /** novo piso ao pisar em (x, y): sobre escada/rampa segue o degrau; saindo pelo topo fica no nível de cima, pelo pé volta ao piso */
+  const pisoEm = (x: number, y: number, anterior: number): number => {
+    if (!pessoa) return anterior;
+    const p = { x, y }; let sobre = false, piso = anterior;
+    for (const e of s.modelo.elementosDo(pessoa.pavimentoId)) {
+      if (e.tipo !== "ESCADA" && e.tipo !== "RAMPA") continue;
+      const h = alturaCirculacao(e, p);
+      if (h != null) { sobre = true; piso = elevPav + h; break; }
+      const { t, dentroLateral } = posicaoNaCirculacao(e, p);
+      if (dentroLateral && t > 1 && t < 1 + 0.5 / Math.max(0.3, Math.hypot(e.p2.x - e.p1.x, e.p2.y - e.p1.y)) && Math.abs(anterior - (elevPav + e.desnivel)) < 0.3) { sobre = true; piso = elevPav + e.desnivel; }
+      if (dentroLateral && t < 0 && t > -0.5 && anterior - elevPav < 0.3) { sobre = true; piso = elevPav; }
+    }
+    return sobre ? Math.round(piso * 1000) / 1000 : anterior;
+  };
+  /** pavimento cujo piso é o de referência para colisão (o mais alto com elevação ≤ piso atual) */
+  const pavDoPiso = (piso: number) => [...s.modelo.pavimentos].sort((a, b) => a.elevacao - b.elevacao).filter((p) => p.elevacao <= piso + 0.05).pop()?.id ?? pessoa?.pavimentoId ?? "";
   const olho = pessoa && passo ? new THREE.Vector3(passo.x, zPessoa, -passo.y) : null;
   const olhar = pessoa && passo ? new THREE.Vector3(passo.x + Math.cos(passo.ang) * 2, zPessoa, -(passo.y + Math.sin(passo.ang) * 2)) : null;
   const caixaRef = useRef<HTMLDivElement>(null);
   const andar = (frente: number, giro: number) => {
     if (!pessoa || !passo) return;
     const ang = passo.ang + giro, nx = passo.x + Math.cos(ang) * frente, ny = passo.y + Math.sin(ang) * frente;
-    const obstaculo = frente !== 0 ? colisao(nx, ny, pessoa) : null;
+    const piso = frente !== 0 ? pisoEm(nx, ny, passo.piso) : passo.piso;
+    const obstaculo = frente !== 0 ? colisao(nx, ny, pessoa, pavDoPiso(piso)) : null;
     if (obstaculo) { setAviso(`Colisão: ${obstaculo}. A pessoa não atravessa paredes nem objetos.`); setPasso({ ...passo, ang }); return; }
-    setAviso(null); setPasso({ x: nx, y: ny, ang });
+    setAviso(null); setPasso({ x: nx, y: ny, ang, piso });
   };
-  function colisao(x: number, y: number, eu: Objeto): string | null {
+  /** grava no modelo a posição, a direção e a altura do piso alcançadas na caminhada (MOVER + ALTERAR, passam pelo auditor) */
+  const gravarPosicao = async () => {
+    if (!pessoa || !passo) return;
+    const rot = Math.round(((((passo.ang * 180) / Math.PI - 90) % 360) + 360) % 360 * 1000) / 1000;
+    const ok = await s.aplicarLote([{ codigo: "MOVER", args: { sel: [pessoa.id], base: pessoa.centro, destino: { x: Math.round(passo.x * 1000) / 1000, y: Math.round(passo.y * 1000) / 1000 } } },
+      { codigo: "ALTERAR", args: { id: pessoa.id, props: { rotacao: rot, elevacao: Math.round((passo.piso - elevPav) * 1000) / 1000 } } }]);
+    setAviso(ok ? null : "Não foi possível gravar a posição: veja o motivo na linha de comando.");
+  };
+  function colisao(x: number, y: number, eu: Objeto, pavId: string): string | null {
     const r = Math.max(eu.dim.l, eu.dim.p) / 2, p: Ponto2D = { x, y };
-    for (const e of s.modelo.elementosDo(eu.pavimentoId)) {
+    // acima do pavimento da pessoa só se anda sobre laje (ou escada/rampa): fora dela é a borda
+    if (pavId !== eu.pavimentoId && !s.modelo.elementosDo(pavId).some((e) => e.tipo === "LAJE" && pontoDentroPoligono(p, e.contorno))
+      && !s.modelo.elementosDo(eu.pavimentoId).some((e) => (e.tipo === "ESCADA" || e.tipo === "RAMPA") && alturaCirculacao(e, p) != null)) return "borda da laje (não há piso adiante)";
+    for (const e of s.modelo.elementosDo(pavId)) {
       if (e.id === eu.id) continue;
       if (e.tipo === "PAREDE") {
         const vaos = s.modelo.elementos.filter((a) => a.tipo === "PORTA" && a.paredeId === e.id) as { posicao: number; largura: number }[];
@@ -239,7 +271,8 @@ export function Cena3D() {
             <span className="text-text-3">{preset === "realista-dia" ? `Sol: elevação ${sol.elevacao.toFixed(1)}°, azimute ${sol.azimute.toFixed(0)}° (norte = +y da planta)` : `${luzes.filter((l) => l.ligada).length} de ${luzes.length} luminária(s) ligada(s)`}</span>
           </div>
         )}
-        <p className="text-text-3" aria-live="polite">{desc}{pessoa ? " · 1ª pessoa: clique na cena e use W/S para andar e A/D para girar." : ""}</p>
+        <p className="text-text-3" aria-live="polite">{desc}{pessoa ? " · 1ª pessoa: clique na cena e use W/S para andar e A/D para girar; escadas e rampas sobem e descem." : ""}</p>
+        {pessoa && passo && <div className="flex flex-wrap items-center gap-2"><span className="text-text-2">Piso a {passo.piso.toFixed(2)} m</span><button type="button" onClick={() => void gravarPosicao()} disabled={!s.podeEditar} className="min-h-8 rounded border border-line-soft px-2 hover:bg-surface disabled:opacity-50">Gravar posição da pessoa</button></div>}
         {aviso && <p role="alert" className="text-danger">{aviso}</p>}
       </div>
       <div className="h-full w-full" aria-label={`Cena 3D em modo ${PRESETS.find((p) => p.id === preset)!.rotulo}, ${visiveis.length} elementos${verArmaduras ? ` e ${barras.length} barras` : ""}`} role="img" tabIndex={0} data-teclado-proprio={pessoa ? "" : undefined}>
@@ -254,7 +287,8 @@ export function Cena3D() {
         </>}
         {(preset === "realista-noite" || preset === "luzes-off") && <><ambientLight intensity={0.04} color="#93A4C3" /><directionalLight position={[alvo.x - 30, 40, alvo.z + 20]} intensity={0.05} color="#9DB4E0" /></>}
         {preset === "solido" && <><ambientLight intensity={0.55} /><directionalLight position={[20, 30, 10]} intensity={1.6} /></>}
-        {luzesAcesas.map((l) => <pointLight key={l.id} position={l.pos} intensity={l.candela} distance={l.alcance} decay={2} color={corDaTemperatura(l.temperaturaK)} />)}
+        {/* à noite as 4 primeiras luminárias acesas projetam sombra (a luz não atravessa paredes); de dia o sol domina e as luminárias só iluminam, por desempenho */}
+        {luzesAcesas.map((l, i) => <pointLight key={l.id} position={l.pos} intensity={l.candela} distance={l.alcance} decay={2} color={corDaTemperatura(l.temperaturaK)} castShadow={preset === "realista-noite" && i < SOMBRAS_LUZES} shadow-mapSize={[512, 512]} shadow-bias={-0.002} shadow-camera-near={0.05} shadow-camera-far={l.alcance} />)}
         <Suspense fallback={null}>
           {!REALISTA.has(preset) && <Grid args={[80, 80]} cellSize={1} sectionSize={5} cellColor="#D1D5DB" sectionColor="#9CA3AF" fadeDistance={80} position={[0, -0.01, 0]} />}
           {REALISTA.has(preset) && <mesh rotation={[-Math.PI / 2, 0, 0]} position={[alvo.x, -0.02, alvo.z]} receiveShadow><planeGeometry args={[raio * 8, raio * 8]} /><meshStandardMaterial color={preset === "realista-dia" ? "#9CA38F" : "#1F2933"} roughness={1} /></mesh>}

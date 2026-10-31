@@ -368,3 +368,7 @@ Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10
 - **Corrigido/novo:** dez modos (realista dia/noite, luzes apagadas, unlit, sólido, linhas ocultas, wireframe, malha, nós, pontos — os três últimos avisam que não são MEF nem nuvem de pontos); sol pela hora, data e latitude (declinação de Cooper, norte = +y); luminárias com fluxo e temperatura de cor do catálogo, desligáveis sem mexer no circuito; exposição; sombras do sol; paredes recortadas pelos vãos com folha e vidro; vistas de fachada e topo; corte vertical; objetos e pessoas por formas procedurais; percursos de instalações por cor de sistema; 1ª pessoa com colisão; isolamento por disciplina; link de conflito abre em Raio X enquadrando os elementos.
 - **Evidência:** `j6-interface.json`, telas `aud3d/06`–`18`.
 - **Pendente:** luminárias não projetam sombra (a luz atravessa paredes); desempenho a medir com GPU (sem GPU: ~9 qps realista, ~26 qps sólido).
+
+### 2ª rodada (2026-10-31)
+
+Escadas e rampas como sólidos (perfil extrudado, o mesmo do IFC); em 1ª pessoa a pessoa sobe e desce lances, fica na altura do degrau e para na borda da laje de cima; "Gravar posição da pessoa" leva ponto, direção e nível ao modelo pelo auditor; à noite as 4 primeiras luminárias acesas projetam sombra ([§10 do relatório](../auditoria/AUDITORIA_AUD-CC-3D-001.md)). **Pendente:** sombra de luminárias de dia; edição de luz por instância.

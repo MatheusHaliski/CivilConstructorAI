@@ -362,3 +362,7 @@ Cenários construtivos, mobiliário, instalações e 3D ([relatório](../auditor
 - **Corrigido:** mover parede leva parede ligada (nova interseção), porta (distância absoluta), cota sobre a linha e objeto hospedado; divisória de 12 cm (bloco de 9 cm no catálogo); objetos da biblioteca (`OBJETO`) e conexões entre conectores (`CONECTAR`) na planta, com símbolo real, frente, conectores por cor e forma e percurso por sistema.
 - **Evidência:** `j6-depois.json` (AUD-01, CT-01…05), telas `aud3d/01`–`05`, paridade TS↔Java.
 - **Pendente:** cota associada só a pontos sobre a linha da parede; fachada/corte 2D gerados do 3D.
+
+### 2ª rodada (2026-10-31)
+
+Escada e rampa retas (`ESCADA`/`RAMPA`, aliases `ST`/`RAM`) com símbolo em planta (degraus, seta "sobe", espelho/piso ou inclinação); cota ancorada em extremidade ou centro de parede, viga, linha, pilar, escada ou rampa segue qualquer edição e solta a âncora ao apagar ([§10 do relatório](../auditoria/AUDITORIA_AUD-CC-3D-001.md)). **Corrigido (pré-existente, grave):** o servidor preferia o texto VI aos argumentos estruturados e descartava sem erro toda edição com objeto aninhado vinda do painel de propriedades (`props=[object Object]`). **Pendente:** cota ancorada em ponto intermediário; patamares e abertura em laje.

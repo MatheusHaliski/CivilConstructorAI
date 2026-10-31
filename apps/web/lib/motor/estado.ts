@@ -81,7 +81,7 @@ type Estado = {
 let seqLog = 0;
 const TODOS_OSNAP = new Set<ModoOsnap>(PRIORIDADE_OSNAP);
 const CAMADAS: Camada[] = ["arquitetura", "estrutura", "fundacao", "desenho", "anotacao", "ia-rascunho", "mobiliario", "eletrica", "hidrossanitaria", "humanos"];
-const CONSTRUTIVOS = new Set(["PAREDE", "PILAR", "VIGA", "LAJE", "PORTA", "JANELA", "SAPATA", "BLOCO", "RADIER", "ESTACA"]);
+const CONSTRUTIVOS = new Set(["PAREDE", "PILAR", "VIGA", "LAJE", "PORTA", "JANELA", "SAPATA", "BLOCO", "RADIER", "ESTACA", "ESCADA", "RAMPA"]);
 
 function resumoViolacoes(v: Violacao[]) { return v.map((x) => `${x.codigo}: ${x.mensagem}`).join(" · "); }
 

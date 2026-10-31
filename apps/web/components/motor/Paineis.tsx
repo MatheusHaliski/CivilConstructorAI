@@ -1,6 +1,6 @@
 "use client";
 /** Painéis laterais: camadas (VG/LA), propriedades (PR, formulário H5), atalhos (KS), ajuda, auditoria. */
-import { CATALOGO, CATALOGO_MATERIAIS, comprimentoPercurso, conflitosDeAlias, itemObjeto, MODOS_OSNAP, percursoConexao, problemasConexao, problemasObjeto, rotuloSistema, TECLAS_RESERVADAS_NAVEGADOR, type Camada, type Conexao, type Elemento, type Objeto } from "@cca/notacao-vi";
+import { CATALOGO, CATALOGO_MATERIAIS, comprimentoPercurso, medidasCirculacao, conflitosDeAlias, itemObjeto, MODOS_OSNAP, percursoConexao, problemasConexao, problemasObjeto, rotuloSistema, TECLAS_RESERVADAS_NAVEGADOR, type Camada, type Conexao, type Elemento, type Objeto } from "@cca/notacao-vi";
 import { useMotor } from "@/lib/motor/estado";
 import { Alternar, Botao, Etiqueta, cx } from "@/components/ui";
 import { SeletorMaterial } from "./SeletorMaterial";
@@ -41,6 +41,8 @@ const CAMPOS: Record<string, { campo: string; rotulo: string; tipo: "numero" | "
   JANELA: [{ campo: "largura", rotulo: "Largura (m)", tipo: "numero" }, { campo: "altura", rotulo: "Altura (m)", tipo: "numero" }, { campo: "peitoril", rotulo: "Peitoril (m)", tipo: "numero" }],
   CIRCULO: [{ campo: "raio", rotulo: "Raio (m)", tipo: "numero" }],
   AMBIENTE: [{ campo: "nome", rotulo: "Nome", tipo: "texto" }],
+  ESCADA: [{ campo: "largura", rotulo: "Largura (m)", tipo: "numero" }, { campo: "desnivel", rotulo: "Desnível (m)", tipo: "numero" }, { campo: "degraus", rotulo: "Degraus", tipo: "numero" }],
+  RAMPA: [{ campo: "largura", rotulo: "Largura (m)", tipo: "numero" }, { campo: "desnivel", rotulo: "Desnível (m)", tipo: "numero" }],
   TEXTO: [{ campo: "texto", rotulo: "Texto", tipo: "texto" }, { campo: "altura", rotulo: "Altura (m)", tipo: "numero" }],
   SAPATA: [{ campo: "bx", rotulo: "bx (m)", tipo: "numero" }, { campo: "by", rotulo: "by (m)", tipo: "numero" }, { campo: "h", rotulo: "h (m)", tipo: "numero" }],
 };
@@ -77,6 +79,7 @@ export function PainelPropriedades() {
           </label>
         );
       })}
+      {(e.tipo === "ESCADA" || e.tipo === "RAMPA") && (() => { const md = medidasCirculacao(e); return <p className="text-xs text-text-2">Comprimento {md.comprimento.toFixed(2)} m{e.tipo === "ESCADA" ? ` · espelho ${(md.espelho! * 100).toFixed(1)} cm · piso ${(md.piso! * 100).toFixed(1)} cm` : ` · inclinação ${md.inclinacaoPct!.toFixed(2)} %`}. Medidas geométricas: a verificação normativa de escadas e rampas não é feita pelo software.</p>; })()}
       {CATALOGO_MATERIAIS.materiais.some((m) => m.aplicacoes.includes(e.tipo)) && <SeletorMaterial key={e.id} elemento={e} />}
       <p className="text-[11px] text-text-3">Enter aplica (gera <code className="mono">VI(ALTERAR)</code> e passa pelo auditor).</p>
       <div className="flex gap-2"><Botao pequeno variante="secundario" onClick={() => s.iniciar("TG")}>Etiquetar (TG)</Botao><Botao pequeno variante="perigo" onClick={() => s.iniciar("E")} disabled={!s.podeEditar}>Apagar</Botao></div>

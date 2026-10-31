@@ -39,8 +39,8 @@
       "s": 422,
       "e": [
         {
-          "campo": "senha",
-          "mensagem": "A senha não pode conter o seu e-mail ou usuário."
+          "mensagem": "A senha não pode conter o seu e-mail ou usuário.",
+          "campo": "senha"
         }
       ]
     }
@@ -112,14 +112,14 @@
     "descricao": "GET /session traz empresa ativa, papéis, selo, mfa",
     "ok": true,
     "evidencia": [
-      "papelEmpresa",
-      "papeisPorObra",
       "seloVerificado",
-      "contaId",
-      "mfaVerificado",
-      "mfaPendente",
+      "papeisPorObra",
+      "papelEmpresa",
+      "empresaAtivaId",
       "sudoAtivo",
-      "empresaAtivaId"
+      "mfaPendente",
+      "mfaVerificado",
+      "contaId"
     ]
   },
   {
@@ -128,14 +128,14 @@
     "descricao": "nenhuma resposta traz o id real da sessão",
     "ok": true,
     "evidencia": [
-      "papelEmpresa",
-      "papeisPorObra",
       "seloVerificado",
-      "contaId",
-      "mfaVerificado",
-      "mfaPendente",
+      "papeisPorObra",
+      "papelEmpresa",
+      "empresaAtivaId",
       "sudoAtivo",
-      "empresaAtivaId"
+      "mfaPendente",
+      "mfaVerificado",
+      "contaId"
     ]
   },
   {
@@ -153,8 +153,8 @@
     "evidencia": {
       "s": 401,
       "detail": "E-mail ou senha incorretos.",
-      "medianaExiste": 459,
-      "medianaInexiste": 436
+      "medianaExiste": 600,
+      "medianaInexiste": 622
     }
   },
   {
@@ -180,7 +180,7 @@
     "ok": true,
     "evidencia": {
       "s": 201,
-      "j": "01a17559-bb54-77d6-98d0-e26b1989860a"
+      "j": "01a19307-e097-7415-91a6-7c861aeab7d9"
     }
   },
   {
@@ -190,7 +190,7 @@
     "ok": true,
     "evidencia": {
       "mfaPendente": true,
-      "empresa": "01a17559-bb54-77d6-98d0-e26b1989860a",
+      "empresa": "01a19307-e097-7415-91a6-7c861aeab7d9",
       "papel": "DONO"
     }
   },
@@ -275,10 +275,10 @@
     "ok": true,
     "evidencia": [
       {
-        "id": "62b6b153-15d3-3c5d-a6c5-71188c94ff0a",
-        "tipo": "TERREO",
+        "id": "d2851fae-5337-3be7-8569-bc478304694e",
+        "nome": "Térreo",
         "elevacao": 0,
-        "nome": "Térreo"
+        "tipo": "TERREO"
       }
     ]
   },
@@ -358,7 +358,7 @@
     "id": "e-mail-url",
     "descricao": "link absoluto para a rota /convite/{token} do app",
     "ok": true,
-    "evidencia": "\r Para aceitar, abra o link abaixo e entre (ou crie a conta) com este mesmo e-mail:\r http://localhost:3000/convite/vD6cCMzgoa80U-bUTzDOk10lt5-Du1hFYyhc8DYO21g\r \r O convite vale at=C3=A9 1 de novembro de 2026, 20:16 (hor=C3=A1rio de Bras=C3=ADlia) e s=C3=B3 pode ser usado uma vez. Se voc=C3=AA n=C3=A"
+    "evidencia": "\r Para aceitar, abra o link abaixo e entre (ou crie a conta) com este mesmo e-mail:\r http://localhost:3000/convite/0fN_sq-DSKKj5hT4tNgP6bafk_Z3IpEVzJkk4AJyjm4\r \r O convite vale at=C3=A9 7 de novembro de 2026, 14:35 (hor=C3=A1rio de Bras=C3=ADlia) e s=C3=B3 pode ser usado uma vez. Se voc=C3=AA n=C3=A"
   },
   {
     "rf": "RF20",
@@ -373,11 +373,11 @@
     "descricao": "página pública do convite mostra empresa/obra/papel",
     "ok": true,
     "evidencia": {
-      "empresa": "Mendes Projetos Ltda",
-      "expiraEm": "2026-11-01T23:16:19.159517Z",
-      "obra": "Residencial Auditoria",
+      "email": "a***1@exemplo.cca",
       "papel": "ARQUITETO",
-      "email": "a***5@exemplo.cca"
+      "obra": "Residencial Auditoria",
+      "expiraEm": "2026-11-07T17:35:31.663981Z",
+      "empresa": "Mendes Projetos Ltda"
     }
   },
   {
@@ -414,8 +414,8 @@
     "evidencia": {
       "s": 200,
       "j": {
-        "empresaId": "01a17559-bb54-77d6-98d0-e26b1989860a",
-        "obraId": "01a17559-c1ea-7163-81a8-35a8b0646651",
+        "empresaId": "01a19307-e097-7415-91a6-7c861aeab7d9",
+        "obraId": "01a19307-e8f4-7f9f-9302-fc24f968c69f",
         "mensagem": "Convite aceito: a obra já aparece para você."
       }
     }
@@ -433,7 +433,7 @@
     "descricao": "sessão da arquiteta reflete o papel na obra sem novo login",
     "ok": true,
     "evidencia": {
-      "01a17559-c1ea-7163-81a8-35a8b0646651": [
+      "01a19307-e8f4-7f9f-9302-fc24f968c69f": [
         "ARQUITETO"
       ]
     }
@@ -510,9 +510,9 @@
     "descricao": "GET /me/sessions não expõe id real",
     "ok": true,
     "evidencia": {
-      "apelido": "22c8904255778fc5",
-      "criadaEm": "2026-10-25T23:16:18.015Z",
-      "ultimoAcessoEm": "2026-10-25T23:16:23.007Z",
+      "apelido": "24b3ccb888e30016",
+      "criadaEm": "2026-10-31T17:35:30.230Z",
+      "ultimoAcessoEm": "2026-10-31T17:35:37.064Z",
       "userAgent": "Playwright/1.64.1 (x64; ubuntu 24.04) node/22.22",
       "atual": true
     }

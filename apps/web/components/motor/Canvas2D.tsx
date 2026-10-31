@@ -5,7 +5,7 @@
  * (cor + forma + texto), Orto/Polar, prévia fantasma do comando ativo e entrada dinâmica junto ao cursor.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { cantosObjeto, dist, itemObjeto, percursoConexao, pontoDentroPoligono, posicaoConector, type Elemento, type Ponto2D } from "@cca/notacao-vi";
+import { cantosObjeto, contornoCirculacao, degrausDe, dist, itemObjeto, medidasCirculacao, percursoConexao, pontoDentroPoligono, posicaoConector, type Elemento, type Ponto2D } from "@cca/notacao-vi";
 import { COR_SISTEMA } from "@/lib/motor/cena";
 import { elementosVisiveis, useMotor } from "@/lib/motor/estado";
 import { restringir } from "@/lib/motor/entrada";
@@ -153,6 +153,16 @@ export function Canvas2D() {
           if (viewport.escala > 25 && it) { ctx.fillStyle = C.texto; ctx.font = "10px var(--font-sans), sans-serif"; ctx.fillText(it.nome.length > 18 ? `${it.nome.slice(0, 17)}…` : it.nome, tc.x, tc.y - Math.max(e.dim.p, 0.2) / 2 * viewport.escala - 6); ctx.font = "12px var(--font-mono), monospace"; }
           break;
         }
+        case "ESCADA": case "RAMPA": {
+          // contorno do lance, degraus (escada), seta "sobe" do pé ao topo e medidas derivadas
+          const q = contornoCirculacao(e).map(D); poly(q); ctx.globalAlpha = 0.08; ctx.fill(); ctx.globalAlpha = fantasma ? 0.7 : 1; ctx.stroke();
+          const a = D(e.p1), b = D(e.p2), L = Math.hypot(b.x - a.x, b.y - a.y) || 1, ux = (b.x - a.x) / L, uy = (b.y - a.y) / L, w = e.largura / 2;
+          if (e.tipo === "ESCADA") { const n = degrausDe(e); ctx.beginPath(); for (let i = 1; i < n; i++) { const c = { x: a.x + ux * (L * i / n), y: a.y + uy * (L * i / n) }; const t1 = T({ x: c.x - uy * w, y: c.y + ux * w }), t2 = T({ x: c.x + uy * w, y: c.y - ux * w }); ctx.moveTo(t1.x, t1.y); ctx.lineTo(t2.x, t2.y); } ctx.stroke(); }
+          const ta = T(a), tb = T(b), ang = Math.atan2(tb.y - ta.y, tb.x - ta.x);
+          ctx.beginPath(); ctx.moveTo(ta.x, ta.y); ctx.lineTo(tb.x, tb.y); ctx.lineTo(tb.x - 9 * Math.cos(ang - 0.4), tb.y - 9 * Math.sin(ang - 0.4)); ctx.moveTo(tb.x, tb.y); ctx.lineTo(tb.x - 9 * Math.cos(ang + 0.4), tb.y - 9 * Math.sin(ang + 0.4)); ctx.stroke();
+          if (viewport.escala > 20 && !fantasma) { const md = medidasCirculacao(e); ctx.fillStyle = C.texto; ctx.font = "10px var(--font-sans), sans-serif"; ctx.fillText(e.tipo === "ESCADA" ? `sobe · ${degrausDe(e)} × ${(md.espelho! * 100).toFixed(1).replace(".", ",")} cm` : `sobe · i = ${md.inclinacaoPct!.toFixed(1).replace(".", ",")} %`, (ta.x + tb.x) / 2, (ta.y + tb.y) / 2 - 10); ctx.font = "12px var(--font-mono), monospace"; }
+          break;
+        }
         case "CONEXAO": {
           // representação gráfica derivada: projeção do percurso esquemático, tracejada, na cor do sistema
           const pts = percursoConexao(modelo, e); if (pts.length < 2) break;
@@ -176,6 +186,7 @@ export function Canvas2D() {
       const g = (tipo: string, extra: Record<string, unknown>) => ({ id: "_g", tipo, pavimentoId, camada: "desenho", origem: "CANVAS", ...extra } as unknown as Elemento);
       if (["LINHA", "LINHA_DETALHE", "LINHA_QUEBRA", "POLILINHA", "SPLINE", "LAJE", "COTA_CONTINUA"].includes(def)) { const todos = [v["p1"] as Ponto2D, ...comando.pontos].filter(Boolean); if (todos.length) { ghost(g("POLILINHA", { pontos: [...todos, c], fechada: false })); } }
       else if (def === "PAREDE" && b) ghost(g("PAREDE", { p1: b, p2: c, espessura: 0.15, altura: 2.8, camada: "arquitetura" }));
+      else if ((def === "ESCADA" || def === "RAMPA") && b) ghost(g(def, { p1: b, p2: c, largura: def === "ESCADA" ? 1.0 : 1.2, desnivel: 2.8, degraus: 16, camada: "arquitetura" }));
       else if (def === "VIGA" && b) ghost(g("VIGA", { p1: b, p2: c, b: 0.12, h: 0.4, camada: "estrutura" }));
       else if ((def === "RETANGULO" || def === "ZOOM") && b) ghost(g("RETANGULO", { p1: b, p2: c }));
       else if (def === "CIRCULO" && b) ghost(g("CIRCULO", { centro: b, raio: dist(b, c) }));

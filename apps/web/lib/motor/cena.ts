@@ -6,7 +6,7 @@
  * planta e do servidor). Nada aqui é gravado: a cena é sempre reconstruída do modelo.
  */
 import * as THREE from "three";
-import { itemObjeto, percursoConexao, type Abertura, type Conexao, type Elemento, type ModeloBim, type Objeto, type Pavimento } from "@cca/notacao-vi";
+import { itemObjeto, percursoConexao, perfilCirculacao, type Abertura, type Conexao, type Elemento, type ModeloBim, type Objeto, type Pavimento } from "@cca/notacao-vi";
 import { pecasDoObjeto, type Acabamento } from "./formas";
 
 export type Peca3D = {
@@ -103,6 +103,13 @@ export function pecasDoElemento(m: ModeloBim, e: Elemento, z: number, h: number,
       const aba = Number(/L\s*(\d+(?:[.,]\d+)?)/i.exec(e.perfil)?.[1]?.replace(",", ".") ?? 50) / 1000;
       const a = new THREE.Vector3(e.p1.x, z, -e.p1.y), b = new THREE.Vector3(e.p2.x, z, -e.p2.y), d = b.clone().sub(a), l = d.length() || 0.01;
       return base(new THREE.CylinderGeometry(Math.max(0.02, aba / 2), Math.max(0.02, aba / 2), l, 8), a.clone().add(b).multiplyScalar(0.5), new THREE.Quaternion().setFromUnitVectors(Y, d.normalize()), "#6B7280", "metal");
+    }
+    case "ESCADA": case "RAMPA": {
+      // perfil lateral extrudado pela largura; base: (sentido do lance, vertical, lado direito) — mesmo sólido do IFC
+      const L = Math.hypot(e.p2.x - e.p1.x, e.p2.y - e.p1.y) || 0.01, ux = (e.p2.x - e.p1.x) / L, uy = (e.p2.y - e.p1.y) / L;
+      const geo = new THREE.ExtrudeGeometry(new THREE.Shape(perfilCirculacao(e).map(([sx, h]) => new THREE.Vector2(sx, h))), { depth: e.largura, bevelEnabled: false });
+      geo.applyMatrix4(new THREE.Matrix4().makeBasis(new THREE.Vector3(ux, 0, -uy), new THREE.Vector3(0, 1, 0), new THREE.Vector3(uy, 0, ux)));
+      return base(geo, new THREE.Vector3(e.p1.x - uy * e.largura / 2, z, -(e.p1.y + ux * e.largura / 2)), undefined, "#D6D3D1");
     }
     case "OBJETO": return objeto(m, e, z);
     case "CONEXAO": return conexao(m, e);

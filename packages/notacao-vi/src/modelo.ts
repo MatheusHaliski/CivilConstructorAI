@@ -3,9 +3,10 @@
  * (laço 1 + laço 2 determinísticos) e devolve o diff. Desfazer/refazer por snapshots versionados.
  */
 import type {
-  Abertura, ComandoVI, Conexao, Cota, DiffModelo, Eixo, Elemento, EstadoModelo, Laje, Objeto, OrigemComando, Parede, Pavimento, Pilar, Ponto2D, RelatorioAuditoria, SistemaPredial, Viga,
+  Abertura, AncoraCota, Circulacao, ComandoVI, Conexao, Cota, DiffModelo, Eixo, Elemento, EstadoModelo, Laje, Objeto, OrigemComando, Parede, Pavimento, Pilar, Ponto2D, RelatorioAuditoria, SistemaPredial, Viga,
 } from "./tipos";
 import { DECLIVIDADE_PADRAO, MATERIAL_PADRAO, camadaDoItem, itemObjeto, tetoDoPavimento, type ConectorItem } from "./objetos";
+import { ESPELHO_ADOTADO, elevacaoNoPiso } from "./circulacao";
 import { auditar, type OpcoesAuditoria } from "./auditor";
 import { arredondarPonto, dist, espelhar, projetarNoSegmento, rotacionar, soma, sub } from "./geometria";
 import { formatarVI } from "./vi";
@@ -180,6 +181,19 @@ export class ModeloBim {
         criar(base(cmd.codigo, "arquitetura", { paredeId: parede.id, posicao, largura: n(a["larg"], porta ? 0.8 : 1.2), altura: n(a["alt"], porta ? 2.1 : 1.2), peitoril: porta ? 0 : n(a["peitoril"], 1.0), materialId: porta ? "MAT.COMPONENTE.PORTA_MADEIRA_80x210" : "MAT.COMPONENTE.VIDRO_TEMPERADO_8" }) as Abertura);
         break;
       }
+      case "ESCADA": case "RAMPA": {
+        const p1 = pt(a["p1"], "p1"), p2 = pt(a["p2"], "p2");
+        if (dist(p1, p2) < 0.3) throw new ErroComandoVI("VI-002", `${cmd.codigo === "ESCADA" ? "Escada" : "Rampa"} precisa de pelo menos 0,30 m entre o pé e o topo.`);
+        const pav = this.pavimento(pavimentoId)!; const acima = this.pavimentoAcima(pavimentoId);
+        if (a["desnivel"] === undefined && !acima) throw new ErroComandoVI("VI-002", "Informe o desnível: não há pavimento acima para chegar.");
+        const desnivel = arr3(n(a["desnivel"], acima ? acima.elevacao - pav.elevacao : 0, "desnivel"));
+        const largura = n(a["larg"], cmd.codigo === "ESCADA" ? 1.0 : 1.2, "larg");
+        if (!(desnivel > 0) || !(largura > 0)) throw new ErroComandoVI("VI-002", "Desnível e largura precisam ser positivos.");
+        const extra: Record<string, unknown> = { p1, p2, largura, desnivel };
+        if (cmd.codigo === "ESCADA") { const g = Math.round(n(a["degraus"], Math.max(1, Math.round(desnivel / ESPELHO_ADOTADO)), "degraus")); if (g < 1) throw new ErroComandoVI("VI-002", "A escada precisa de ao menos 1 degrau."); extra["degraus"] = g; }
+        criar(base(cmd.codigo, "arquitetura", extra) as Circulacao);
+        break;
+      }
       case "AMBIENTE": criar(base("AMBIENTE", "arquitetura", { ponto: pt(a["ponto"], "ponto"), nome: (a["nome"] as string) ?? "Ambiente" }) as Elemento); break;
       case "LINHA": case "PLANO_REF": case "LINHA_DETALHE":
         criar(base(cmd.codigo === "PLANO_REF" ? "PLANO_REF" : "LINHA", cmd.codigo === "LINHA_DETALHE" ? "anotacao" : "desenho", { p1: pt(a["p1"], "p1"), p2: pt(a["p2"], "p2") }) as Elemento); break;
@@ -260,7 +274,12 @@ export class ModeloBim {
         break;
       }
       case "COTA_LINEAR": case "COTA_ALINHADA": case "COTA_NIVEL":
-        criar(base("COTA", "anotacao", { p1: pt(a["p1"] ?? a["p"], "p1"), p2: pt(a["p2"] ?? a["p"], "p2"), afastamento: n(a["afast"], 1), estilo: cmd.codigo === "COTA_LINEAR" ? "LINEAR" : cmd.codigo === "COTA_NIVEL" ? "NIVEL" : "ALINHADA" }) as Elemento); break;
+      {
+        const c = base("COTA", "anotacao", { p1: pt(a["p1"] ?? a["p"], "p1"), p2: pt(a["p2"] ?? a["p"], "p2"), afastamento: n(a["afast"], 1), estilo: cmd.codigo === "COTA_LINEAR" ? "LINEAR" : cmd.codigo === "COTA_NIVEL" ? "NIVEL" : "ALINHADA" }) as Cota;
+        const a1 = this.ancoraEm(c.p1, pavimentoId), a2 = this.ancoraEm(c.p2, pavimentoId);
+        if (a1 || a2) c.ancoras = { ...(a1 ? { p1: a1 } : {}), ...(a2 ? { p2: a2 } : {}) };
+        criar(c); break;
+      }
       case "TEXTO": criar(base("TEXTO", "anotacao", { p: pt(a["p"], "p"), texto: String(a["texto"] ?? ""), altura: n(a["altura"], 0.25) }) as Elemento); break;
       case "ETIQUETA": {
         for (const e of sel()) criar(base("ETIQUETA", "anotacao", { p: this.pontoRepresentativo(e), texto: e.rotulo ?? this.rotuloAutomatico(e), altura: 0.25 }) as Elemento);
@@ -296,6 +315,7 @@ export class ModeloBim {
           }
         }
         if (item.montagem === "TETO") o.elevacao = arr3(tetoDoPavimento(this, pavimentoId) - dim.a);
+        if (item.disciplina === "humanos") o.elevacao = elevacaoNoPiso(this, pavimentoId, o.centro); // pessoa sobre escada/rampa
         if (a["elev"] !== undefined) o.elevacao = n(a["elev"], 0, "elev");
         criar(o);
         break;
@@ -351,6 +371,7 @@ export class ModeloBim {
           if (cmd.codigo === "COPIAR") { alvo.id = novoId(); alvo.origem = cmd.origem; if (alvo.tipo === "OBJETO") delete alvo.paredeId; }
           const antes = alvo.tipo === "PAREDE" ? { p1: { ...alvo.p1 }, p2: { ...alvo.p2 } } : null;
           this.transladar(alvo, d);
+          if (alvo.tipo === "OBJETO" && itemObjeto(alvo.item)?.disciplina === "humanos") alvo.elevacao = elevacaoNoPiso(this, alvo.pavimentoId, alvo.centro);
           if (cmd.codigo === "COPIAR") criar(alvo); else alterar(alvo);
           if (cmd.codigo === "MOVER" && alvo.tipo === "PAREDE" && antes) this.propagarParede(alvo, antes, d, ids, alterar);
         }
@@ -484,7 +505,39 @@ export class ModeloBim {
       default:
         throw new ErroComandoVI("VI-001", `Função "${cmd.codigo}" não existe na Tabela B.`);
     }
+    this.atualizarCotasAssociadas(diff);
     return diff;
+  }
+
+  /** extremidade (p1/p2) ou centro de um elemento do pavimento coincidente com o ponto (1 mm): âncora da cota */
+  private ancoraEm(p: Ponto2D, pavimentoId: string): AncoraCota | undefined {
+    for (const e of this.elementosDo(pavimentoId)) {
+      if (e.tipo === "PAREDE" || e.tipo === "VIGA" || e.tipo === "LINHA" || e.tipo === "PLANO_REF" || e.tipo === "ESCADA" || e.tipo === "RAMPA") {
+        if (dist(e.p1, p) <= 1e-3) return { id: e.id, ponto: "p1" };
+        if (dist(e.p2, p) <= 1e-3) return { id: e.id, ponto: "p2" };
+      }
+      if (e.tipo === "PILAR" && dist(e.centro, p) <= 1e-3) return { id: e.id, ponto: "centro" };
+    }
+    return undefined;
+  }
+
+  /** cotas ancoradas seguem os elementos alterados; âncora de elemento apagado é descartada (mesma regra no Java) */
+  private atualizarCotasAssociadas(diff: DiffModelo) {
+    const mudou = new Set([...diff.alterados.map((e) => e.id), ...diff.removidos]);
+    if (!mudou.size) return;
+    for (const c of this.elementos) {
+      if (c.tipo !== "COTA" || !c.ancoras) continue;
+      let alterou = false;
+      for (const lado of ["p1", "p2"] as const) {
+        const an = c.ancoras[lado]; if (!an || !mudou.has(an.id)) continue;
+        const ref = this.elemento(an.id) as (Elemento & Partial<Record<"p1" | "p2" | "centro", Ponto2D>>) | undefined;
+        const p = ref?.[an.ponto];
+        if (!p) { delete c.ancoras[lado]; alterou = true; continue; }
+        if (dist(p, c[lado]) > 1e-9) { c[lado] = { ...p }; alterou = true; }
+      }
+      if (!c.ancoras.p1 && !c.ancoras.p2) delete c.ancoras;
+      if (alterou && !diff.alterados.includes(c)) diff.alterados.push(c);
+    }
   }
 
   // ------------------------------------------------------------------ utilitários
@@ -493,7 +546,7 @@ export class ModeloBim {
   mapearPontos(e: Elemento, f: (p: Ponto2D) => Ponto2D) {
     const m = (p: Ponto2D) => arredondarPonto(f(p));
     switch (e.tipo) {
-      case "PAREDE": case "VIGA": case "LINHA": case "PLANO_REF": case "RETANGULO": case "CONTRAVENTAMENTO": case "COTA": e.p1 = m(e.p1); e.p2 = m(e.p2); break;
+      case "PAREDE": case "VIGA": case "LINHA": case "PLANO_REF": case "RETANGULO": case "CONTRAVENTAMENTO": case "COTA": case "ESCADA": case "RAMPA": e.p1 = m(e.p1); e.p2 = m(e.p2); break;
       case "ARCO": e.p1 = m(e.p1); e.p2 = m(e.p2); e.p3 = m(e.p3); break;
       case "PILAR": case "CIRCULO": case "SAPATA": case "BLOCO": case "RADIER": case "ESTACA": case "OBJETO": e.centro = m(e.centro); break;
       case "LAJE": case "HACHURA": e.contorno = e.contorno.map(m); break;

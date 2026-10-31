@@ -2,7 +2,7 @@
  * Osnap (RF28 CA-04): candidatos a ponto notável com prioridade EIX > EXT > INT > MED > CEN > PER > TAN > NOD > QUA > PRX > NIV.
  * Devolve o melhor dentro do raio de atração (em pixels, convertido para metros pela escala atual).
  */
-import { cantosObjeto, dist, intersecaoSegmentos, percursoConexao, projetarNoSegmento, type Elemento, type ModeloBim, type ModoOsnap, type Ponto2D, PRIORIDADE_OSNAP } from "@cca/notacao-vi";
+import { cantosObjeto, contornoCirculacao, dist, intersecaoSegmentos, percursoConexao, projetarNoSegmento, type Elemento, type ModeloBim, type ModoOsnap, type Ponto2D, PRIORIDADE_OSNAP } from "@cca/notacao-vi";
 
 export type Candidato = { modo: ModoOsnap; p: Ponto2D; rotulo: string };
 
@@ -15,6 +15,7 @@ function segmentos(e: Elemento): [Ponto2D, Ponto2D][] {
     case "LAJE": case "HACHURA": return e.contorno.map((p, i, arr) => [p, arr[(i + 1) % arr.length]!] as [Ponto2D, Ponto2D]);
     case "POLILINHA": return e.pontos.slice(0, e.fechada ? undefined : -1).map((p, i) => [p, e.pontos[(i + 1) % e.pontos.length]!] as [Ponto2D, Ponto2D]);
     case "PILAR": { const b = e.b / 2, h = e.h / 2, c = e.centro; const q = [{ x: c.x - b, y: c.y - h }, { x: c.x + b, y: c.y - h }, { x: c.x + b, y: c.y + h }, { x: c.x - b, y: c.y + h }]; return q.map((p, i) => [p, q[(i + 1) % 4]!] as [Ponto2D, Ponto2D]); }
+    case "ESCADA": case "RAMPA": { const q = contornoCirculacao(e); return q.map((p, i) => [p, q[(i + 1) % 4]!] as [Ponto2D, Ponto2D]); }
     case "OBJETO": { const q = cantosObjeto(e); return q.map((p, i) => [p, q[(i + 1) % 4]!] as [Ponto2D, Ponto2D]); }
     case "SAPATA": case "BLOCO": case "RADIER": { const b = e.bx / 2, h = e.by / 2, c = e.centro; const q = [{ x: c.x - b, y: c.y - h }, { x: c.x + b, y: c.y - h }, { x: c.x + b, y: c.y + h }, { x: c.x - b, y: c.y + h }]; return q.map((p, i) => [p, q[(i + 1) % 4]!] as [Ponto2D, Ponto2D]); }
     default: return [];
@@ -74,6 +75,7 @@ export function distanciaAoElemento(e: Elemento, p: Ponto2D, modelo: ModeloBim):
     if (e.tipo === "PAREDE") d = Math.max(0, d - e.espessura / 2);
     if (e.tipo === "VIGA") d = Math.max(0, d - e.b / 2);
     if (e.tipo === "OBJETO" && pontoNoRetangulo(p, cantosObjeto(e))) d = 0;
+    if ((e.tipo === "ESCADA" || e.tipo === "RAMPA") && pontoNoRetangulo(p, contornoCirculacao(e))) d = 0;
     return d;
   }
   switch (e.tipo) {

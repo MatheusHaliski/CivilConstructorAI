@@ -451,3 +451,7 @@ Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10
 conector, `?sel=` para abrir o modelo com elementos selecionados, 1ª pessoa com W/A/S/D sem a linha de comando
 capturar as teclas. Corrigido o nome acessível do link "Minha conta" (WCAG 2.5.3); axe da tela do modelo sem
 violações graves.
+
+### 2ª rodada (2026-10-31)
+
+Comandos `ESCADA` (`ST`) e `RAMPA` (`RAM`) com prévia fantasma e campos no painel (largura, desnível, degraus, medidas derivadas). **Corrigido (pré-existente, grave):** toda edição pelo painel de propriedades com objeto aninhado era descartada pelo servidor sem erro, porque o texto VI era preferido aos argumentos (F19 no [relatório](../auditoria/AUDITORIA_AUD-CC-3D-001.md)); verificado pela interface (`ui-propriedade`) e por teste de integração.

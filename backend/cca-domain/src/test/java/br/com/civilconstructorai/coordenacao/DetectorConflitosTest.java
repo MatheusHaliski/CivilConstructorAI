@@ -184,4 +184,16 @@ class DetectorConflitosTest {
         assertThat(daRegra(c, "HUM-01")).singleElement().satisfies(x -> assertThat(x.elementos()).contains(pessoa));
         assertThat(daRegra(c, "OBJ-02")).singleElement().satisfies(x -> assertThat(x.elementos()).containsExactlyInAnyOrder(a, b));
     }
+
+    @Test
+    void escadaQueAtravessaALajeDeCimaEhApontada() {
+        var m = apartamento();
+        var esc = id(m, "ESCADA", Map.of("p1", p(5, 2.6), "p2", p(5, 4.6), "desnivel", 3));
+        var c = DetectorConflitos.detectar(m);
+        assertThat(daRegra(c, "CIR-01")).singleElement().satisfies(x -> {
+            assertThat(x.elementos()).contains(esc);
+            assertThat(x.tipo()).isEqualTo(DetectorConflitos.Tipo.CONSTRUTIVO);
+            assertThat(x.mensagem()).contains("abertura").contains("engenheiro estrutural").doesNotContain("furo");
+        });
+    }
 }

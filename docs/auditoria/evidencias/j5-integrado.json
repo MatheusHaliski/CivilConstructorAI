@@ -29,8 +29,8 @@
       "d": "Há 1 problema(s) nos dados enviados.",
       "e": [
         {
-          "campo": "posicao",
-          "mensagem": "Informe a posição da carga pontual: distância em metros a partir do início da viga (0 a 5.00 m)."
+          "mensagem": "Informe a posição da carga pontual: distância em metros a partir do início da viga (0 a 5.00 m).",
+          "campo": "posicao"
         }
       ]
     }

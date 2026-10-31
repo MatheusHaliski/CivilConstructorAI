@@ -42,9 +42,9 @@
     "ok": true,
     "evidencia": {
       "norte": {
-        "id": "01a17560-a92d-74e5-87e6-5b8aca603048",
+        "id": "01a19302-e3b5-7150-9a7e-ffac149be744",
         "tipo": "PAREDE",
-        "pavimentoId": "eb78ee64-113c-33ad-9bb8-30ce2e7702d0",
+        "pavimentoId": "04a90a9e-cc28-3cc2-8783-4a364978b03d",
         "camada": "arquitetura",
         "materialId": "MAT.ALVENARIA.CERAMICO_VEDACAO_14",
         "origem": "CANVAS",
@@ -142,7 +142,7 @@
         "y": 1.6
       },
       "elevacao": 1,
-      "paredeId": "01a17560-a90d-7c4b-93cb-bee5737d244b"
+      "paredeId": "01a19302-e34f-7486-85ab-56a6acae4630"
     }
   },
   {
@@ -212,11 +212,11 @@
     "ok": true,
     "evidencia": {
       "de": {
-        "id": "01a17560-ae62-7d7e-992e-dc79f32b3204",
+        "id": "01a19302-eeec-7542-8336-e5abc1d42c18",
         "conector": "S1"
       },
       "para": {
-        "id": "01a17560-ac63-77b7-90af-55de45171f62",
+        "id": "01a19302-eb44-75e9-a139-9ca7bdea0b49",
         "conector": "E1"
       }
     }
@@ -451,14 +451,79 @@
     }
   },
   {
+    "rf": "AUD-08",
+    "id": "escada",
+    "descricao": "escada do térreo à cobertura: desnível 3,00 m, 17 degraus de 17,6 cm (espelho adotado 17,5 cm, ajustável)",
+    "ok": true,
+    "evidencia": {
+      "s": 201,
+      "desnivel": 3,
+      "degraus": 17
+    }
+  },
+  {
+    "rf": "AUD-08",
+    "id": "rampa",
+    "descricao": "rampa externa de 6 m com 0,50 m de desnível gravada (inclinação calculada 8,33 %)",
+    "ok": true,
+    "evidencia": {
+      "s": 201
+    }
+  },
+  {
+    "rf": "AUD-08",
+    "id": "pessoa-na-escada",
+    "descricao": "pessoa posta sobre a escada fica na altura do degrau (9º de 17: 1,588 m)",
+    "ok": true,
+    "evidencia": {
+      "elevacao": 1.588
+    }
+  },
+  {
+    "rf": "AUD-05",
+    "id": "escada-laje",
+    "descricao": "escada que atravessa a laje da cobertura sem abertura é apontada (o modelo ainda não tem abertura em laje)",
+    "ok": true,
+    "evidencia": {
+      "mensagem": "A escada ES1 atravessa a laje L1, que não tem abertura modelada. O CivilConstructor ainda não modela abertura em laje: registre o vão da escada na laje e submeta ao engenheiro estrutural.",
+      "evidencia": "lance chega a z = 3.00 m; laje entre z = 2.88 e 3.00 m (contorno pela caixa envolvente)"
+    }
+  },
+  {
+    "rf": "AUD-01",
+    "id": "cota-ancorada",
+    "descricao": "cota ancorada nas extremidades acompanha qualquer edição do elemento (2,00 → 3,25 m)",
+    "ok": true,
+    "evidencia": {
+      "p1": {
+        "x": 12,
+        "y": -3
+      },
+      "p2": {
+        "x": 15.25,
+        "y": -3
+      },
+      "ancoras": {
+        "p1": {
+          "id": "01a19302-f889-725c-ad1b-13ec61a4a21d",
+          "ponto": "p1"
+        },
+        "p2": {
+          "id": "01a19302-f889-725c-ad1b-13ec61a4a21d",
+          "ponto": "p2"
+        }
+      }
+    }
+  },
+  {
     "rf": "CT-10",
     "id": "reabrir",
     "descricao": "reabrir em outra sessão preserva todos os elementos, propriedades, objetos e conexões",
     "ok": true,
     "evidencia": {
-      "versao": 92,
-      "elementos": 82,
-      "objetos": 32,
+      "versao": 98,
+      "elementos": 87,
+      "objetos": 33,
       "conexoes": 25,
       "diferentes": 0
     }
@@ -471,6 +536,16 @@
     "evidencia": {
       "s": 202,
       "v": []
+    }
+  },
+  {
+    "rf": "RF15",
+    "id": "ifc-circulacao",
+    "descricao": "IFC com escada (IfcStair) e rampa (IfcRamp), com número e altura de espelhos",
+    "ok": true,
+    "evidencia": {
+      "escadas": 1,
+      "rampas": 1
     }
   },
   {

@@ -203,4 +203,23 @@ class CoordenacaoMateriaisIT extends AbstractIT {
     private static String criado(JsonNode r) {
         return r.get("diff").get("criados").get(0).get("id").asString();
     }
+
+    /** o navegador manda args e o texto VI; o texto não representa objetos aninhados, então os args valem */
+    @Test
+    void alterarPeloPainelGravaPropsAninhadasMesmoComTextoViJunto() throws Exception {
+        String w = criado(comando2("{\"codigo\":\"PAREDE\",\"args\":{\"p1\":{\"x\":0,\"y\":0},\"p2\":{\"x\":6,\"y\":0}}}"));
+        String lum = criado(comando2("{\"codigo\":\"OBJETO\",\"args\":{\"item\":\"ILUMINACAO.ARANDELA\",\"pos\":{\"x\":2,\"y\":0.2}}}"));
+        comando2("{\"codigo\":\"ALTERAR\",\"args\":{\"id\":\"" + lum + "\",\"props\":{\"ligada\":false,\"elevacao\":1.9}},\"vi\":\"VI(ALTERAR, id=\\\"" + lum + "\\\", props=[object Object])\"}");
+        comando2("{\"codigo\":\"ALTERAR\",\"args\":{\"id\":\"" + w + "\",\"props\":{\"altura\":3.1}},\"vi\":\"VI(ALTERAR, id=\\\"" + w + "\\\", props=[object Object])\"}");
+        var m = json(mvc.perform(get(obra() + "/modelo").with(ComoUsuario.como(engenheiro))).andReturn());
+        for (var e : m.get("elementos")) {
+            if (e.get("id").asString().equals(lum)) {
+                assertThat(e.get("props").get("ligada").asBoolean()).isFalse();
+                assertThat(e.get("props").get("elevacao").asDouble()).isEqualTo(1.9);
+            }
+            if (e.get("id").asString().equals(w)) {
+                assertThat(e.get("props").get("altura").asDouble()).isEqualTo(3.1);
+            }
+        }
+    }
 }

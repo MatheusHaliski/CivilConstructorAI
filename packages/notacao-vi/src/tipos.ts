@@ -30,7 +30,7 @@ export type TipoElemento =
   | "PAREDE" | "PILAR" | "VIGA" | "LAJE" | "PORTA" | "JANELA" | "AMBIENTE"
   | "LINHA" | "POLILINHA" | "CIRCULO" | "RETANGULO" | "ARCO" | "PONTO" | "PLANO_REF"
   | "CONTRAVENTAMENTO" | "SAPATA" | "BLOCO" | "RADIER" | "ESTACA"
-  | "COTA" | "TEXTO" | "ETIQUETA" | "HACHURA" | "OBJETO" | "CONEXAO";
+  | "COTA" | "TEXTO" | "ETIQUETA" | "HACHURA" | "OBJETO" | "CONEXAO" | "ESCADA" | "RAMPA";
 
 export type ElementoBase = {
   id: string;
@@ -65,7 +65,9 @@ export type Fundacao = ElementoBase & {
   tipo: "SAPATA" | "BLOCO" | "RADIER" | "ESTACA"; pilarId?: string; centro: Ponto2D; bx: number; by: number; h: number;
   estacas?: number; diametroEstaca?: number;
 };
-export type Cota = ElementoBase & { tipo: "COTA"; p1: Ponto2D; p2: Ponto2D; afastamento: number; estilo: "LINEAR" | "ALINHADA" | "NIVEL" };
+/** âncora de cota: o ponto acompanha a extremidade (ou o centro) do elemento em qualquer edição */
+export type AncoraCota = { id: string; ponto: "p1" | "p2" | "centro" };
+export type Cota = ElementoBase & { tipo: "COTA"; p1: Ponto2D; p2: Ponto2D; afastamento: number; estilo: "LINEAR" | "ALINHADA" | "NIVEL"; ancoras?: { p1?: AncoraCota; p2?: AncoraCota } };
 export type Texto = ElementoBase & { tipo: "TEXTO" | "ETIQUETA"; p: Ponto2D; texto: string; altura: number };
 export type Hachura = ElementoBase & { tipo: "HACHURA"; contorno: Ponto2D[]; padrao: string };
 
@@ -85,9 +87,12 @@ export type Conexao = ElementoBase & {
   circuito?: string; disjuntorA?: number; secaoMm2?: number; condutores?: string[]; dnMm?: number; declividade?: number;
 };
 
+/** escada ou rampa reta entre p1 (pé) e p2 (topo), com desnível em relação ao piso do pavimento (ver circulacao.ts) */
+export type Circulacao = ElementoBase & { tipo: "ESCADA" | "RAMPA"; p1: Ponto2D; p2: Ponto2D; largura: number; desnivel: number; degraus?: number };
+
 export type Elemento =
   | Parede | Pilar | Viga | Laje | Abertura | Ambiente | Linha | Polilinha | Circulo | Retangulo | Arco | PontoRef
-  | Contraventamento | Fundacao | Cota | Texto | Hachura | Objeto | Conexao;
+  | Contraventamento | Fundacao | Cota | Texto | Hachura | Objeto | Conexao | Circulacao;
 
 /** o que as funções de objetos e conexões precisam ler do modelo (evita dependência circular com modelo.ts) */
 export type ModeloLeitura = {

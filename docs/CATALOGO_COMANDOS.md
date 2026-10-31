@@ -62,6 +62,8 @@ Convenções:
 | `SB`² | Structural Floor | `VI(LAJE, <contorno>, h, mat)` | laje estrutural | RF04 |
 | `FD`² | Fundação | `VI(SAPATA...)`, `VI(BLOCO...)`, `VI(RADIER...)` | fundação gerada pelo RF10 ou lançada à mão | RF10 |
 | `CM` / `OB`² | Component | `VI(OBJETO, item, <pos>, rot, altura?)` | móvel, equipamento, louça, luminária, ponto de instalação ou pessoa da biblioteca (`catalogo/objetos.json`); objeto de parede encosta na face, de teto vai ao teto livre; equipamento não deforma, pessoa escala de modo uniforme | RF01, RF13 |
+| `ST`² | Stair | `VI(ESCADA, <p1>, <p2>, larg, desnivel?, degraus?)` | escada reta do pé ao topo; desnível até o pavimento de cima quando omitido; degraus pelo espelho adotado de 17,5 cm (ajustável); pessoa sobre ela fica na altura do degrau | RF01, RF13 |
+| `RAM`² | Ramp | `VI(RAMPA, <p1>, <p2>, larg, desnivel?)` | rampa reta; inclinação derivada do desnível (não verificada contra norma) | RF01, RF13 |
 | `CN`² | Connect | `VI(CONECTAR, <origem[:conector]>, <destino[:conector]>, circuito?)` | conexão física saída → entrada entre conectores do mesmo sistema (elétrica, água fria/quente, esgoto, ventilação); recusa tensão, corrente, sistema ou sentido incompatíveis; cabo de aparelho herda o circuito da tomada | RF01, RF16 |
 | `DT` | Duct | `VI(DUTO, ...)` | **fora do MVP** (o percurso de conexões é esquemático, derivado de `CONECTAR`) | — |
 | `PI` | Pipe | `VI(TUBULACAO, ...)` | **fora do MVP** (idem) | — |

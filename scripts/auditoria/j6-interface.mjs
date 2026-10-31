@@ -81,6 +81,13 @@ await espera(2500);
 const m2 = await modelo();
 const cx = m2.elementos.map(props).find((e) => e.tipo === "CONEXAO" && e.para?.id === nova.id);
 registrar("AUD-03", "ui-conectar", "\"Conectar E1 a…\" + seleção da tomada grava a conexão tomada.S1 → geladeira.E1 no circuito da tomada (C5)", cx?.de?.id === ses.ids.tomLivre && cx?.de?.conector === "S1" && cx?.para?.conector === "E1" && cx?.circuito === "C5", { de: cx?.de, para: cx?.para, circuito: cx?.circuito });
+// propriedade editada no painel chega ao servidor (antes o texto VI sem objetos aninhados era preferido e a edição se perdia)
+await pg.goto(`${BASE}${O}/modelo?sel=${nova.id}`);
+await pg.getByText("Conectores").waitFor({ timeout: 20000 });
+const rot = pg.getByLabel("Rotação (°)").first();
+await rot.fill("90"); await rot.press("Enter"); await espera(2500);
+const girada = props((await modelo()).elementos.find((e) => e.id === nova.id));
+registrar("RF28", "ui-propriedade", "editar a rotação no painel de propriedades grava no servidor (90°)", girada.rotacao === 90, { rotacao: girada.rotacao });
 await pg.goto(`${BASE}${O}/modelo?sel=${cx.id}`);
 await pg.getByText("Ligação lógica").waitFor({ timeout: 20000 });
 await shot("05-propriedades-conexao-logica-fisica-grafica");
@@ -144,6 +151,20 @@ let colidiu = null;
 for (let i = 0; i < 30 && !colidiu; i++) { await pg.keyboard.press("w"); await espera(120); colidiu = await pg.getByRole("alert").filter({ hasText: "Colisão" }).first().textContent({ timeout: 300 }).catch(() => null); }
 await shot("13-primeira-pessoa-colisao", 1500);
 registrar("AUD-08", "ui-colisao", "andando em 1ª pessoa a pessoa para em parede ou objeto, com aviso", !!colidiu, colidiu);
+
+// 7b. subir a escada em 1ª pessoa e gravar a posição alcançada
+await pg.goto(`${BASE}${O}/modelo?sel=${ses.ids.subindo}`);
+await pg.getByRole("button", { name: "Ver em 1ª pessoa (3D)" }).click();
+await pg.getByLabel("Modo de exibição").waitFor({ timeout: 20000 });
+await espera(3000);
+await pg.getByRole("img", { name: /Cena 3D/ }).focus();
+for (let i = 0; i < 10; i++) { await pg.keyboard.press("w"); await espera(120); }
+const pisoTopo = (await pg.getByText(/Piso a \d/).textContent().catch(() => "")) ?? "";
+await shot("13b-primeira-pessoa-topo-escada", 3000);
+await pg.getByRole("button", { name: "Gravar posição da pessoa" }).click();
+await espera(2500);
+const subiu = props((await modelo()).elementos.find((e) => e.id === ses.ids.subindo));
+registrar("AUD-08", "ui-escada", "em 1ª pessoa a pessoa sobe a escada até o nível de cima (3,00 m) e a posição gravada fica no servidor", /Piso a 3\.00/.test(pisoTopo) && Math.abs(subiu.elevacao - 3) < 0.002 && subiu.centro.y > 7.6, { piso: pisoTopo, elevacao: subiu.elevacao, centro: subiu.centro });
 
 // 8. isolar disciplina
 await pg.getByRole("tab", { name: "Camadas" }).click();

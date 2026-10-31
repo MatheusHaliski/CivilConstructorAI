@@ -163,6 +163,28 @@ public final class DetectorConflitos {
             }
         }
         objetosEInstalacoes(m, elementos, vigas, pilares, lajes, out);
+        // CIR-01: escada/rampa que chega ao pavimento de cima atravessa a laje dele; o modelo ainda não tem abertura em laje
+        for (var c : elementos) {
+            if (!br.com.civilconstructorai.modelo.Circulacao.eh(c)) {
+                continue;
+            }
+            var acima = m.pavimentoAcima(c.getPavimentoId()).orElse(null);
+            if (acima == null) {
+                continue;
+            }
+            var a = c.ponto("p1");
+            var b = c.ponto("p2");
+            double L = Math.max(1e-9, a.distancia(b)), z0 = elevacao(m, c.getPavimentoId());
+            var pc = new Prisma(new Ponto2D((a.x() + b.x()) / 2, (a.y() + b.y()) / 2), (b.x() - a.x()) / L, (b.y() - a.y()) / L, L / 2, c.num("largura", 1.0) / 2, z0, z0 + c.num("desnivel", 0) + 0.02);
+            for (var l : lajes) {
+                var pl = l.getPavimentoId().equals(acima.id()) ? prismaLaje(m, l) : null;
+                if (pl != null && pc.intersecta(pl, TOL)) {
+                    out.add(conflito(Tipo.CONSTRUTIVO, "CIR-01", List.of(c, l), m, (c.getTipo() == TipoElemento.ESCADA ? "A escada " : "A rampa ") + nome(m, c) + " atravessa a laje "
+                                    + nome(m, l) + ", que não tem abertura modelada. O CivilConstructor ainda não modela abertura em laje: registre o vão da escada na laje e submeta ao engenheiro estrutural.",
+                            String.format(Locale.ROOT, "lance chega a z = %.2f m; laje entre z = %.2f e %.2f m (contorno pela caixa envolvente)", z0 + c.num("desnivel", 0), pl.z0(), pl.z1())));
+                }
+            }
+        }
         // a chave identifica o conflito entre verificações e é única por obra no banco
         var vistas = new java.util.HashSet<String>();
         out.removeIf(c -> !vistas.add(c.chave()));

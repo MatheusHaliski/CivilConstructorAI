@@ -111,6 +111,12 @@ export const CATALOGO: Comando[] = [
   { codigo: "CONECTAR", nomePtBr: "CONECTAR", nomeEn: "CONNECT", categoria: "DESENHO", aliases: todos(["CN"]), rf: ["RF01", "RF16"], extensao: true,
     descricao: "Liga o conector de saída de um objeto (quadro, tomada, entrada de água, aparelho) ao de entrada de outro, no mesmo sistema; recusa ligações incompatíveis.",
     roteiro: [S("Selecione o objeto de origem:"), S("Selecione o objeto de destino:"), V("circuito", "Circuito elétrico (Enter: o da tomada, ou C1):", "", { tipo: "TEXTO", opcional: true })] },
+  { codigo: "ESCADA", nomePtBr: "ESCADA", nomeEn: "STAIR", categoria: "DESENHO", aliases: todos(["ST"]), rf: ["RF01", "RF13"], extensao: true,
+    descricao: "Escada reta do pé (p1) ao topo (p2); desnível até o pavimento de cima quando não informado; degraus pelo espelho adotado de 17,5 cm (ajustável).",
+    roteiro: [P("p1", "Pé da escada:"), P("p2", "Topo da escada:"), V("larg", "Largura em metros [1.0]:", 1.0), V("desnivel", "Desnível (Enter: até o pavimento de cima):", "", { opcional: true })] },
+  { codigo: "RAMPA", nomePtBr: "RAMPA", nomeEn: "RAMP", categoria: "DESENHO", aliases: todos(["RAM"]), rf: ["RF01", "RF13"], extensao: true,
+    descricao: "Rampa reta do pé (p1) ao topo (p2), com a inclinação calculada pelo desnível; a verificação normativa da inclinação não é feita aqui.",
+    roteiro: [P("p1", "Pé da rampa:"), P("p2", "Topo da rampa:"), V("larg", "Largura em metros [1.2]:", 1.2), V("desnivel", "Desnível (Enter: até o pavimento de cima):", "", { opcional: true })] },
   // ---------- Modificação
   { codigo: "MOVER", nomePtBr: "MOVER", nomeEn: "MOVE", categoria: "MODIFICACAO", aliases: { CIVILCONSTRUCTOR: ["M", "MV"], AUTOCAD: ["M"], REVIT: ["MV"] }, rf: ["RF28"],
     descricao: "Move a seleção com precisão por Osnap.", roteiro: [S(), P("base", "Ponto base:"), P("destino", "Segundo ponto (destino):")] },

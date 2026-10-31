@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { ErroComandoVI, ModeloBim } from "./modelo";
 import { buscarObjetos, comprimentoPercurso, percursoConexao, posicaoConector } from "./objetos";
-import type { Conexao, Cota, Objeto, Parede } from "./tipos";
+import { elevacaoNoPiso, medidasCirculacao, perfilCirculacao } from "./circulacao";
+import type { Circulacao, Conexao, Cota, Objeto, Parede } from "./tipos";
 
 const p = (x: number, y: number) => ({ x, y });
 
@@ -130,5 +131,46 @@ describe("AUD-03/04 · conexões entre conectores", () => {
     expect(pts[1]!.z).toBeCloseTo(-0.25, 6);
     const horizontal = Math.abs(pts[pts.length - 2]!.x - pts[1]!.x) + Math.abs(pts[pts.length - 2]!.y - pts[1]!.y);
     expect(pts[1]!.z - pts[pts.length - 2]!.z).toBeCloseTo(0.02 * horizontal, 3);
+  });
+});
+
+describe("AUD-08 · escadas e rampas", () => {
+  function sobrado() {
+    const m = new ModeloBim();
+    const pav = m.pavimentos[0]!.id;
+    m.aplicar("PAVIMENTO", { nome: "Superior", z: 2.8 }, { pavimentoId: pav });
+    const ap = (codigo: string, args: Record<string, unknown>) => m.aplicar(codigo, args, { pavimentoId: pav });
+    const id = (codigo: string, args: Record<string, unknown>) => ap(codigo, args).diff.criados[0]!.id;
+    return { m, pav, ap, id };
+  }
+  it("escada chega ao pavimento de cima com 16 degraus de 17,5 cm; rampa calcula a inclinação", () => {
+    const c = sobrado();
+    const e = c.m.elemento(c.id("ESCADA", { p1: p(1, 1), p2: p(1, 5) })) as Circulacao;
+    expect(e.desnivel).toBe(2.8); expect(e.degraus).toBe(16); expect(e.largura).toBe(1);
+    expect(medidasCirculacao(e).espelho).toBeCloseTo(0.175, 6); expect(medidasCirculacao(e).piso).toBeCloseTo(0.25, 6);
+    const r = c.m.elemento(c.id("RAMPA", { p1: p(4, 0), p2: p(10, 0), desnivel: 0.5 })) as Circulacao;
+    expect(medidasCirculacao(r).inclinacaoPct).toBeCloseTo(8.333, 2);
+    expect(perfilCirculacao(r)).toEqual([[0, 0], [6, 0.5], [6, 0]]);
+    expect(() => c.ap("ESCADA", { p1: p(0, 0), p2: p(0, 0.1) })).toThrow(/0,30 m/);
+  });
+  it("pessoa sobre a escada fica na altura do degrau, e ao mover para o piso volta a zero", () => {
+    const c = sobrado();
+    c.id("ESCADA", { p1: p(1, 1), p2: p(1, 5) });
+    const pessoa = c.id("OBJETO", { item: "PESSOAS.ADULTO", pos: p(1, 3.1) }); // 9º degrau (t = 0,525)
+    expect((c.m.elemento(pessoa) as Objeto).elevacao).toBeCloseTo(9 * 0.175, 3);
+    c.ap("MOVER", { sel: [pessoa], base: p(1, 3.1), destino: p(3, 3.1) });
+    expect((c.m.elemento(pessoa) as Objeto).elevacao).toBe(0);
+    expect(elevacaoNoPiso(c.m, c.pav, p(1, 4.99))).toBeCloseTo(2.8, 6);
+  });
+  it("cota ancorada nas extremidades segue a parede em qualquer edição; apagar a parede solta a âncora", () => {
+    const c = sobrado();
+    const w = c.id("PAREDE", { p1: p(0, 8), p2: p(4, 8) });
+    const cota = c.id("COTA_LINEAR", { p1: p(0, 8), p2: p(4, 8), afast: 0.5 });
+    expect((c.m.elemento(cota) as Cota).ancoras).toEqual({ p1: { id: w, ponto: "p1" }, p2: { id: w, ponto: "p2" } });
+    c.ap("ALTERAR", { id: w, props: { p2: p(5.2, 8) } });
+    expect((c.m.elemento(cota) as Cota).p2).toEqual(p(5.2, 8));
+    c.ap("APAGAR", { sel: [w] });
+    expect((c.m.elemento(cota) as Cota).ancoras).toBeUndefined();
+    expect((c.m.elemento(cota) as Cota).p2).toEqual(p(5.2, 8));
   });
 });

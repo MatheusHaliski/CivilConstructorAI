@@ -350,3 +350,7 @@ Estrutura, materiais e conformidade ([relatório](../auditoria/AUDITORIA_2026-10
 - **Novo:** objetos com a entidade do catálogo (`IfcFurniture`, `IfcElectricAppliance`, `IfcSanitaryTerminal`, `IfcLightFixture`, `IfcOutlet`, `IfcElectricDistributionBoard`…), `IfcDistributionPort` por conector (SOURCE/SINK, sistema) aninhada ao objeto, uma porta por ligação, `IfcRelConnectsPorts` por conexão, `IfcDistributionCircuit`/`IfcDistributionSystem` com os membros, `IfcSpace` por ambiente, Pset do objeto. Pessoas não são exportadas.
 - **Evidência:** `arquivos/j6-depois.ifc` validado com ifcopenshell 0.9.0 (IFC4X3_ADD2): 0 erros.
 - **Pendente:** corpo dos objetos pela caixa envolvente; importação não traz objetos para o modelo.
+
+### 2ª rodada (2026-10-31)
+
+`IfcStair` (`.STRAIGHT_RUN_STAIR.`) e `IfcRamp` (`.STRAIGHT_RUN_RAMP.`) com corpo extrudado do perfil do lance e propriedades `Desnivel`, `Comprimento`, `Largura`, `NumberOfRiser`, `RiserHeight`, `TreadLength`; validados sem erros e com a caixa envolvente conferida pelo motor geométrico do ifcopenshell ([§10 do relatório](../auditoria/AUDITORIA_AUD-CC-3D-001.md)).

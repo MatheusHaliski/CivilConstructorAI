@@ -480,7 +480,10 @@ public class ModeloService {
     private ComandoVi montarComando(PedidoComando p, UsuarioAtual u, long base) {
         String codigo = p.codigo();
         Map<String, Object> args = p.args() == null ? new LinkedHashMap<>() : new LinkedHashMap<>(p.args());
-        if (p.vi() != null && !p.vi().isBlank()) {
+        // argumentos estruturados mandam: o texto VI é registro legível e não representa objetos aninhados
+        // (props do ALTERAR, dim, de/para) — antes ele era preferido e as edições de propriedade se perdiam
+        boolean temArgs = p.codigo() != null && !p.codigo().isBlank() && p.args() != null && !p.args().isEmpty();
+        if (!temArgs && p.vi() != null && !p.vi().isBlank()) {
             var prog = ParserVi.parse(p.vi());
             if (!prog.valido()) {
                 throw new ExcecaoDominio.Validacao(prog.erros().stream().map(e -> new ExcecaoDominio.Validacao.Erro(e.codigo() + "@" + e.linha() + ":" + e.coluna(), e.mensagem())).toList());
