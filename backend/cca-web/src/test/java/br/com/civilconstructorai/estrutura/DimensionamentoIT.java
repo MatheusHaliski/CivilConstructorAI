@@ -79,6 +79,8 @@ class DimensionamentoIT extends AbstractIT {
         assertThat(lista).hasSize(9); // 4 pilares + 4 vigas + 1 laje
         for (var r : lista) {
             assertThat(r.get("memoria")).as(r.toString()).isNotNull();
+            assertThat(r.get("verifica").asBoolean()).isFalse();
+            assertThat(r.get("estadoVerificacao").asString()).isIn("NAO_ATENDE", "NAO_VERIFICADO");
         }
         assertThat(lista.findValues("tipo").stream().map(JsonNode::asString)).contains("PILAR", "VIGA", "LAJE");
     }
@@ -97,19 +99,35 @@ class DimensionamentoIT extends AbstractIT {
     }
 
     @Test
-    void engenheiroComSeloE2faAprovaComArt() throws Exception {
+    void mesmoComSelo2faEArtPreDimensionamentoNaoPodeSerAprovado() throws Exception {
         var id = dimensionar();
         var semArt = postJson(engenheiro, "/dimensionamentos/" + id + "/aprovar", Map.of());
         assertThat(semArt.getResponse().getStatus()).isEqualTo(422);
         var aprovacao = postJson(engenheiro, "/dimensionamentos/" + id + "/aprovar", Map.of("artRrt", "CREA-PR 123456"));
         var corpo = json(aprovacao);
-        // 200 quando todos os elementos verificam; 422 (elementos_nao_verificam) quando algum não passa — nunca 403
-        assertThat(aprovacao.getResponse().getStatus()).as(corpo.toString()).isIn(200, 422);
-        if (aprovacao.getResponse().getStatus() == 200) {
-            assertThat(corpo.get("estado").asString()).isEqualTo("APROVADO");
-            assertThat(corpo.get("artRrt").asString()).isEqualTo("CREA-PR 123456");
-        } else {
-            assertThat(corpo.toString()).contains("elementos_nao_verificam");
-        }
+        assertThat(aprovacao.getResponse().getStatus()).as(corpo.toString()).isEqualTo(422);
+        assertThat(corpo.toString()).contains("elementos_nao_verificam");
+    }
+
+    @Test
+    void mudancaDoModeloBloqueiaAprovacaoCom409() throws Exception {
+        var id = dimensionar();
+        modelos.registrar(CenarioEstrutural.portico(cenario.obraId(), 2));
+        var r = postJson(engenheiro, "/dimensionamentos/" + id + "/aprovar", Map.of("artRrt", "CREA-PR 123456"));
+        assertThat(r.getResponse().getStatus()).as(r.getResponse().getContentAsString()).isEqualTo(409);
+    }
+
+    @Test
+    void perfilMetalicoNaoRecebeAnaliseComPropriedadesDeConcreto() throws Exception {
+        var m = CenarioEstrutural.portico(cenario.obraId(), 1);
+        var elementos = new java.util.ArrayList<>(m.elementos());
+        elementos.add(br.com.civilconstructorai.estrutura.modelo.ElementoEstrutural.viga("aco", "p1",
+                new br.com.civilconstructorai.estrutura.modelo.Ponto(0, 0),
+                new br.com.civilconstructorai.estrutura.modelo.Ponto(4, 0), .2, .5, "MAT_ACO_PERFIL_W"));
+        modelos.registrar(new br.com.civilconstructorai.estrutura.modelo.ModeloEstrutural(
+                m.obraId(), m.versao(), m.pavimentos(), elementos));
+        var r = json(postJson(engenheiro, "/analises", null));
+        assertThat(r.get("estado").asString()).isEqualTo("FALHOU");
+        assertThat(r.get("mensagemErro").asString()).contains("Material não suportado");
     }
 }

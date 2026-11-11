@@ -1,0 +1,2567 @@
+{
+  "schema": 1,
+  "escopo": "Índice de fontes fornecidas; busca não comprova vigência, leitura integral ou conformidade.",
+  "quantidade_arquivos_unicos": 31,
+  "arquivos": [
+    {
+      "arquivo": "01_CADERNO_E.V..pdf",
+      "sha256": "bd64366bdf2ed9822d1e1859061b641f62d04ccc8279ae1d584778df37405e37",
+      "blob_sha": "d969cbb5c8320f8bffd604245fddedd215935091",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/01_CADERNO_E.V..pdf",
+      "aliases_github": [
+        "docs/normas/01_CADERNO_E.V..pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 32,
+      "caracteres_extraidos": 69089,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            5,
+            20,
+            24
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "fundacoes": {
+          "pagina_pdf": [
+            11,
+            20
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [
+          1,
+          2,
+          3,
+          31,
+          32
+        ],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "04_CADERNO_CONTRATAÇÃO DE PROJETO.pdf",
+      "sha256": "0a944af57fdb128f95e90809294d1600ae8398140a8f8fc13c0aaa95412e4bda",
+      "blob_sha": "e869304d99eed27d2633c89c094a107d5339d45d",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/04_CADERNO_CONTRATA%C3%87%C3%83O%20DE%20PROJETO.pdf",
+      "aliases_github": [
+        "docs/normas/04_CADERNO_CONTRATAÇÃO DE PROJETO.pdf",
+        "docs/normas/Copy of 04_CADERNO_CONTRATAÇÃO DE PROJETO.pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 42,
+      "caracteres_extraidos": 82828,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            5,
+            14,
+            16,
+            27
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "fundacoes": {
+          "pagina_pdf": [
+            28,
+            34,
+            35
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [
+          1,
+          2,
+          3,
+          41
+        ],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "06_CADERNO_CONTRATAÇÃO DE OBRA.pdf",
+      "sha256": "b80e9263c2351d473fc3ade169d2b85cf21a028a1ae9befbfb0cad6b368591de",
+      "blob_sha": "bcaed337e4ca1268bffd2a89e2279c95c9f494f5",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/06_CADERNO_CONTRATA%C3%87%C3%83O%20DE%20OBRA.pdf",
+      "aliases_github": [
+        "docs/normas/06_CADERNO_CONTRATAÇÃO DE OBRA.pdf",
+        "docs/normas/Copy of 06_CADERNO_CONTRATAÇÃO DE OBRA.pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 50,
+      "caracteres_extraidos": 110681,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            5,
+            12,
+            17,
+            25
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [
+          1,
+          2,
+          3,
+          49
+        ],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "08_CADERNO_NORMAS MINUTAS E SUMULAS DO TCU.pdf",
+      "sha256": "ab3e93c04ac467da8efab714243c7d857be9a8627b1d3dd8175f0ca844a6b5d8",
+      "blob_sha": "ad9645dd146485bc78818e436e0b2cb2cb0a847c",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/08_CADERNO_NORMAS%20MINUTAS%20E%20SUMULAS%20DO%20TCU.pdf",
+      "aliases_github": [
+        "docs/normas/08_CADERNO_NORMAS MINUTAS E SUMULAS DO TCU.pdf",
+        "docs/normas/Copy of 08_CADERNO_NORMAS MINUTAS E SUMULAS DO TCU.pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 88,
+      "caracteres_extraidos": 222530,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "concreto_tipos": {
+          "pagina_pdf": [
+            65
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            5,
+            17,
+            23,
+            30,
+            37,
+            43,
+            44,
+            46,
+            48,
+            51
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "fundacoes": {
+          "pagina_pdf": [
+            7,
+            69,
+            70,
+            74,
+            75,
+            83
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [
+          1,
+          2,
+          3,
+          77,
+          87
+        ],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "8e04e050-bcf1-4f0c-b9c7-faf7d4af1627.docx",
+      "sha256": "8085d3363072802a6362e24fca034544614a7cb8a28fcaffb72118c365d53db9",
+      "blob_sha": "82b64b88d4a59f447beac0840dd82a9741690f5e",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/8e04e050-bcf1-4f0c-b9c7-faf7d4af1627.docx",
+      "aliases_github": [
+        "docs/normas/8e04e050-bcf1-4f0c-b9c7-faf7d4af1627.docx"
+      ],
+      "formato": "docx",
+      "unidades_extraidas": 454,
+      "caracteres_extraidos": 24767,
+      "localizador": "paragrafo_xml",
+      "temas": {},
+      "lacunas_extracao": {
+        "imagens_embutidas": 0,
+        "observacao": "DOCX usa parágrafos XML, sem paginação estável. Figuras requerem leitura visual; fórmulas OMML não são transcritas como texto matemático."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Cartilha de Obras e Serviços de Engenharia - ETP.pdf",
+      "sha256": "ed8404c982ce0676c136aad5725b99bb437e77a804d6533abcfcfa728c3576eb",
+      "blob_sha": "a6b16fa0229d762fba83b6a250603539241b6f5a",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Cartilha%20de%20Obras%20e%20Servi%C3%A7os%20de%20Engenharia%20-%20ETP.pdf",
+      "aliases_github": [
+        "docs/normas/Cartilha de Obras e Serviços de Engenharia - ETP.pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 85,
+      "caracteres_extraidos": 188235,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "concreto_tipos": {
+          "pagina_pdf": [
+            33,
+            35,
+            71
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "pagina_pdf": [
+            30,
+            33,
+            35,
+            37,
+            43,
+            44,
+            70,
+            71,
+            73
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "fundacoes": {
+          "pagina_pdf": [
+            61,
+            76
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [
+          1,
+          38
+        ],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Copy of Concreto Armado 1.1ºGQ_ — Professor Fernando Artur.pdf",
+      "sha256": "af3df43be944c224010ad4a639af5699f0a8d79da8c2887a857f44ccb4e0f8d9",
+      "blob_sha": "097c90869ecede9869b1b280b14fabe927cbcd0d",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20Concreto%20Armado%201.1%C2%BAGQ_%20%E2%80%94%20Professor%20Fernando%20Artur.pdf",
+      "aliases_github": [
+        "docs/normas/Copy of Concreto Armado 1.1ºGQ_ — Professor Fernando Artur.pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 2,
+      "caracteres_extraidos": 0,
+      "localizador": "pagina_pdf",
+      "temas": {},
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [
+          1,
+          2
+        ],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Copy of Documento de Matheus Haliski(1).pdf",
+      "sha256": "5b827fb5d50e56a9bdfd4f49e308729c984883fa49ddb4b59a59b32eeaf64b3d",
+      "blob_sha": "256447fe9a1ff3b2292458726026bb1419164594",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20Documento%20de%20Matheus%20Haliski(1).pdf",
+      "aliases_github": [
+        "docs/normas/Copy of Documento de Matheus Haliski(1).pdf",
+        "docs/normas/Copy of ECAATUALIZADO-convertido.pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 37,
+      "caracteres_extraidos": 75002,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "concreto_resistencia": {
+          "pagina_pdf": [
+            20,
+            21,
+            22,
+            32
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "concreto_tipos": {
+          "pagina_pdf": [
+            20,
+            26
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            5
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_armadura": {
+          "pagina_pdf": [
+            5,
+            9,
+            20,
+            21,
+            23,
+            34,
+            36
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "esforcos": {
+          "pagina_pdf": [
+            16,
+            17,
+            18
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "pagina_pdf": [
+            5,
+            9,
+            10,
+            20
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [
+          30
+        ],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Copy of Documento de Matheus Haliski.docx",
+      "sha256": "85cd0a3b02466c25ba8fd3df45df18e4952b825d25191a4c44532afb87f002f4",
+      "blob_sha": "714f12ac9889217f0d365eae7cde15e73b3fbc4e",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20Documento%20de%20Matheus%20Haliski.docx",
+      "aliases_github": [
+        "docs/normas/Copy of Documento de Matheus Haliski.docx"
+      ],
+      "formato": "docx",
+      "unidades_extraidas": 337,
+      "caracteres_extraidos": 19597,
+      "localizador": "paragrafo_xml",
+      "temas": {
+        "elasticidade_deformacoes": {
+          "paragrafo_xml": [
+            258,
+            284,
+            297,
+            306
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_estrutural": {
+          "paragrafo_xml": [
+            60,
+            61
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "esforcos": {
+          "paragrafo_xml": [
+            75,
+            297
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "fundacoes": {
+          "paragrafo_xml": [
+            93,
+            95,
+            104,
+            106,
+            107,
+            110,
+            114,
+            136,
+            149,
+            153,
+            156,
+            159,
+            175,
+            178,
+            190,
+            191,
+            194,
+            222,
+            223,
+            225,
+            226,
+            231,
+            240,
+            241,
+            248,
+            249,
+            254,
+            260,
+            261,
+            281,
+            320
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "imagens_embutidas": 22,
+        "observacao": "DOCX usa parágrafos XML, sem paginação estável. Figuras requerem leitura visual; fórmulas OMML não são transcritas como texto matemático."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Copy of Documento de Matheus Haliski.pdf",
+      "sha256": "578a808ffd354742ed67e43f1a69260d6c0d5840f7cb17e1ea641732072f1b9f",
+      "blob_sha": "860c9ff75d72fa813e7de8005a4a397941ba869c",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20Documento%20de%20Matheus%20Haliski.pdf",
+      "aliases_github": [
+        "docs/normas/Copy of Documento de Matheus Haliski.pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 70,
+      "caracteres_extraidos": 122125,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "concreto_resistencia": {
+          "pagina_pdf": [
+            21,
+            22,
+            23,
+            32
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "concreto_tipos": {
+          "pagina_pdf": [
+            21,
+            27
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            5,
+            40,
+            41
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_armadura": {
+          "pagina_pdf": [
+            5,
+            9,
+            21,
+            22,
+            23,
+            24,
+            34,
+            35,
+            37
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "esforcos": {
+          "pagina_pdf": [
+            3,
+            16,
+            17,
+            18,
+            42,
+            43,
+            46
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "acoes_combinacoes": {
+          "pagina_pdf": [
+            38,
+            39,
+            40,
+            46,
+            48,
+            55,
+            58
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "pagina_pdf": [
+            5,
+            9,
+            10,
+            21
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [
+          30,
+          70
+        ],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Copy of ECAATUALIZADO.docx",
+      "sha256": "20869c1a4d37cd6d46c73ed790bc82b2a1693d1d9dfe99d3b0f398a34e1a8344",
+      "blob_sha": "02ead79371ce2712f6cf13219affeb140db13d24",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20ECAATUALIZADO.docx",
+      "aliases_github": [
+        "docs/normas/Copy of ECAATUALIZADO.docx"
+      ],
+      "formato": "docx",
+      "unidades_extraidas": 4466,
+      "caracteres_extraidos": 45002,
+      "localizador": "paragrafo_xml",
+      "temas": {
+        "concreto_resistencia": {
+          "paragrafo_xml": [
+            1217,
+            1218,
+            1253,
+            1254,
+            1287,
+            1288,
+            1655
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "concreto_tipos": {
+          "paragrafo_xml": [
+            96,
+            1211,
+            1371
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "paragrafo_xml": [
+            127,
+            136,
+            2051,
+            2066
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_armadura": {
+          "paragrafo_xml": [
+            121,
+            469,
+            1211,
+            1219,
+            1220,
+            1255,
+            1256,
+            1289,
+            1290,
+            1898
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "esforcos": {
+          "paragrafo_xml": [
+            73,
+            1004,
+            1015,
+            1028,
+            1041,
+            1058,
+            1076,
+            2102,
+            2103,
+            2125,
+            2448
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "acoes_combinacoes": {
+          "paragrafo_xml": [
+            1997,
+            2007,
+            2450,
+            2455,
+            2456,
+            2805,
+            3426,
+            3427,
+            3699,
+            3700
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "paragrafo_xml": [
+            121,
+            469,
+            474,
+            492,
+            510,
+            1211
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "imagens_embutidas": 50,
+        "observacao": "DOCX usa parágrafos XML, sem paginação estável. Figuras requerem leitura visual; fórmulas OMML não são transcritas como texto matemático."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Copy of Estou compartilhando o arquivo _MEMORIAL DE CÁLCULO Trabalho 1 - Estruturas de Concreto 1 _ com você.docx",
+      "sha256": "7a1326ac5f115adf06ce8967354ddd7265e945d5435b57f0aebc3f243c216bfb",
+      "blob_sha": "b350685134e763a531cc7132e6c73683d8870138",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20Estou%20compartilhando%20o%20arquivo%20_MEMORIAL%20DE%20C%C3%81LCULO%20Trabalho%201%20-%20Estruturas%20de%20Concreto%201%20_%20com%20voc%C3%AA.docx",
+      "aliases_github": [
+        "docs/normas/Copy of Estou compartilhando o arquivo _MEMORIAL DE CÁLCULO Trabalho 1 - Estruturas de Concreto 1 _ com você.docx"
+      ],
+      "formato": "docx",
+      "unidades_extraidas": 950,
+      "caracteres_extraidos": 12837,
+      "localizador": "paragrafo_xml",
+      "temas": {
+        "concreto_tipos": {
+          "paragrafo_xml": [
+            88
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "paragrafo_xml": [
+            121
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_armadura": {
+          "paragrafo_xml": [
+            116,
+            332
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "paragrafo_xml": [
+            116,
+            332,
+            337,
+            353,
+            367,
+            378,
+            390,
+            405,
+            421,
+            437,
+            452,
+            468,
+            484,
+            500,
+            515,
+            531,
+            547,
+            563,
+            578
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "imagens_embutidas": 0,
+        "observacao": "DOCX usa parágrafos XML, sem paginação estável. Figuras requerem leitura visual; fórmulas OMML não são transcritas como texto matemático."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Copy of Estou compartilhando o arquivo _Trabalho - Fundações_ com você.docx",
+      "sha256": "088dbb58fb858525827b9f5ee1180a92b2c392b637e8cc5d3d5a2e1e69a5e780",
+      "blob_sha": "226f860f96def20fbbffc9b49a01e49dd8d65485",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20Estou%20compartilhando%20o%20arquivo%20_Trabalho%20-%20Funda%C3%A7%C3%B5es_%20com%20voc%C3%AA.docx",
+      "aliases_github": [
+        "docs/normas/Copy of Estou compartilhando o arquivo _Trabalho - Fundações_ com você.docx"
+      ],
+      "formato": "docx",
+      "unidades_extraidas": 254,
+      "caracteres_extraidos": 8411,
+      "localizador": "paragrafo_xml",
+      "temas": {
+        "fundacoes": {
+          "paragrafo_xml": [
+            12,
+            36,
+            73,
+            123,
+            124,
+            125,
+            141,
+            174,
+            175,
+            178,
+            180,
+            195,
+            196,
+            197,
+            208,
+            209,
+            211,
+            216,
+            219
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "imagens_embutidas": 2,
+        "observacao": "DOCX usa parágrafos XML, sem paginação estável. Figuras requerem leitura visual; fórmulas OMML não são transcritas como texto matemático."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Copy of FUNDAÇÕES.docx",
+      "sha256": "49109a998fcc530207c425f59403f85b9ab76fa03be280707b79f1ae2ab3c35c",
+      "blob_sha": "6ec6b6f5f2c4bedb9629537e7f0c9d243c79cade",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20FUNDA%C3%87%C3%95ES.docx",
+      "aliases_github": [
+        "docs/normas/Copy of FUNDAÇÕES.docx"
+      ],
+      "formato": "docx",
+      "unidades_extraidas": 312,
+      "caracteres_extraidos": 8850,
+      "localizador": "paragrafo_xml",
+      "temas": {
+        "fundacoes": {
+          "paragrafo_xml": [
+            12,
+            36,
+            73,
+            74,
+            127,
+            128,
+            129,
+            145,
+            169,
+            170,
+            173,
+            175,
+            190,
+            191,
+            192,
+            206,
+            207,
+            209,
+            214,
+            230,
+            233,
+            250
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "imagens_embutidas": 3,
+        "observacao": "DOCX usa parágrafos XML, sem paginação estável. Figuras requerem leitura visual; fórmulas OMML não são transcritas como texto matemático."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Copy of FUNDAÇÕES22.docx",
+      "sha256": "3f9ebc8c7c137648db439e2714d631f041f6d6d8590b16f930861b3d12698bc5",
+      "blob_sha": "18627b6a3fedbfc619ec54a1f002bd6b197a0d2c",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20FUNDA%C3%87%C3%95ES22.docx",
+      "aliases_github": [
+        "docs/normas/Copy of FUNDAÇÕES22.docx"
+      ],
+      "formato": "docx",
+      "unidades_extraidas": 311,
+      "caracteres_extraidos": 9474,
+      "localizador": "paragrafo_xml",
+      "temas": {
+        "fundacoes": {
+          "paragrafo_xml": [
+            12,
+            36,
+            73,
+            74,
+            127,
+            128,
+            129,
+            145,
+            169,
+            170,
+            173,
+            175,
+            190,
+            191,
+            192,
+            206,
+            207,
+            209,
+            214,
+            230,
+            233,
+            250,
+            276
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "imagens_embutidas": 3,
+        "observacao": "DOCX usa parágrafos XML, sem paginação estável. Figuras requerem leitura visual; fórmulas OMML não são transcritas como texto matemático."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Copy of FUNDAÇÕES221.docx",
+      "sha256": "8b9d184a270bac694fa22d61b578ae23049a4d3a21396128c81ffbf9366e9282",
+      "blob_sha": "8e7d0cf03a90803640667236c9bcaca7132742dd",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20FUNDA%C3%87%C3%95ES221.docx",
+      "aliases_github": [
+        "docs/normas/Copy of FUNDAÇÕES221.docx"
+      ],
+      "formato": "docx",
+      "unidades_extraidas": 311,
+      "caracteres_extraidos": 9474,
+      "localizador": "paragrafo_xml",
+      "temas": {
+        "fundacoes": {
+          "paragrafo_xml": [
+            12,
+            36,
+            73,
+            74,
+            127,
+            128,
+            129,
+            145,
+            169,
+            170,
+            173,
+            175,
+            190,
+            191,
+            192,
+            206,
+            207,
+            209,
+            214,
+            230,
+            233,
+            250,
+            276
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "imagens_embutidas": 3,
+        "observacao": "DOCX usa parágrafos XML, sem paginação estável. Figuras requerem leitura visual; fórmulas OMML não são transcritas como texto matemático."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Copy of MEMORIAL DE CÁLCULO DOS ESFORÇOS - GRUPO C.docx",
+      "sha256": "af787a16cff182f883104de5041663e239b1b53be537ae393da544b1525ca4df",
+      "blob_sha": "f7be9af77585ca0778e719ed3829bda41347e3cc",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20MEMORIAL%20DE%20C%C3%81LCULO%20DOS%20ESFOR%C3%87OS%20-%20GRUPO%20C.docx",
+      "aliases_github": [
+        "docs/normas/Copy of MEMORIAL DE CÁLCULO DOS ESFORÇOS - GRUPO C.docx"
+      ],
+      "formato": "docx",
+      "unidades_extraidas": 229,
+      "caracteres_extraidos": 7646,
+      "localizador": "paragrafo_xml",
+      "temas": {
+        "concreto_tipos": {
+          "paragrafo_xml": [
+            186
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "esforcos": {
+          "paragrafo_xml": [
+            104,
+            191
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "acoes_combinacoes": {
+          "paragrafo_xml": [
+            148
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "paragrafo_xml": [
+            185
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "imagens_embutidas": 2,
+        "observacao": "DOCX usa parágrafos XML, sem paginação estável. Figuras requerem leitura visual; fórmulas OMML não são transcritas como texto matemático."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Copy of MEMORIAL DE CÁLCULO GRUPO C.docx",
+      "sha256": "512d0c9d9012447ac50438a0b5080987e86d49bb30e13d944a2b5e1d5552a60c",
+      "blob_sha": "594653b299f2aa9206682adcf21ee97cf2bf1c52",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20MEMORIAL%20DE%20C%C3%81LCULO%20GRUPO%20C.docx",
+      "aliases_github": [
+        "docs/normas/Copy of MEMORIAL DE CÁLCULO GRUPO C.docx"
+      ],
+      "formato": "docx",
+      "unidades_extraidas": 478,
+      "caracteres_extraidos": 14855,
+      "localizador": "paragrafo_xml",
+      "temas": {
+        "concreto_resistencia": {
+          "paragrafo_xml": [
+            232
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "concreto_tipos": {
+          "paragrafo_xml": [
+            187,
+            191,
+            233,
+            234
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "paragrafo_xml": [
+            274,
+            317
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_armadura": {
+          "paragrafo_xml": [
+            233
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "acoes_combinacoes": {
+          "paragrafo_xml": [
+            65,
+            107,
+            150,
+            438,
+            439
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "paragrafo_xml": [
+            151,
+            234
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "imagens_embutidas": 3,
+        "observacao": "DOCX usa parágrafos XML, sem paginação estável. Figuras requerem leitura visual; fórmulas OMML não são transcritas como texto matemático."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Copy of NBR 5626 – Instalações prediais de água fria..pdf",
+      "sha256": "94912a769f4ddbb0dfd563a9e2b505a5ca4a6d13b6ecea4df20f5cc1bda9d0a0",
+      "blob_sha": "762127c77723b8b5e5b5358012591643321fd916",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20NBR%205626%20%E2%80%93%20Instala%C3%A7%C3%B5es%20prediais%20de%20%C3%A1gua%20fria..pdf",
+      "aliases_github": [
+        "docs/normas/Copy of NBR 5626 – Instalações prediais de água fria..pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 41,
+      "caracteres_extraidos": 249813,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "concreto_tipos": {
+          "pagina_pdf": [
+            3,
+            7
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            6,
+            8,
+            10,
+            18,
+            21,
+            25,
+            28,
+            38
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "esforcos": {
+          "pagina_pdf": [
+            18
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "pagina_pdf": [
+            4,
+            38
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "fundacoes": {
+          "pagina_pdf": [
+            10,
+            11,
+            18,
+            36,
+            40
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "Copy of NBR 6118 – Projeto de estruturas de concreto..pdf",
+      "sha256": "220bf88c73edee537ab60a4314844e24aba7b50cf55c807b8e941eec0c158a29",
+      "blob_sha": "39a3fa0c067a94be77670afee6cd693e444ae7cf",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20NBR%206118%20%E2%80%93%20Projeto%20de%20estruturas%20de%20concreto..pdf",
+      "aliases_github": [
+        "docs/normas/Copy of NBR 6118 – Projeto de estruturas de concreto..pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 256,
+      "caracteres_extraidos": 751099,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "concreto_resistencia": {
+          "pagina_pdf": [
+            6,
+            27,
+            36,
+            39,
+            41,
+            42,
+            43,
+            44,
+            45,
+            52,
+            53,
+            88,
+            89,
+            97,
+            101,
+            109,
+            110,
+            111,
+            113,
+            114,
+            118,
+            119,
+            127,
+            137,
+            138,
+            139,
+            141,
+            142,
+            143,
+            146,
+            148,
+            149,
+            151,
+            153,
+            154,
+            155,
+            156,
+            157,
+            158,
+            162,
+            168,
+            171,
+            177,
+            183,
+            184,
+            192,
+            196,
+            199,
+            212,
+            214,
+            218,
+            219,
+            220,
+            222,
+            223,
+            226,
+            228,
+            237,
+            238,
+            239,
+            240,
+            243,
+            251,
+            254
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "concreto_tipos": {
+          "pagina_pdf": [
+            11,
+            12,
+            14,
+            16,
+            19,
+            20,
+            21,
+            22,
+            23,
+            36,
+            38,
+            40,
+            41,
+            43,
+            44,
+            46,
+            75,
+            97,
+            98,
+            110,
+            115,
+            117,
+            118,
+            134,
+            135,
+            139,
+            144,
+            147,
+            148,
+            170,
+            195,
+            217,
+            218,
+            219,
+            221,
+            222,
+            223,
+            224,
+            227,
+            228,
+            238,
+            239,
+            240,
+            244,
+            245,
+            246,
+            248,
+            249,
+            250,
+            253,
+            255
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            4,
+            8,
+            9,
+            12,
+            14,
+            15,
+            22,
+            26,
+            27,
+            29,
+            31,
+            34,
+            39,
+            40,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            51,
+            68,
+            69,
+            70,
+            71,
+            73,
+            74,
+            75,
+            76,
+            80,
+            83,
+            85,
+            93,
+            97,
+            101,
+            103,
+            104,
+            109,
+            111,
+            113,
+            116,
+            117,
+            118,
+            122,
+            124,
+            127,
+            128,
+            129,
+            138,
+            139,
+            140,
+            141,
+            143,
+            144,
+            145,
+            146,
+            171,
+            175,
+            183,
+            217,
+            218,
+            219,
+            220,
+            225,
+            226,
+            227,
+            228,
+            229,
+            230,
+            231,
+            232,
+            233,
+            234,
+            238,
+            239,
+            240,
+            245,
+            247,
+            251,
+            254
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_armadura": {
+          "pagina_pdf": [
+            4,
+            20,
+            22,
+            27,
+            28,
+            30,
+            38,
+            39,
+            40,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            55,
+            57,
+            58,
+            65,
+            70,
+            72,
+            89,
+            110,
+            118,
+            138,
+            139,
+            146,
+            147,
+            150,
+            152,
+            154,
+            159,
+            163,
+            169,
+            170,
+            175,
+            176,
+            177,
+            184,
+            186,
+            190,
+            199,
+            213,
+            215,
+            216,
+            234,
+            235,
+            236,
+            237,
+            239,
+            240,
+            243,
+            247,
+            249,
+            251,
+            254
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_estrutural": {
+          "pagina_pdf": [
+            132
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "esforcos": {
+          "pagina_pdf": [
+            6,
+            8,
+            9,
+            11,
+            13,
+            15,
+            20,
+            25,
+            26,
+            27,
+            28,
+            38,
+            39,
+            41,
+            54,
+            58,
+            79,
+            80,
+            82,
+            90,
+            91,
+            92,
+            93,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            109,
+            110,
+            111,
+            112,
+            113,
+            115,
+            116,
+            117,
+            119,
+            120,
+            125,
+            129,
+            131,
+            134,
+            135,
+            136,
+            137,
+            138,
+            140,
+            142,
+            143,
+            144,
+            145,
+            148,
+            149,
+            150,
+            152,
+            153,
+            154,
+            155,
+            156,
+            157,
+            158,
+            159,
+            160,
+            161,
+            162,
+            164,
+            165,
+            168,
+            170,
+            174,
+            175,
+            176,
+            177,
+            178,
+            179,
+            180,
+            181,
+            183,
+            184,
+            185,
+            186,
+            187,
+            192,
+            194,
+            195,
+            199,
+            200,
+            202,
+            203,
+            206,
+            207,
+            208,
+            209,
+            210,
+            212,
+            213,
+            218,
+            219,
+            220,
+            221,
+            223,
+            237,
+            238,
+            241,
+            242,
+            243,
+            244,
+            248,
+            251,
+            252,
+            253,
+            254,
+            256
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "acoes_combinacoes": {
+          "pagina_pdf": [
+            6,
+            8,
+            9,
+            11,
+            12,
+            13,
+            14,
+            20,
+            21,
+            22,
+            23,
+            24,
+            44,
+            47,
+            72,
+            73,
+            74,
+            75,
+            76,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            89,
+            90,
+            94,
+            97,
+            101,
+            103,
+            104,
+            110,
+            113,
+            114,
+            117,
+            118,
+            138,
+            139,
+            140,
+            141,
+            142,
+            143,
+            145,
+            147,
+            150,
+            151,
+            153,
+            156,
+            161,
+            174,
+            175,
+            196,
+            198,
+            200,
+            210,
+            211,
+            212,
+            223,
+            224,
+            238,
+            239,
+            240,
+            242,
+            243,
+            244,
+            251,
+            252,
+            253,
+            254,
+            255
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "pagina_pdf": [
+            3,
+            4,
+            6,
+            8,
+            14,
+            15,
+            19,
+            20,
+            21,
+            25,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            41,
+            42,
+            53,
+            55,
+            73,
+            90,
+            91,
+            93,
+            97,
+            98,
+            135,
+            147,
+            157,
+            163,
+            166,
+            190,
+            195,
+            196,
+            203,
+            220,
+            224,
+            227,
+            236,
+            237,
+            239,
+            241,
+            243,
+            248
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "fundacoes": {
+          "pagina_pdf": [
+            83,
+            149,
+            166
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "ECAATUALIZADO.pdf",
+      "sha256": "a9ba69e91d8c2284706ffb02f9cbd7ec452615e4e7802532551b4ea49725c5f3",
+      "blob_sha": "ecc855791a57b183d1de027e84fe03d380e7a9ea",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/ECAATUALIZADO.pdf",
+      "aliases_github": [
+        "docs/normas/ECAATUALIZADO.pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 55,
+      "caracteres_extraidos": 109336,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "concreto_resistencia": {
+          "pagina_pdf": [
+            21,
+            22,
+            23,
+            32
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "concreto_tipos": {
+          "pagina_pdf": [
+            21,
+            27
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            5,
+            40
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_armadura": {
+          "pagina_pdf": [
+            5,
+            9,
+            21,
+            22,
+            23,
+            24,
+            34,
+            35,
+            37
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "esforcos": {
+          "pagina_pdf": [
+            3,
+            16,
+            17,
+            18,
+            44,
+            45,
+            47
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "acoes_combinacoes": {
+          "pagina_pdf": [
+            39,
+            40,
+            41,
+            42,
+            47,
+            48,
+            49
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "pagina_pdf": [
+            5,
+            9,
+            10,
+            21
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [
+          30
+        ],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "MarcosK+FrancescoS+MatheusH+MatheusB(1).docx",
+      "sha256": "cac1d68771b05a628fa6655672688df2453c00ff86621940d84b41670c0f9cd4",
+      "blob_sha": "271b74e8df9064a4272bf0cdd494fca2d05f7254",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/MarcosK%2BFrancescoS%2BMatheusH%2BMatheusB(1).docx",
+      "aliases_github": [
+        "docs/normas/Copy of MarcosK+FrancescoS+MatheusH+MatheusB.docx",
+        "docs/normas/MarcosK+FrancescoS+MatheusH+MatheusB(1).docx"
+      ],
+      "formato": "docx",
+      "unidades_extraidas": 544,
+      "caracteres_extraidos": 13733,
+      "localizador": "paragrafo_xml",
+      "temas": {
+        "concreto_tipos": {
+          "paragrafo_xml": [
+            88
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "paragrafo_xml": [
+            119
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_armadura": {
+          "paragrafo_xml": [
+            116,
+            357
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "paragrafo_xml": [
+            116,
+            357,
+            362,
+            373,
+            384,
+            395,
+            405,
+            416,
+            427,
+            438,
+            449,
+            460,
+            471,
+            482,
+            493,
+            504,
+            515,
+            526,
+            537
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "imagens_embutidas": 0,
+        "observacao": "DOCX usa parágrafos XML, sem paginação estável. Figuras requerem leitura visual; fórmulas OMML não são transcritas como texto matemático."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "MarcosK+FrancescoS+MatheusH+MatheusB.docx",
+      "sha256": "7aafb11137946281dbef1a4bf15adeac11fd51cf700daef023def273bb79541d",
+      "blob_sha": "2a50eb46f3bf76bdf6dc088d360ed9320054a3a8",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/MarcosK%2BFrancescoS%2BMatheusH%2BMatheusB.docx",
+      "aliases_github": [
+        "docs/normas/Copy of MarcosK+FrancescoS+MatheusH+MatheusB(1).docx",
+        "docs/normas/MarcosK+FrancescoS+MatheusH+MatheusB.docx"
+      ],
+      "formato": "docx",
+      "unidades_extraidas": 1208,
+      "caracteres_extraidos": 20184,
+      "localizador": "paragrafo_xml",
+      "temas": {
+        "concreto_tipos": {
+          "paragrafo_xml": [
+            89
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "paragrafo_xml": [
+            123
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_armadura": {
+          "paragrafo_xml": [
+            117,
+            343
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "paragrafo_xml": [
+            117,
+            343,
+            348,
+            364,
+            378,
+            389,
+            401,
+            416,
+            429,
+            445,
+            460,
+            476,
+            492,
+            506,
+            521,
+            537,
+            553,
+            569,
+            584
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "imagens_embutidas": 0,
+        "observacao": "DOCX usa parágrafos XML, sem paginação estável. Figuras requerem leitura visual; fórmulas OMML não são transcritas como texto matemático."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "MarcosK^FrancescoS^MatheusH^MatheusB (2).docx",
+      "sha256": "5e9f296a6c12edf8552d948e4e9ad45551eb9860efc0cff0b557c681ac5d820e",
+      "blob_sha": "0e53b95e9dbebfb204129df25d49c8b39de5ec5c",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/MarcosK%5EFrancescoS%5EMatheusH%5EMatheusB%20(2).docx",
+      "aliases_github": [
+        "docs/normas/MarcosK^FrancescoS^MatheusH^MatheusB (2).docx"
+      ],
+      "formato": "docx",
+      "unidades_extraidas": 1257,
+      "caracteres_extraidos": 14906,
+      "localizador": "paragrafo_xml",
+      "temas": {
+        "concreto_resistencia": {
+          "paragrafo_xml": [
+            1102,
+            1103,
+            1138,
+            1139,
+            1172,
+            1173
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "concreto_tipos": {
+          "paragrafo_xml": [
+            89,
+            1097
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "paragrafo_xml": [
+            122,
+            130
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_armadura": {
+          "paragrafo_xml": [
+            117,
+            458,
+            1097,
+            1104,
+            1105,
+            1140,
+            1141,
+            1174,
+            1175
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "esforcos": {
+          "paragrafo_xml": [
+            964,
+            979,
+            993
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "paragrafo_xml": [
+            117,
+            458,
+            463,
+            476,
+            489,
+            1097
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "imagens_embutidas": 4,
+        "observacao": "DOCX usa parágrafos XML, sem paginação estável. Figuras requerem leitura visual; fórmulas OMML não são transcritas como texto matemático."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "NBR 10844 – Águas pluviais..pdf",
+      "sha256": "db629fc04e643fccc11870186881b1f2f28815893e59c9a29bdd7c9b8a4d7eca",
+      "blob_sha": "7baf0ccea5b3fdde4cbcab86cf2f355a14098c78",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/NBR%2010844%20%E2%80%93%20%C3%81guas%20pluviais..pdf",
+      "aliases_github": [
+        "docs/normas/Copy of NBR 10844 – Águas pluviais..pdf",
+        "docs/normas/NBR 10844 – Águas pluviais..pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 13,
+      "caracteres_extraidos": 42188,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "concreto_tipos": {
+          "pagina_pdf": [
+            1,
+            2
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            1,
+            3,
+            4,
+            12
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "pagina_pdf": [
+            1,
+            3
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [
+          10
+        ],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "NBR 5410 – Instalações elétricas de baixa tensão..pdf",
+      "sha256": "b3dc538362dae43a5e07f9a6c6a341db7cf90ada2d072c4e39c04b3ee43495e3",
+      "blob_sha": "ad1ab2448beeeef294a47517ba68177ddf649f1a",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/NBR%205410%20%E2%80%93%20Instala%C3%A7%C3%B5es%20el%C3%A9tricas%20de%20baixa%20tens%C3%A3o..pdf",
+      "aliases_github": [
+        "docs/normas/NBR 5410 – Instalações elétricas de baixa tensão..pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 217,
+      "caracteres_extraidos": 1883842,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "concreto_tipos": {
+          "pagina_pdf": [
+            45,
+            56,
+            129,
+            153,
+            206
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            3,
+            4,
+            6,
+            9,
+            11,
+            19,
+            20,
+            27,
+            28,
+            31,
+            32,
+            33,
+            40,
+            46,
+            48,
+            49,
+            53,
+            56,
+            59,
+            74,
+            77,
+            79,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            103,
+            104,
+            105,
+            124,
+            125,
+            127,
+            128,
+            129,
+            130,
+            131,
+            141,
+            154,
+            165,
+            172,
+            175,
+            176,
+            185,
+            195,
+            196,
+            206,
+            210
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "esforcos": {
+          "pagina_pdf": [
+            124,
+            129,
+            166
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "pagina_pdf": [
+            195
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "NBR 6122 – Projeto e execução de fundações..pdf",
+      "sha256": "c64d55b8c35c6b26e3a6f8fbe6979248be1e285543df0f8e65c3c64b5ea77841",
+      "blob_sha": "53fbeeb3fbb829aebd43335fcf34b183f81d88e1",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/NBR%206122%20%E2%80%93%20Projeto%20e%20execu%C3%A7%C3%A3o%20de%20funda%C3%A7%C3%B5es..pdf",
+      "aliases_github": [
+        "docs/normas/Copy of NBR 6122 – Projeto e execução de fundações..pdf",
+        "docs/normas/NBR 6122 – Projeto e execução de fundações..pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 113,
+      "caracteres_extraidos": 387587,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "concreto_resistencia": {
+          "pagina_pdf": [
+            34,
+            39,
+            40,
+            41,
+            42,
+            50,
+            55,
+            60,
+            69,
+            72,
+            81,
+            85,
+            88,
+            91,
+            109,
+            110
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "concreto_tipos": {
+          "pagina_pdf": [
+            14,
+            39,
+            40,
+            50,
+            51,
+            55,
+            59,
+            75,
+            81,
+            96,
+            100,
+            105,
+            108,
+            109
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            13,
+            17,
+            19,
+            20,
+            26,
+            28,
+            30,
+            33,
+            34,
+            37,
+            57,
+            60,
+            64,
+            110,
+            111
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_armadura": {
+          "pagina_pdf": [
+            40,
+            41,
+            42,
+            46,
+            71,
+            110
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_estrutural": {
+          "pagina_pdf": [
+            8,
+            17,
+            18,
+            41,
+            42,
+            43,
+            64,
+            65
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "esforcos": {
+          "pagina_pdf": [
+            13,
+            17,
+            18,
+            23,
+            30,
+            39,
+            40,
+            60,
+            61,
+            62,
+            66,
+            68,
+            74,
+            110
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "acoes_combinacoes": {
+          "pagina_pdf": [
+            8,
+            13,
+            15,
+            19,
+            20,
+            22,
+            23,
+            24,
+            27,
+            28,
+            29,
+            32,
+            35,
+            41,
+            111
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "pagina_pdf": [
+            7,
+            28,
+            32,
+            39,
+            51,
+            55,
+            56,
+            69,
+            72,
+            73,
+            75,
+            76,
+            79,
+            81,
+            82,
+            85,
+            89,
+            92,
+            96,
+            97,
+            100,
+            101,
+            105
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "fundacoes": {
+          "pagina_pdf": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "NBR 6492 -REPRESENTACAO DE PROJETOS DE ARQUITETURA.pdf",
+      "sha256": "e55d95857ff90610ce06092a4c811f88521beaa3a7389d73a254e3a17661c086",
+      "blob_sha": "44e171ce0a963980d36754fc3235a50a59a35200",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/NBR%206492%20-REPRESENTACAO%20DE%20PROJETOS%20DE%20ARQUITETURA.pdf",
+      "aliases_github": [
+        "docs/normas/NBR 6492 -REPRESENTACAO DE PROJETOS DE ARQUITETURA.pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 27,
+      "caracteres_extraidos": 55648,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            2,
+            5,
+            6
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "durabilidade_execucao": {
+          "pagina_pdf": [
+            2
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "NBR 8160 – Sistemas prediais de esgoto sanitário..pdf",
+      "sha256": "3cdd883bad773fb0bab3481b0bb9a53096787561d7c984896415774ed79236f3",
+      "blob_sha": "3dba1b370da9cb476e7289ebe540a338d18bd91d",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/NBR%208160%20%E2%80%93%20Sistemas%20prediais%20de%20esgoto%20sanit%C3%A1rio..pdf",
+      "aliases_github": [
+        "docs/normas/Copy of NBR 8160 – Sistemas prediais de esgoto sanitário..pdf",
+        "docs/normas/NBR 8160 – Sistemas prediais de esgoto sanitário..pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 74,
+      "caracteres_extraidos": 321785,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            3,
+            5,
+            15,
+            63,
+            67
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "esforcos": {
+          "pagina_pdf": [
+            63
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "fundacoes": {
+          "pagina_pdf": [
+            7,
+            19,
+            20,
+            71
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "NBR 9050_2021.pdf",
+      "sha256": "3e689d7bb92ce792e06984d2b3298f046e32dcbeca826dfe843e206c2d929642",
+      "blob_sha": "c49f6b8227ce1eae322ff78cf59395531f628d4f",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/NBR%209050_2021.pdf",
+      "aliases_github": [
+        "docs/normas/Copy of NBR 9050_2021.pdf",
+        "docs/normas/NBR 9050_2021.pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 161,
+      "caracteres_extraidos": 409263,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            155,
+            156
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "aco_estrutural": {
+          "pagina_pdf": [
+            16,
+            50
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "esforcos": {
+          "pagina_pdf": [
+            24,
+            38,
+            50
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "acoes_combinacoes": {
+          "pagina_pdf": [
+            20
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    },
+    {
+      "arquivo": "NBR 9077 – Saídas de emergência..pdf",
+      "sha256": "d29e4526ee344448072fd4d4135a9230d79c45b33718e1c09291b31736346a18",
+      "blob_sha": "5d7545de943f599385a46d779b831581bd062c0b",
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/NBR%209077%20%E2%80%93%20Sa%C3%ADdas%20de%20emerg%C3%AAncia..pdf",
+      "aliases_github": [
+        "docs/normas/Copy of NBR 9077 – Saídas de emergência..pdf",
+        "docs/normas/NBR 9077 – Saídas de emergência..pdf"
+      ],
+      "formato": "pdf",
+      "unidades_extraidas": 36,
+      "caracteres_extraidos": 162009,
+      "localizador": "pagina_pdf",
+      "temas": {
+        "concreto_tipos": {
+          "pagina_pdf": [
+            1,
+            7,
+            20,
+            29
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "elasticidade_deformacoes": {
+          "pagina_pdf": [
+            3,
+            4,
+            9,
+            10,
+            11,
+            12,
+            24,
+            31,
+            32,
+            33
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "esforcos": {
+          "pagina_pdf": [
+            4
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        },
+        "acoes_combinacoes": {
+          "pagina_pdf": [
+            5,
+            14
+          ],
+          "estado": "OCORRENCIA_TEXTUAL_REQUER_LEITURA_TECNICA"
+        }
+      },
+      "lacunas_extracao": {
+        "paginas_com_menos_de_40_caracteres": [],
+        "observacao": "Extração textual não garante fórmulas, tabelas, figuras ou OCR corretos."
+      },
+      "auditado_integralmente_pelo_indice": false,
+      "habilitado_para_calculo": false
+    }
+  ]
+}

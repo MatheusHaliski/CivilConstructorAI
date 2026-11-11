@@ -1,0 +1,306 @@
+{
+  "schema": 1,
+  "unidades": {
+    "comprimento": "m",
+    "forca": "kN",
+    "momento": "kN.m",
+    "modulo": "kN/m2"
+  },
+  "hipoteses": [
+    "Somente as cargas explicitadas são aplicadas. B1/B2/L1 incluem o peso próprio indicado no memorial; C1/P1 não adicionam peso próprio dos pilares: são benchmarks idealizados.",
+    "E=30 GPa, seção bruta, Euler-Bernoulli linear, pequenas deformações, sem fluência/fissuração/segunda ordem.",
+    "Fatores são entradas do ensaio; não representam uma tabela normativa validada para todo uso.",
+    "Faixa L1: apoio contínuo em duas bordas, fluxo unidirecional imposto; não é solução geral de placa."
+  ],
+  "combinacoes": [
+    {
+      "nome": "CARACTERISTICA_TESTE",
+      "estado": "ELS_RARA",
+      "g": 1.0,
+      "q": 1.0
+    },
+    {
+      "nome": "ELU_TESTE",
+      "estado": "ELU_NORMAL",
+      "g": 1.4,
+      "q": 1.4
+    },
+    {
+      "nome": "QP_TESTE",
+      "estado": "ELS_QUASE_PERMANENTE",
+      "g": 1.0,
+      "q": 0.3
+    },
+    {
+      "nome": "FREQUENTE_TESTE",
+      "estado": "ELS_FREQUENTE",
+      "g": 1.0,
+      "q": 0.4
+    }
+  ],
+  "casos": [
+    {
+      "id": "B1",
+      "titulo": "Viga biapoiada — 6 m",
+      "e_kN_m2": 30000000.0,
+      "nos": [
+        [
+          0,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "barras": [
+        {
+          "id": "V1",
+          "i": 0,
+          "j": 1,
+          "b": 0.2,
+          "h": 0.5
+        }
+      ],
+      "apoios": [
+        {
+          "no": 0,
+          "ux": true,
+          "uz": true,
+          "ry": false
+        },
+        {
+          "no": 1,
+          "ux": false,
+          "uz": true,
+          "ry": false
+        }
+      ],
+      "distribuidas": [
+        {
+          "barra": 0,
+          "g": 6,
+          "q": 4
+        }
+      ],
+      "nodais": []
+    },
+    {
+      "id": "B2",
+      "titulo": "Viga em balanço — 3 m",
+      "e_kN_m2": 30000000.0,
+      "nos": [
+        [
+          0,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "barras": [
+        {
+          "id": "V1",
+          "i": 0,
+          "j": 1,
+          "b": 0.2,
+          "h": 0.5
+        }
+      ],
+      "apoios": [
+        {
+          "no": 0,
+          "ux": true,
+          "uz": true,
+          "ry": true
+        }
+      ],
+      "distribuidas": [
+        {
+          "barra": 0,
+          "g": 6,
+          "q": 4
+        }
+      ],
+      "nodais": []
+    },
+    {
+      "id": "C1",
+      "titulo": "Pilar engastado — 3 m",
+      "e_kN_m2": 30000000.0,
+      "nos": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          3
+        ]
+      ],
+      "barras": [
+        {
+          "id": "P1",
+          "i": 0,
+          "j": 1,
+          "b": 0.25,
+          "h": 0.25
+        }
+      ],
+      "apoios": [
+        {
+          "no": 0,
+          "ux": true,
+          "uz": true,
+          "ry": true
+        }
+      ],
+      "distribuidas": [],
+      "nodais": [
+        {
+          "no": 1,
+          "gx": 0,
+          "gz": -300,
+          "qx": 10,
+          "qz": -200
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "titulo": "Pórtico rígido — 5 × 3 m",
+      "e_kN_m2": 30000000.0,
+      "nos": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      "barras": [
+        {
+          "id": "P1",
+          "i": 0,
+          "j": 1,
+          "b": 0.25,
+          "h": 0.25
+        },
+        {
+          "id": "V1",
+          "i": 1,
+          "j": 2,
+          "b": 0.2,
+          "h": 0.5
+        },
+        {
+          "id": "P2",
+          "i": 3,
+          "j": 2,
+          "b": 0.25,
+          "h": 0.25
+        }
+      ],
+      "apoios": [
+        {
+          "no": 0,
+          "ux": true,
+          "uz": true,
+          "ry": true
+        },
+        {
+          "no": 3,
+          "ux": true,
+          "uz": true,
+          "ry": true
+        }
+      ],
+      "distribuidas": [
+        {
+          "barra": 1,
+          "g": 10,
+          "q": 10
+        }
+      ],
+      "nodais": [
+        {
+          "no": 1,
+          "gx": 0,
+          "gz": 0,
+          "qx": 10,
+          "qz": 0
+        }
+      ]
+    },
+    {
+      "id": "L1",
+      "titulo": "Faixa de laje unidirecional — vão 3 m, largura 1 m",
+      "e_kN_m2": 30000000.0,
+      "nos": [
+        [
+          0,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "barras": [
+        {
+          "id": "L1-faixa",
+          "i": 0,
+          "j": 1,
+          "b": 1,
+          "h": 0.15
+        }
+      ],
+      "apoios": [
+        {
+          "no": 0,
+          "ux": true,
+          "uz": true,
+          "ry": false
+        },
+        {
+          "no": 1,
+          "ux": false,
+          "uz": true,
+          "ry": false
+        }
+      ],
+      "distribuidas": [
+        {
+          "barra": 0,
+          "g": 5,
+          "q": 2
+        }
+      ],
+      "nodais": []
+    }
+  ],
+  "desenhoIntegrado": {
+    "largura": 6,
+    "profundidade": 4,
+    "altura": 3,
+    "bViga": 0.2,
+    "hViga": 0.5,
+    "bPilar": 0.25,
+    "hPilar": 0.25,
+    "hLaje": 0.15,
+    "revestimento": 1.25,
+    "sobrecarga": 2,
+    "e": 30000000.0
+  }
+}

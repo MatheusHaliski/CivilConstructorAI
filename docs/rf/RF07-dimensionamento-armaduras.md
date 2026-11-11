@@ -16,6 +16,18 @@ paths:
 
 # RF07 · Dimensionamento de armaduras (ELU/ELS) em concreto/aço
 
+> **Estado implementado — contenção de 10/11/2026:** o cálculo é preliminar. Resultados com verificações
+> incompletas são `NAO_VERIFICADO`, falhas calculadas são `NAO_ATENDE` e materiais incompatíveis são
+> `NAO_SUPORTADO`; nenhum deles permite aprovação. Resultados antigos sem estado de cobertura também
+> não permitem aprovação ou fornecimento de aço como dimensionamento aprovado. O motor completo de
+> concreto/aço descrito abaixo continua sendo requisito, não capacidade validada.
+>
+> Foram corrigidos fallbacks de estribos/armaduras inviáveis, removida a inferência de fck pelo nome e
+> acrescentados bloqueios para ausência de combinações/esforços, resultados vazios e mudança da versão
+> geométrica antes de aprovar. Os valores calculados permanecem estimativas; pilares, lajes e detalhamento
+> ainda exigem a evolução descrita em `docs/ANALISE_CONFIABILIDADE_ESTRUTURAL.md`.
+
+
 > A partir dos esforços da análise MEF (RF05), o sistema dimensiona as armaduras de vigas, pilares e lajes de
 > concreto armado (NBR 6118) e verifica perfis de aço (NBR 8800). O resultado é um **rascunho com memória de
 > cálculo** que só vale depois de aprovado por engenheiro(a) com CREA verificado, 2FA e ART da obra.

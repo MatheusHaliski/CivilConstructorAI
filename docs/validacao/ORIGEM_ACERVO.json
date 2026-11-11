@@ -1,0 +1,256 @@
+{
+  "data_consulta_utc": "2026-11-11T11:29:40.740992+00:00",
+  "repositorio": "MatheusHaliski/CivilConstructorAI",
+  "pasta": "docs/normas",
+  "criterio": "PDF/DOCX únicos por SHA Git; aliases no índice de fontes; demais formatos não executados",
+  "arquivos": [
+    {
+      "nome": "01_CADERNO_E.V..pdf",
+      "caminho_remoto": "docs/normas/01_CADERNO_E.V..pdf",
+      "blob_sha": "d969cbb5c8320f8bffd604245fddedd215935091",
+      "sha256": "bd64366bdf2ed9822d1e1859061b641f62d04ccc8279ae1d584778df37405e37",
+      "bytes": 2227227,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/01_CADERNO_E.V..pdf"
+    },
+    {
+      "nome": "04_CADERNO_CONTRATAÇÃO DE PROJETO.pdf",
+      "caminho_remoto": "docs/normas/04_CADERNO_CONTRATAÇÃO DE PROJETO.pdf",
+      "blob_sha": "e869304d99eed27d2633c89c094a107d5339d45d",
+      "sha256": "0a944af57fdb128f95e90809294d1600ae8398140a8f8fc13c0aaa95412e4bda",
+      "bytes": 2336312,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/04_CADERNO_CONTRATA%C3%87%C3%83O%20DE%20PROJETO.pdf"
+    },
+    {
+      "nome": "06_CADERNO_CONTRATAÇÃO DE OBRA.pdf",
+      "caminho_remoto": "docs/normas/06_CADERNO_CONTRATAÇÃO DE OBRA.pdf",
+      "blob_sha": "bcaed337e4ca1268bffd2a89e2279c95c9f494f5",
+      "sha256": "b80e9263c2351d473fc3ade169d2b85cf21a028a1ae9befbfb0cad6b368591de",
+      "bytes": 2597337,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/06_CADERNO_CONTRATA%C3%87%C3%83O%20DE%20OBRA.pdf"
+    },
+    {
+      "nome": "08_CADERNO_NORMAS MINUTAS E SUMULAS DO TCU.pdf",
+      "caminho_remoto": "docs/normas/08_CADERNO_NORMAS MINUTAS E SUMULAS DO TCU.pdf",
+      "blob_sha": "ad9645dd146485bc78818e436e0b2cb2cb0a847c",
+      "sha256": "ab3e93c04ac467da8efab714243c7d857be9a8627b1d3dd8175f0ca844a6b5d8",
+      "bytes": 3739950,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/08_CADERNO_NORMAS%20MINUTAS%20E%20SUMULAS%20DO%20TCU.pdf"
+    },
+    {
+      "nome": "8e04e050-bcf1-4f0c-b9c7-faf7d4af1627.docx",
+      "caminho_remoto": "docs/normas/8e04e050-bcf1-4f0c-b9c7-faf7d4af1627.docx",
+      "blob_sha": "82b64b88d4a59f447beac0840dd82a9741690f5e",
+      "sha256": "8085d3363072802a6362e24fca034544614a7cb8a28fcaffb72118c365d53db9",
+      "bytes": 63532,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/8e04e050-bcf1-4f0c-b9c7-faf7d4af1627.docx"
+    },
+    {
+      "nome": "Cartilha de Obras e Serviços de Engenharia - ETP.pdf",
+      "caminho_remoto": "docs/normas/Cartilha de Obras e Serviços de Engenharia - ETP.pdf",
+      "blob_sha": "a6b16fa0229d762fba83b6a250603539241b6f5a",
+      "sha256": "ed8404c982ce0676c136aad5725b99bb437e77a804d6533abcfcfa728c3576eb",
+      "bytes": 4106159,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Cartilha%20de%20Obras%20e%20Servi%C3%A7os%20de%20Engenharia%20-%20ETP.pdf"
+    },
+    {
+      "nome": "Copy of Concreto Armado 1.1ºGQ_ — Professor Fernando Artur.pdf",
+      "caminho_remoto": "docs/normas/Copy of Concreto Armado 1.1ºGQ_ — Professor Fernando Artur.pdf",
+      "blob_sha": "097c90869ecede9869b1b280b14fabe927cbcd0d",
+      "sha256": "af3df43be944c224010ad4a639af5699f0a8d79da8c2887a857f44ccb4e0f8d9",
+      "bytes": 30929,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20Concreto%20Armado%201.1%C2%BAGQ_%20%E2%80%94%20Professor%20Fernando%20Artur.pdf"
+    },
+    {
+      "nome": "Copy of Documento de Matheus Haliski(1).pdf",
+      "caminho_remoto": "docs/normas/Copy of Documento de Matheus Haliski(1).pdf",
+      "blob_sha": "256447fe9a1ff3b2292458726026bb1419164594",
+      "sha256": "5b827fb5d50e56a9bdfd4f49e308729c984883fa49ddb4b59a59b32eeaf64b3d",
+      "bytes": 630591,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20Documento%20de%20Matheus%20Haliski(1).pdf"
+    },
+    {
+      "nome": "Copy of Documento de Matheus Haliski.docx",
+      "caminho_remoto": "docs/normas/Copy of Documento de Matheus Haliski.docx",
+      "blob_sha": "714f12ac9889217f0d365eae7cde15e73b3fbc4e",
+      "sha256": "85cd0a3b02466c25ba8fd3df45df18e4952b825d25191a4c44532afb87f002f4",
+      "bytes": 440048,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20Documento%20de%20Matheus%20Haliski.docx"
+    },
+    {
+      "nome": "Copy of Documento de Matheus Haliski.pdf",
+      "caminho_remoto": "docs/normas/Copy of Documento de Matheus Haliski.pdf",
+      "blob_sha": "860c9ff75d72fa813e7de8005a4a397941ba869c",
+      "sha256": "578a808ffd354742ed67e43f1a69260d6c0d5840f7cb17e1ea641732072f1b9f",
+      "bytes": 1994591,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20Documento%20de%20Matheus%20Haliski.pdf"
+    },
+    {
+      "nome": "Copy of ECAATUALIZADO.docx",
+      "caminho_remoto": "docs/normas/Copy of ECAATUALIZADO.docx",
+      "blob_sha": "02ead79371ce2712f6cf13219affeb140db13d24",
+      "sha256": "20869c1a4d37cd6d46c73ed790bc82b2a1693d1d9dfe99d3b0f398a34e1a8344",
+      "bytes": 1013329,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20ECAATUALIZADO.docx"
+    },
+    {
+      "nome": "Copy of Estou compartilhando o arquivo _MEMORIAL DE CÁLCULO Trabalho 1 - Estruturas de Concreto 1 _ com você.docx",
+      "caminho_remoto": "docs/normas/Copy of Estou compartilhando o arquivo _MEMORIAL DE CÁLCULO Trabalho 1 - Estruturas de Concreto 1 _ com você.docx",
+      "blob_sha": "b350685134e763a531cc7132e6c73683d8870138",
+      "sha256": "7a1326ac5f115adf06ce8967354ddd7265e945d5435b57f0aebc3f243c216bfb",
+      "bytes": 46800,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20Estou%20compartilhando%20o%20arquivo%20_MEMORIAL%20DE%20C%C3%81LCULO%20Trabalho%201%20-%20Estruturas%20de%20Concreto%201%20_%20com%20voc%C3%AA.docx"
+    },
+    {
+      "nome": "Copy of Estou compartilhando o arquivo _Trabalho - Fundações_ com você.docx",
+      "caminho_remoto": "docs/normas/Copy of Estou compartilhando o arquivo _Trabalho - Fundações_ com você.docx",
+      "blob_sha": "226f860f96def20fbbffc9b49a01e49dd8d65485",
+      "sha256": "088dbb58fb858525827b9f5ee1180a92b2c392b637e8cc5d3d5a2e1e69a5e780",
+      "bytes": 136482,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20Estou%20compartilhando%20o%20arquivo%20_Trabalho%20-%20Funda%C3%A7%C3%B5es_%20com%20voc%C3%AA.docx"
+    },
+    {
+      "nome": "Copy of FUNDAÇÕES.docx",
+      "caminho_remoto": "docs/normas/Copy of FUNDAÇÕES.docx",
+      "blob_sha": "6ec6b6f5f2c4bedb9629537e7f0c9d243c79cade",
+      "sha256": "49109a998fcc530207c425f59403f85b9ab76fa03be280707b79f1ae2ab3c35c",
+      "bytes": 273272,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20FUNDA%C3%87%C3%95ES.docx"
+    },
+    {
+      "nome": "Copy of FUNDAÇÕES22.docx",
+      "caminho_remoto": "docs/normas/Copy of FUNDAÇÕES22.docx",
+      "blob_sha": "18627b6a3fedbfc619ec54a1f002bd6b197a0d2c",
+      "sha256": "3f9ebc8c7c137648db439e2714d631f041f6d6d8590b16f930861b3d12698bc5",
+      "bytes": 274056,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20FUNDA%C3%87%C3%95ES22.docx"
+    },
+    {
+      "nome": "Copy of FUNDAÇÕES221.docx",
+      "caminho_remoto": "docs/normas/Copy of FUNDAÇÕES221.docx",
+      "blob_sha": "8e7d0cf03a90803640667236c9bcaca7132742dd",
+      "sha256": "8b9d184a270bac694fa22d61b578ae23049a4d3a21396128c81ffbf9366e9282",
+      "bytes": 273906,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20FUNDA%C3%87%C3%95ES221.docx"
+    },
+    {
+      "nome": "Copy of MEMORIAL DE CÁLCULO DOS ESFORÇOS - GRUPO C.docx",
+      "caminho_remoto": "docs/normas/Copy of MEMORIAL DE CÁLCULO DOS ESFORÇOS - GRUPO C.docx",
+      "blob_sha": "f7be9af77585ca0778e719ed3829bda41347e3cc",
+      "sha256": "af787a16cff182f883104de5041663e239b1b53be537ae393da544b1525ca4df",
+      "bytes": 223038,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20MEMORIAL%20DE%20C%C3%81LCULO%20DOS%20ESFOR%C3%87OS%20-%20GRUPO%20C.docx"
+    },
+    {
+      "nome": "Copy of MEMORIAL DE CÁLCULO GRUPO C.docx",
+      "caminho_remoto": "docs/normas/Copy of MEMORIAL DE CÁLCULO GRUPO C.docx",
+      "blob_sha": "594653b299f2aa9206682adcf21ee97cf2bf1c52",
+      "sha256": "512d0c9d9012447ac50438a0b5080987e86d49bb30e13d944a2b5e1d5552a60c",
+      "bytes": 257625,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20MEMORIAL%20DE%20C%C3%81LCULO%20GRUPO%20C.docx"
+    },
+    {
+      "nome": "MarcosK+FrancescoS+MatheusH+MatheusB.docx",
+      "caminho_remoto": "docs/normas/MarcosK+FrancescoS+MatheusH+MatheusB.docx",
+      "blob_sha": "2a50eb46f3bf76bdf6dc088d360ed9320054a3a8",
+      "sha256": "7aafb11137946281dbef1a4bf15adeac11fd51cf700daef023def273bb79541d",
+      "bytes": 53549,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/MarcosK%2BFrancescoS%2BMatheusH%2BMatheusB.docx"
+    },
+    {
+      "nome": "MarcosK+FrancescoS+MatheusH+MatheusB(1).docx",
+      "caminho_remoto": "docs/normas/MarcosK+FrancescoS+MatheusH+MatheusB(1).docx",
+      "blob_sha": "271b74e8df9064a4272bf0cdd494fca2d05f7254",
+      "sha256": "cac1d68771b05a628fa6655672688df2453c00ff86621940d84b41670c0f9cd4",
+      "bytes": 27496,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/MarcosK%2BFrancescoS%2BMatheusH%2BMatheusB(1).docx"
+    },
+    {
+      "nome": "NBR 10844 – Águas pluviais..pdf",
+      "caminho_remoto": "docs/normas/NBR 10844 – Águas pluviais..pdf",
+      "blob_sha": "7baf0ccea5b3fdde4cbcab86cf2f355a14098c78",
+      "sha256": "db629fc04e643fccc11870186881b1f2f28815893e59c9a29bdd7c9b8a4d7eca",
+      "bytes": 200613,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/NBR%2010844%20%E2%80%93%20%C3%81guas%20pluviais..pdf"
+    },
+    {
+      "nome": "Copy of NBR 5626 – Instalações prediais de água fria..pdf",
+      "caminho_remoto": "docs/normas/Copy of NBR 5626 – Instalações prediais de água fria..pdf",
+      "blob_sha": "762127c77723b8b5e5b5358012591643321fd916",
+      "sha256": "94912a769f4ddbb0dfd563a9e2b505a5ca4a6d13b6ecea4df20f5cc1bda9d0a0",
+      "bytes": 358320,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20NBR%205626%20%E2%80%93%20Instala%C3%A7%C3%B5es%20prediais%20de%20%C3%A1gua%20fria..pdf"
+    },
+    {
+      "nome": "Copy of NBR 6118 – Projeto de estruturas de concreto..pdf",
+      "caminho_remoto": "docs/normas/Copy of NBR 6118 – Projeto de estruturas de concreto..pdf",
+      "blob_sha": "39a3fa0c067a94be77670afee6cd693e444ae7cf",
+      "sha256": "220bf88c73edee537ab60a4314844e24aba7b50cf55c807b8e941eec0c158a29",
+      "bytes": 1924005,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20NBR%206118%20%E2%80%93%20Projeto%20de%20estruturas%20de%20concreto..pdf"
+    },
+    {
+      "nome": "NBR 6122 – Projeto e execução de fundações..pdf",
+      "caminho_remoto": "docs/normas/NBR 6122 – Projeto e execução de fundações..pdf",
+      "blob_sha": "53fbeeb3fbb829aebd43335fcf34b183f81d88e1",
+      "sha256": "c64d55b8c35c6b26e3a6f8fbe6979248be1e285543df0f8e65c3c64b5ea77841",
+      "bytes": 2153468,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/NBR%206122%20%E2%80%93%20Projeto%20e%20execu%C3%A7%C3%A3o%20de%20funda%C3%A7%C3%B5es..pdf"
+    },
+    {
+      "nome": "NBR 8160 – Sistemas prediais de esgoto sanitário..pdf",
+      "caminho_remoto": "docs/normas/NBR 8160 – Sistemas prediais de esgoto sanitário..pdf",
+      "blob_sha": "3dba1b370da9cb476e7289ebe540a338d18bd91d",
+      "sha256": "3cdd883bad773fb0bab3481b0bb9a53096787561d7c984896415774ed79236f3",
+      "bytes": 589302,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/NBR%208160%20%E2%80%93%20Sistemas%20prediais%20de%20esgoto%20sanit%C3%A1rio..pdf"
+    },
+    {
+      "nome": "NBR 9050_2021.pdf",
+      "caminho_remoto": "docs/normas/NBR 9050_2021.pdf",
+      "blob_sha": "c49f6b8227ce1eae322ff78cf59395531f628d4f",
+      "sha256": "3e689d7bb92ce792e06984d2b3298f046e32dcbeca826dfe843e206c2d929642",
+      "bytes": 3803852,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/NBR%209050_2021.pdf"
+    },
+    {
+      "nome": "NBR 9077 – Saídas de emergência..pdf",
+      "caminho_remoto": "docs/normas/NBR 9077 – Saídas de emergência..pdf",
+      "blob_sha": "5d7545de943f599385a46d779b831581bd062c0b",
+      "sha256": "d29e4526ee344448072fd4d4135a9230d79c45b33718e1c09291b31736346a18",
+      "bytes": 379032,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/NBR%209077%20%E2%80%93%20Sa%C3%ADdas%20de%20emerg%C3%AAncia..pdf"
+    },
+    {
+      "nome": "ECAATUALIZADO.pdf",
+      "caminho_remoto": "docs/normas/ECAATUALIZADO.pdf",
+      "blob_sha": "ecc855791a57b183d1de027e84fe03d380e7a9ea",
+      "sha256": "a9ba69e91d8c2284706ffb02f9cbd7ec452615e4e7802532551b4ea49725c5f3",
+      "bytes": 2354886,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/ECAATUALIZADO.pdf"
+    },
+    {
+      "nome": "MarcosK^FrancescoS^MatheusH^MatheusB (2).docx",
+      "caminho_remoto": "docs/normas/MarcosK^FrancescoS^MatheusH^MatheusB (2).docx",
+      "blob_sha": "0e53b95e9dbebfb204129df25d49c8b39de5ec5c",
+      "sha256": "5e9f296a6c12edf8552d948e4e9ad45551eb9860efc0cff0b557c681ac5d820e",
+      "bytes": 713488,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/MarcosK%5EFrancescoS%5EMatheusH%5EMatheusB%20(2).docx"
+    },
+    {
+      "nome": "NBR 5410 – Instalações elétricas de baixa tensão..pdf",
+      "caminho_remoto": "docs/normas/NBR 5410 – Instalações elétricas de baixa tensão..pdf",
+      "blob_sha": "ad1ab2448beeeef294a47517ba68177ddf649f1a",
+      "sha256": "b3dc538362dae43a5e07f9a6c6a341db7cf90ada2d072c4e39c04b3ee43495e3",
+      "bytes": 8165840,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/NBR%205410%20%E2%80%93%20Instala%C3%A7%C3%B5es%20el%C3%A9tricas%20de%20baixa%20tens%C3%A3o..pdf"
+    },
+    {
+      "nome": "NBR 6492 -REPRESENTACAO DE PROJETOS DE ARQUITETURA.pdf",
+      "caminho_remoto": "docs/normas/NBR 6492 -REPRESENTACAO DE PROJETOS DE ARQUITETURA.pdf",
+      "blob_sha": "44e171ce0a963980d36754fc3235a50a59a35200",
+      "sha256": "e55d95857ff90610ce06092a4c811f88521beaa3a7389d73a254e3a17661c086",
+      "bytes": 462928,
+      "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/NBR%206492%20-REPRESENTACAO%20DE%20PROJETOS%20DE%20ARQUITETURA.pdf"
+    }
+  ]
+}

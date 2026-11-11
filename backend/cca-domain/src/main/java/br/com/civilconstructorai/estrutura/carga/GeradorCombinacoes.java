@@ -7,7 +7,9 @@ import static br.com.civilconstructorai.estrutura.carga.Combinacao.EstadoLimite.
 import static br.com.civilconstructorai.estrutura.carga.NaturezaAcao.*;
 
 /**
- * Combinações da NBR 8681 (edificações, cargas acidentais de uso residencial/comercial):
+ * Combinações simplificadas legadas de edificações. A auditoria das regras e fatores pela
+ * NBR 8681:2025 está pendente; estes valores não são uma tabela universal de combinações.
+ * Hipóteses do protótipo:
  * ELU normal: γg = 1,4 (desfavorável) · γq = 1,4 · ψ0 = 0,5 para sobrecarga, 0,6 para vento.
  * ELS: frequente ψ1 (Q 0,4 · W 0,3) e quase-permanente ψ2 (Q 0,3 · W 0).
  */

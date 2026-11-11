@@ -17,6 +17,15 @@ paths:
 
 # RF05 · Cálculo de diagramas de momentos, cortantes, normais e torção (MEF)
 
+> **Ensaio de 10/11/2026:** cinco modelos lineares e o conjunto desenhado D1 foram comparados com referência independente 2D e soluções fechadas. A envoltória de carga uniforme agora inclui extremos fora da malha de 11 pontos e o solver preserva precisão interna. Ver `docs/validacao/MEMORIAL_ENSAIOS.md`; os ensaios não comprovam conformidade estrutural integral.
+
+
+> **Limite implementado — 10/11/2026:** o montador atual só aceita os concretos cadastrados compatíveis
+> com o protótipo. Materiais ausentes, desconhecidos, CA-50 e perfis metálicos são recusados em vez de usar
+> módulo e peso de concreto C30. As extensões de aço e as demais validações descritas abaixo permanecem
+> requisitos. Análise linear concluída não significa aprovação estrutural completa.
+
+
 > Converte o modelo estrutural lançado (RF04) em um **pórtico espacial** de barras 3D e resolve pelo Método dos
 > Elementos Finitos (rigidez direta), devolvendo esforços N, Vy, Vz, T, My, Mz por barra e por combinação,
 > deslocamentos nodais e reações de apoio (entrada do RF07 e do RF10).

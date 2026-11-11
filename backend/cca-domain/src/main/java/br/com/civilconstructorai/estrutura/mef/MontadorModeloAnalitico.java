@@ -1,6 +1,7 @@
 package br.com.civilconstructorai.estrutura.mef;
 
 import br.com.civilconstructorai.estrutura.carga.Carga;
+import br.com.civilconstructorai.estrutura.dimensionamento.ConcretoSuportado;
 import br.com.civilconstructorai.estrutura.carga.NaturezaAcao;
 import br.com.civilconstructorai.estrutura.carga.ParametrosVento;
 import br.com.civilconstructorai.estrutura.carga.TipoCarga;
@@ -34,6 +35,12 @@ public final class MontadorModeloAnalitico {
 
     public static ModeloAnalitico montar(Entrada in) {
         var m = in.modelo();
+        for (var e : m.elementos()) {
+            if (!e.rascunhoIa() && (e.tipo() == TipoElementoEstrutural.PILAR
+                    || e.tipo() == TipoElementoEstrutural.VIGA || e.tipo() == TipoElementoEstrutural.LAJE)) {
+                ConcretoSuportado.fck(e.materialId());
+            }
+        }
         var ma = new ModeloAnalitico();
         // uma viga contínua vira várias barras (uma por trecho entre apoios); pilar continua sendo uma barra
         var barrasPorElemento = new HashMap<String, List<Integer>>();
@@ -54,8 +61,8 @@ public final class MontadorModeloAnalitico {
             if (Math.abs(base.elevacao() - elevacaoMinima) < 1e-6) {
                 ma.adicionarApoio(ModeloAnalitico.Apoio.engaste(ni));
             }
-            // peso próprio do pilar como força no topo
-            ma.caso(NaturezaAcao.PERMANENTE).nodais().add(new ModeloAnalitico.CargaNodal(nj, 0, 0, -p.b() * p.h() * (zTopo - base.elevacao()) * PESO_CONCRETO, 0, 0, 0));
+            // peso próprio ao longo do pilar: compressão varia da base ao topo
+            ma.caso(NaturezaAcao.PERMANENTE).distribuidas().add(new ModeloAnalitico.CargaDistribuida(id, 0, 0, -p.b() * p.h() * PESO_CONCRETO));
         }
 
         // nós das extremidades de todas as vigas antes de discretizar: assim uma viga que nasce no meio de outra
@@ -171,7 +178,7 @@ public final class MontadorModeloAnalitico {
 
     private static double modulo(Entrada in, String materialId) {
         return in.moduloPorMaterial() != null && materialId != null && in.moduloPorMaterial().containsKey(materialId)
-                ? in.moduloPorMaterial().get(materialId) : moduloConcreto(30);
+                ? in.moduloPorMaterial().get(materialId) : moduloConcreto(ConcretoSuportado.fck(materialId));
     }
 
     /** Ecs (NBR 6118 8.2.8) em kN/m² para granito: Eci = αE·5600·√fck; Ecs = αi·Eci */

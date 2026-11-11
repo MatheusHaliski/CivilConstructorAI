@@ -1,0 +1,5 @@
+VI(VIGA, p1=[0,0], p2=[6,0], b=0.20, h=0.50, mat=MAT_CONC_FCK30)
+VI(VIGA, p1=[6,0], p2=[6,4], b=0.20, h=0.50, mat=MAT_CONC_FCK30)
+VI(VIGA, p1=[6,4], p2=[0,4], b=0.20, h=0.50, mat=MAT_CONC_FCK30)
+VI(VIGA, p1=[0,4], p2=[0,0], b=0.20, h=0.50, mat=MAT_CONC_FCK30)
+VI(LAJE, contorno=[[0,0],[6,0],[6,4],[0,4]], h=0.15, mat=MAT_CONC_FCK30)

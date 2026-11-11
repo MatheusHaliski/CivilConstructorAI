@@ -17,6 +17,9 @@ paths:
 
 # RF13 · Renderização WebGL com gerenciador de cena 3D (H9_scene3d)
 
+> **Ensaio de 10/11/2026:** corrigidos cota superior de vigas/lajes, orientação do contorno da laje e isolamento do carregamento de fontes. Testes cobrem coordenadas e desenho real de quatro pilares, quatro vigas e uma laje; o teste de navegador exige pixels da geometria, além da existência do canvas. Evidências em `docs/validacao/`.
+
+
 > O `H9_scene3d` é o gerenciador de cena único do web app: recebe o modelo BIM e os diffs de versão, monta a cena
 > Three.js por camadas, aplica os estilos da Tabela H e sobrepõe resultados (esforços do RF05, correções da
 > auditoria do RF16). É a "Saída pronta" do fluxo em três tempos da Notação VI.

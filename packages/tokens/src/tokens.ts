@@ -9,7 +9,11 @@ export const claro = {
   aiDraft: { bg: "#FAF5FF", line: "#A855F7", text: "#6B21A8" },
 } as const;
 
-export const escuro: typeof claro = {
+/** Mesma estrutura nos dois temas, com valores de cor independentes. */
+type Cores<T> = { readonly [K in keyof T]: T[K] extends string ? `#${string}` : Cores<T[K]> };
+export type Tema = Cores<typeof claro>;
+
+export const escuro = {
   bg: "#0B1220", surface: "#111827", surface2: "#1F2937", line: "#6B7280", lineSoft: "#1F2937",
   text: "#F9FAFB", text2: "#D1D5DB", text3: "#9CA3AF",
   brand: "#60A5FA", brandText: "#93C5FD", brandSoft: "#1E3A8A", onBrand: "#0B1220", focusRing: "#93C5FD",
@@ -17,7 +21,7 @@ export const escuro: typeof claro = {
   obra: { planejada: "#9CA3AF", andamento: "#FB923C", paralisada: "#FBBF24", concluida: "#4ADE80" },
   risco: { baixo: "#4ADE80", medio: "#FBBF24", alto: "#F87171" },
   aiDraft: { bg: "#2E1065", line: "#C084FC", text: "#E9D5FF" },
-};
+} as const satisfies Tema;
 
 export const forma = { radiusSm: 8, radiusMd: 12, radiusLg: 20, tapMin: 48 } as const;
 export const espaco = { s1: 4, s2: 8, s3: 12, s4: 16, s6: 24, s8: 32 } as const;
