@@ -24,6 +24,7 @@ export class ErroComandoVI extends Error {
 export type ResultadoAplicacao = { diff: DiffModelo; relatorio: RelatorioAuditoria; comando: ComandoVI; vi: string };
 
 type Snapshot = { estado: EstadoModelo; comando: ComandoVI | null };
+const OPCIONAIS_REMOVIVEIS = new Set(["massaNucleo_kg_m2", "apoioEstruturalId", "acabamentos", "cimentoId", "dosagemCimentoId"]);
 
 export class ModeloBim {
   versao = 0;
@@ -37,6 +38,11 @@ export class ModeloBim {
 
   constructor(estado?: Partial<EstadoModelo>) {
     if (estado) Object.assign(this, structuredClone(estado));
+    // O servidor representa remoção de um campo JSON por null; o domínio local usa ausência.
+    for (const e of this.elementos) for (const k of OPCIONAIS_REMOVIVEIS) {
+      const props = e as unknown as Record<string, unknown>;
+      if (props[k] === null) delete props[k];
+    }
     if (this.pavimentos.length === 0) this.pavimentos.push({ id: "pav_terreo", nome: "Térreo", elevacao: 0, tipo: "TERREO" });
   }
 
@@ -334,7 +340,11 @@ export class ModeloBim {
         const e = this.elemento(a["id"] as string);
         if (!e) throw new ErroComandoVI("VI-002", "Elemento não encontrado.");
         const props = (a["props"] as Record<string, unknown>) ?? {};
-        for (const [k, v] of Object.entries(props)) if (k !== "id" && k !== "tipo") (e as unknown as Record<string, unknown>)[k] = v;
+        for (const [k, v] of Object.entries(props)) if (k !== "id" && k !== "tipo") {
+          const campos = e as unknown as Record<string, unknown>;
+          if (v === null && OPCIONAIS_REMOVIVEIS.has(k)) delete campos[k];
+          else campos[k] = v;
+        }
         alterar(e); break;
       }
       case "APARAR": case "ESTENDER": {

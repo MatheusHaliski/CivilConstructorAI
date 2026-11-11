@@ -41,6 +41,8 @@ public class ModeloService {
     private final RegistroOperacoes registro;
     private final ModeloLinguagem llm;
     private final ObjectMapper mapper;
+    @org.springframework.beans.factory.annotation.Autowired
+    private br.com.civilconstructorai.cimento.ValidadorDosagemCimento validadorCimento;
 
     public ModeloService(ModeloRepositorio repositorio, AuditorService auditor, AcessoObra acesso, ContextoUsuario contexto,
                          RegistroOperacoes registro, ModeloLinguagem llm, ObjectMapper mapper) {
@@ -151,6 +153,7 @@ public class ModeloService {
         var atual = new ModeloBim(carregado.estado());
         atual.setVersao(versaoAtual);
         var r = auditor.auditar(obraId, atual, cmd, pedido.pavimentoId());
+        validarCimentos(obraId, r.rascunho(), versaoAtual);
         r.rascunho().setVersao(versaoAtual + 1);
         r.diff().versaoNova = versaoAtual + 1;
         var vi = FormatadorVi.formatar(r.comandoFinal().codigo(), r.comandoFinal().args());
@@ -183,6 +186,7 @@ public class ModeloService {
         var atual = new ModeloBim(carregado.estado());
         atual.setVersao(versaoAtual);
         var alvo = new ModeloBim(registroCmd.estadoAnterior());
+        validarCimentos(obraId, alvo, versaoAtual);
         var diff = diferenca(atual, alvo);
         alvo.setVersao(versaoAtual + 1);
         diff.versaoNova = versaoAtual + 1;
@@ -212,6 +216,7 @@ public class ModeloService {
             throw new ComandoReprovadoException(relatorio);
         }
         var cmd = new ComandoVi(Ids.novo(), "MOVER_EIXO", Map.of("eixo", eixoId.toString(), "posicao", novaPosicao), OrigemComando.CANVAS, versaoAtual, u.contaId(), Instant.now());
+        validarCimentos(obraId, rascunho, versaoAtual);
         rascunho.setVersao(versaoAtual + 1);
         diff.versaoNova = versaoAtual + 1;
         var vi = FormatadorVi.formatar(cmd.codigo(), cmd.args());
@@ -323,6 +328,11 @@ public class ModeloService {
     }
 
     // ------------------------------------------------------------------ auxiliares
+    private void validarCimentos(UUID obraId, ModeloBim modelo, long versao) {
+        if (modelo.elementos().stream().noneMatch(e -> e.texto("cimentoId") != null || e.texto("dosagemCimentoId") != null)) return;
+        if (validadorCimento == null) throw new IllegalStateException("Validador de dosagem de cimento não configurado.");
+        validadorCimento.validarModelo(obraId, modelo, versao);
+    }
     private void exigirEdicao(UUID obraId) {
         acesso.exigirMembro(obraId);
         if (!acesso.editaModelo(obraId)) {

@@ -3,13 +3,15 @@ import type { Elemento, Laje, Parede, Pilar, Viga } from "./tipos";
 import type { ModeloBim } from "./modelo";
 import { areaPoligono, dist, perimetroPoligono } from "./geometria";
 import { material } from "./tabela-a";
+import { medirAcabamentos, retangulosLivresParede, type MedicaoAcabamento } from "./acabamentos";
+import type { Abertura } from "./tipos";
 
 export type LinhaQuantitativo = {
   pavimentoId: string; elementoId: string; tipo: Elemento["tipo"]; rotulo: string; materialId?: string;
   concreto_m3: number; forma_m2: number; aco_kg: number; alvenaria_m2: number; sinapi?: string;
 };
 
-export type Quantitativo = { versao: number; linhas: LinhaQuantitativo[]; totais: Record<string, { concreto_m3: number; forma_m2: number; aco_kg: number; alvenaria_m2: number }>; hash: string };
+export type Quantitativo = { versao: number; linhas: LinhaQuantitativo[]; acabamentos: MedicaoAcabamento[]; totais: Record<string, { concreto_m3: number; forma_m2: number; aco_kg: number; alvenaria_m2: number }>; hash: string };
 
 /** taxas de aço indicativas (kg/m³) por tipo, usadas até o RF07 fornecer armaduras calculadas */
 const TAXA_ACO = { PILAR: 110, VIGA: 90, LAJE: 70, SAPATA: 60, BLOCO: 80, RADIER: 75 } as const;
@@ -49,8 +51,8 @@ export function quantificar(modelo: ModeloBim): Quantitativo {
       }
       case "PAREDE": {
         const w = e as Parede; const L = dist(w.p1, w.p2);
-        const aberturas = modelo.elementos.filter((x) => (x.tipo === "PORTA" || x.tipo === "JANELA") && x.paredeId === w.id).reduce((s, x) => s + ("largura" in x ? x.largura * x.altura : 0), 0);
-        l.alvenaria_m2 = Math.max(0, L * w.altura - aberturas); break;
+        const aberturas = modelo.elementos.filter((x): x is Abertura => x.tipo === "PORTA" || x.tipo === "JANELA");
+        l.alvenaria_m2 = w.materialId === "MAT_DIVISORIA_SECA" ? 0 : retangulosLivresParede(w,aberturas).reduce((s,r) => s+(r.x1-r.x0)*(r.z1-r.z0),0); break;
       }
       case "SAPATA": case "BLOCO": case "RADIER": {
         l.concreto_m3 = e.bx * e.by * e.h; l.forma_m2 = 2 * (e.bx + e.by) * e.h; l.aco_kg = l.concreto_m3 * TAXA_ACO[e.tipo]; break;
@@ -67,8 +69,9 @@ export function quantificar(modelo: ModeloBim): Quantitativo {
     t.concreto_m3 += l.concreto_m3; t.forma_m2 += l.forma_m2; t.aco_kg += l.aco_kg; t.alvenaria_m2 += l.alvenaria_m2;
   }
   for (const t of Object.values(totais)) for (const k of Object.keys(t) as (keyof typeof t)[]) t[k] = Math.round(t[k] * 1000) / 1000;
-  const hash = hashSimples(JSON.stringify(linhas));
-  return { versao: modelo.versao, linhas, totais, hash };
+  const acabamentos = medirAcabamentos(modelo);
+  const hash = hashSimples(JSON.stringify({linhas,acabamentos,composicoes:modelo.elementos.filter(e => !e.rascunhoIaId).map(e => ({id:e.id,materialId:e.materialId,...(e.tipo === "PAREDE" || e.tipo === "LAJE" ? {acabamentos:e.acabamentos,integrarPesoAcabamentos:e.integrarPesoAcabamentos,...(e.tipo === "PAREDE" ? {apoioEstruturalId:e.apoioEstruturalId,massaNucleo_kg_m2:e.massaNucleo_kg_m2} : {})} : {})}))}));
+  return { versao: modelo.versao, linhas, acabamentos, totais, hash };
 }
 
 function hashSimples(s: string): string {

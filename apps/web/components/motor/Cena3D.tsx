@@ -7,24 +7,38 @@ import { Suspense, useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Grid, OrbitControls, Text } from "@react-three/drei";
 import * as THREE from "three";
-import type { Elemento, Pavimento } from "@cca/notacao-vi";
+import { MATERIAIS_CONSTRUTIVOS, retangulosLivresParede, type Abertura, type Elemento, type Pavimento } from "@cca/notacao-vi";
+import { MaterialCamada } from "./MaterialCamada";
 import { elementosVisiveis, useMotor } from "@/lib/motor/estado";
-import { centroVerticalViga, baseVerticalLaje, formaLaje } from "@/lib/motor/geometria-cena";
+import { centroVerticalViga, baseVerticalLaje, formaLaje, posicoesCamadas } from "@/lib/motor/geometria-cena";
 
 const COR: Record<string, string> = { arquitetura: "#C8C2B6", estrutura: "#1D4ED8", fundacao: "#7C4A1E", desenho: "#9CA3AF", anotacao: "#166534", "ia-rascunho": "#A855F7" };
 const SEL = "#F06000";
 
 function alturaPav(pav: Pavimento[], p: Pavimento, padrao = 2.8) { const ord = [...pav].sort((a, b) => a.elevacao - b.elevacao); const i = ord.findIndex((x) => x.id === p.id); return ord[i + 1] ? ord[i + 1]!.elevacao - p.elevacao : padrao; }
 
-function Elemento3D({ e, z, h, pav, sel, onClick }: { e: Elemento; z: number; h: number; pav: Pavimento[]; sel: boolean; onClick: (id: string, shift: boolean) => void }) {
+function Elemento3D({ e, z, h, pav, aberturas, sel, onClick }: { e: Elemento; z: number; h: number; pav: Pavimento[]; aberturas: Abertura[]; sel: boolean; onClick: (id: string, shift: boolean) => void }) {
   const cor = sel ? SEL : COR[e.camada] ?? "#888";
   const click = (ev: { stopPropagation: () => void; nativeEvent: MouseEvent }) => { ev.stopPropagation(); onClick(e.id, ev.nativeEvent.shiftKey); };
   const mat = <meshStandardMaterial color={cor} transparent={e.camada === "ia-rascunho" || e.tipo === "LAJE"} opacity={e.camada === "ia-rascunho" ? 0.55 : e.tipo === "LAJE" ? 0.8 : 1} />;
   switch (e.tipo) {
-    case "PAREDE": case "VIGA": {
-      const esp = e.tipo === "PAREDE" ? e.espessura : e.b, alt = e.tipo === "PAREDE" ? e.altura : e.h;
+    case "PAREDE": {
+      const dx = e.p2.x - e.p1.x, dy = e.p2.y - e.p1.y, ang = Math.atan2(dy, dx);
+      const retangulos = retangulosLivresParede(e, aberturas);
+      const camadas = posicoesCamadas(e.acabamentos ?? []);
+      return <group position={[e.p1.x, z, -e.p1.y]} rotation={[0, ang, 0]}>
+        {retangulos.map((r, i) => <mesh key={`nucleo-${i}`} position={[(r.x0 + r.x1) / 2, (r.z0 + r.z1) / 2, 0]} onClick={click}><boxGeometry args={[r.x1 - r.x0, r.z1 - r.z0, e.espessura]} />{e.materialId === "MAT_DIVISORIA_SECA" ? <meshStandardMaterial color={cor} transparent opacity={0.2} wireframe /> : mat}</mesh>)}
+        {camadas.map(({ camada, centro, espessura }) => {
+          const sinal = camada.face === "LADO_A" ? -1 : 1;
+          const material = MATERIAIS_CONSTRUTIVOS.find(m => m.id === camada.materialId);
+          return retangulos.map((r, i) => <mesh key={`${camada.id}-${i}`} position={[(r.x0 + r.x1) / 2, (r.z0 + r.z1) / 2, sinal * (e.espessura / 2 + centro)]} onClick={click}><boxGeometry args={[r.x1 - r.x0, r.z1 - r.z0, espessura]} /><MaterialCamada camada={camada} cor={material?.cor ?? "#DDD2BE"} selecionado={sel} superficie={{ tipo: "PAREDE", ...r, facePosterior: camada.face === "LADO_A" }} /></mesh>);
+        })}
+      </group>;
+    }
+    case "VIGA": {
+      const esp = e.b, alt = e.h;
       const dx = e.p2.x - e.p1.x, dy = e.p2.y - e.p1.y, l = Math.hypot(dx, dy) || 0.01, ang = Math.atan2(dy, dx);
-      const zc = e.tipo === "PAREDE" ? z + alt / 2 : centroVerticalViga(z, alt);
+      const zc = centroVerticalViga(z, alt);
       return <mesh position={[(e.p1.x + e.p2.x) / 2, zc, -(e.p1.y + e.p2.y) / 2]} rotation={[0, ang, 0]} onClick={click}><boxGeometry args={[l, alt, esp]} />{mat}</mesh>;
     }
     case "PILAR": {
@@ -35,11 +49,17 @@ function Elemento3D({ e, z, h, pav, sel, onClick }: { e: Elemento; z: number; h:
     }
     case "LAJE": {
       const shape = formaLaje(e.contorno);
-      return <mesh position={[0, baseVerticalLaje(z, e.h), 0]} rotation={[-Math.PI / 2, 0, 0]} onClick={click}><extrudeGeometry args={[shape, { depth: e.h, bevelEnabled: false }]} />{mat}</mesh>;
+      return <group><mesh position={[0, baseVerticalLaje(z, e.h), 0]} rotation={[-Math.PI / 2, 0, 0]} onClick={click}><extrudeGeometry args={[shape, { depth: e.h, bevelEnabled: false }]} />{mat}</mesh>
+        {posicoesCamadas(e.acabamentos ?? []).map(({ camada, inicio, espessura }) => {
+          const base = camada.face === "SUPERIOR" ? z + inicio : z - e.h - inicio - espessura;
+          const material = MATERIAIS_CONSTRUTIVOS.find(m => m.id === camada.materialId);
+          return <mesh key={camada.id} position={[0, base, 0]} rotation={[-Math.PI / 2, 0, 0]} onClick={click}><extrudeGeometry args={[shape, { depth: espessura, bevelEnabled: false }]} /><MaterialCamada camada={camada} cor={material?.cor ?? "#DDD2BE"} selecionado={sel} superficie={{ tipo: "LAJE" }} /></mesh>;
+        })}
+      </group>;
     }
     case "SAPATA": case "BLOCO": case "RADIER": case "ESTACA":
       return <mesh position={[e.centro.x, z - e.h / 2 - 0.05, -e.centro.y]} onClick={click}><boxGeometry args={[e.bx, e.h, e.by]} />{mat}</mesh>;
-    case "PORTA": case "JANELA": return null; // vazios ficam implícitos; representados na planta
+    case "PORTA": case "JANELA": return null; // Vãos recortados no núcleo e em cada camada da parede.
     case "LINHA": case "PLANO_REF": case "CONTRAVENTAMENTO": case "COTA": {
       const pts = [new THREE.Vector3(e.p1.x, z + 0.01, -e.p1.y), new THREE.Vector3(e.p2.x, z + 0.01, -e.p2.y)];
       const geo = new THREE.BufferGeometry().setFromPoints(pts);
@@ -70,6 +90,7 @@ export function Cena3D() {
   const onClick = (id: string, shift: boolean) => s.selecionar([id], shift ? "alternar" : "substituir");
   if (!webgl) return <div role="status" className="h-full grid place-items-center p-6 text-sm text-text-3">WebGL indisponível neste dispositivo: use a vista Planta (2D).</div>;
   const eixos = s.modelo.eixos;
+  const aberturas = s.modelo.elementos.filter((e): e is Abertura => e.tipo === "PORTA" || e.tipo === "JANELA");
   return (
     <div className="h-full w-full" aria-label={`Cena 3D com ${itens.length} elementos`} role="img">
       <Canvas camera={{ position: [18, 14, 18], fov: 45, near: 0.1, far: 500 }} dpr={[1, 1.5]} frameloop={reduzido ? "demand" : "always"} onPointerMissed={() => s.selecionar([], "substituir")}>
@@ -78,7 +99,7 @@ export function Cena3D() {
         <Suspense fallback={null}>
           <Grid args={[80, 80]} cellSize={1} sectionSize={5} cellColor="#D1D5DB" sectionColor="#9CA3AF" fadeDistance={80} position={[0, -0.01, 0]} />
           {eixos.map((ex) => { const a = ex.direcao === "X" ? [ex.posicao, 0.02, -ex.inicio] : [ex.inicio, 0.02, -ex.posicao]; const b = ex.direcao === "X" ? [ex.posicao, 0.02, -ex.fim] : [ex.fim, 0.02, -ex.posicao]; const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...(a as [number, number, number])), new THREE.Vector3(...(b as [number, number, number]))]); return <group key={ex.id}><primitive object={new THREE.Line(geo, new THREE.LineDashedMaterial({ color: "#6B7280", dashSize: 0.5, gapSize: 0.25 }))} /><Suspense fallback={null}><Text position={[b[0]! + (ex.direcao === "Y" ? 0.6 : 0), 0.05, b[2]! - (ex.direcao === "X" ? 0.6 : 0)]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.4} color="#374151">{ex.nome}</Text></Suspense></group>; })}
-          {itens.map(({ e, z, h }) => <Elemento3D key={e.id} e={e} z={z} h={h} pav={pav} sel={s.selecao.has(e.id)} onClick={onClick} />)}
+          {itens.map(({ e, z, h }) => <Elemento3D key={e.id} e={e} z={z} h={h} pav={pav} aberturas={aberturas} sel={s.selecao.has(e.id)} onClick={onClick} />)}
         </Suspense>
         <OrbitControls makeDefault enableDamping={!reduzido} target={[s.viewport.cx, 1.4, -s.viewport.cy]} />
       </Canvas>

@@ -5,6 +5,7 @@ package br.com.civilconstructorai.ia;
  * {@code effort} e o que pode ser enviado. Mudar modelo, prompt ou effort exige o conjunto de avaliação da rota.
  */
 public enum RotaIa {
+    SELECAO_CIMENTO("selecao-cimento", "RF04", "orientar seleção preliminar de cimento", "Art. 7º, V", Effort.MEDIUM, "tipo de elemento e contexto técnico sem dados pessoais"),
     COMANDO_VI("comando-vi", "RF02", "traduzir texto natural em comandos VI", "Art. 7º, V", Effort.MEDIUM, "geometria, eixos, pavimentos, materiais"),
     LANCAMENTO_ESTRUTURAL("lancamento-estrutural", "RF04", "sugerir lançamento de pilares, vigas e lajes", "Art. 7º, V", Effort.HIGH, "arquitetura do pavimento, eixos, materiais"),
     EXTRACAO_BOLETIM_SPT("extracao-boletim-spt", "RF09", "ler boletim de sondagem (PDF)", "Art. 7º, V", Effort.HIGH, "boletim de sondagem sem dados pessoais"),

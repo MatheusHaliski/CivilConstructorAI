@@ -64,6 +64,7 @@ type Estado = {
   desfazer: () => Promise<void>;
   refazer: () => void;
   enquadrarTudo: (largura: number, altura: number) => void;
+  alterarPropriedades: (id: string, props: Record<string, unknown>) => Promise<boolean>;
   alterarPropriedade: (id: string, campo: string, valor: unknown) => Promise<boolean>;
 };
 
@@ -375,7 +376,8 @@ export const useMotor = create<Estado>((set, get) => {
       const w = Math.max(maxx - minx, 2), h = Math.max(maxy - miny, 2);
       set({ viewport: { cx: (minx + maxx) / 2, cy: (miny + maxy) / 2, escala: Math.max(2, Math.min(400, 0.85 * Math.min(largura / w, altura / h))) }, comando: null });
     },
-    alterarPropriedade: (id, campo, valor) => aplicarInterno([{ codigo: "ALTERAR", args: { id, props: { [campo]: valor } } }], "CANVAS"),
+    alterarPropriedades: (id, props) => aplicarInterno([{ codigo: "ALTERAR", args: { id, props: Object.fromEntries(Object.entries(props).map(([k,v]) => [k,v === undefined ? null : v])) } }], "CANVAS"),
+    alterarPropriedade: (id, campo, valor) => aplicarInterno([{ codigo: "ALTERAR", args: { id, props: { [campo]: valor === undefined ? null : valor } } }], "CANVAS"),
   };
 });
 

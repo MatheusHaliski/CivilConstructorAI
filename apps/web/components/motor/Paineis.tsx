@@ -1,6 +1,8 @@
 "use client";
 /** Painéis laterais: camadas (VG/LA), propriedades (PR, formulário H5), atalhos (KS), ajuda, auditoria. */
-import { CATALOGO, conflitosDeAlias, MODOS_OSNAP, TECLAS_RESERVADAS_NAVEGADOR, type Camada, type Elemento } from "@cca/notacao-vi";
+import { CATALOGO, TABELA_A, material, conflitosDeAlias, MODOS_OSNAP, TECLAS_RESERVADAS_NAVEGADOR, type Camada, type Elemento } from "@cca/notacao-vi";
+import { PainelAcabamentos } from "./PainelAcabamentos";
+import { PainelCimentos } from "./PainelCimentos";
 import { useMotor } from "@/lib/motor/estado";
 import { Alternar, Botao, Etiqueta, cx } from "@/components/ui";
 
@@ -57,6 +59,7 @@ export function PainelPropriedades() {
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-text-2"><dt>Id</dt><dd className="mono truncate">{e.id}</dd><dt>Pavimento</dt><dd>{pav?.nome}</dd><dt>Origem</dt><dd>{e.origem}</dd>{"p1" in e && "p2" in e && <><dt>p1 → p2</dt><dd className="mono">[{(e as { p1: { x: number; y: number } }).p1.x},{(e as { p1: { x: number; y: number } }).p1.y}] → [{(e as { p2: { x: number; y: number } }).p2.x},{(e as { p2: { x: number; y: number } }).p2.y}]</dd></>}{"centro" in e && <><dt>Centro</dt><dd className="mono">[{(e as { centro: { x: number; y: number } }).centro.x},{(e as { centro: { x: number; y: number } }).centro.y}]</dd></>}</dl>
       {campos.map((c) => {
         const v = (e as unknown as Record<string, unknown>)[c.campo];
+        if (e.tipo === "PAREDE" && c.campo === "materialId") return <label key={c.campo} className="flex flex-col gap-1 text-xs"><span>Material do núcleo</span><select aria-label="Material do núcleo" value={e.materialId ?? ""} disabled={!s.podeEditar} className="min-h-9 rounded border border-line bg-bg px-2 text-sm" onChange={ev => enviar("materialId", ev.target.value)}>{TABELA_A.filter(m => m.materialId.startsWith("MAT_ALV_") || m.materialId === "MAT_DIVISORIA_SECA" || m.materialId === e.materialId).map(m => <option key={m.materialId} value={m.materialId}>{m.name}</option>)}</select></label>;
         if (c.tipo === "bool") return <Alternar key={c.campo} rotulo={c.rotulo} ligado={!!v} onChange={(x) => enviar(c.campo, x)} disabled={!s.podeEditar} />;
         return (
           <label key={c.campo} className="flex flex-col gap-1 text-xs"><span className="text-text-3">{c.rotulo}</span>
@@ -66,6 +69,8 @@ export function PainelPropriedades() {
           </label>
         );
       })}
+      {(e.tipo === "PAREDE" || e.tipo === "LAJE") && <PainelAcabamentos key={e.id} elemento={e} modelo={s.modelo} podeEditar={s.podeEditar} onAlterar={enviar} />}
+      {["PILAR", "VIGA", "LAJE", "SAPATA", "BLOCO", "RADIER", "ESTACA"].includes(e.tipo) && <PainelCimentos key={`cimento-${e.id}`} elemento={e} podeEditar={s.podeEditar} onAlterar={enviar} onAplicar={props => { void s.alterarPropriedades(e.id, props); }} obraId={s.obraId ?? undefined} versaoModelo={s.obraId ? s.versaoServidor : s.modelo.versao} fckProjetoMPa={material(e.materialId ?? "")?.physicalProperties.fck_MPa} />}
       <p className="text-[11px] text-text-3">Enter aplica (gera <code className="mono">VI(ALTERAR)</code> e passa pelo auditor).</p>
       <div className="flex gap-2"><Botao pequeno variante="secundario" onClick={() => s.iniciar("TG")}>Etiquetar (TG)</Botao><Botao pequeno variante="perigo" onClick={() => s.iniciar("E")} disabled={!s.podeEditar}>Apagar</Botao></div>
     </div>

@@ -9,6 +9,7 @@ import type { Correcao, DiffModelo, Elemento, Pilar, RelatorioAuditoria, Violaca
 import { material } from "./tabela-a";
 import { caixa, dist, intersecaoSegmentos, temAutoIntersecao } from "./geometria";
 import type { ModeloBim } from "./modelo";
+import { errosAcabamentos } from "./acabamentos";
 
 export type OpcoesAuditoria = {
   shortCurveTolerance?: number; // m, padrão 0,05
@@ -30,6 +31,7 @@ export function auditar(modelo: ModeloBim, diff: DiffModelo, comando: ComandoVI,
 
   // ---------------- Laço 1 · Tabela C
   for (const e of novos) {
+    for (const erro of errosAcabamentos(e)) violacoes1.push(v("C-ACABAMENTO", "Composição de materiais", erro, e));
     const mat = e.materialId ? material(e.materialId) : undefined;
     if (e.materialId && !mat) violacoes1.push(v("VI-003", "Tabela A", `Material ${e.materialId} não existe na Tabela A.`, e));
     if ("p1" in e && "p2" in e) {
