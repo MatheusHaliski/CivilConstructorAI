@@ -41,6 +41,7 @@ public final class MontadorModeloAnalitico {
                 ConcretoSuportado.fck(e.materialId());
             }
         }
+        validarPesosAcabamentos(in);
         var ma = new ModeloAnalitico();
         // uma viga contínua vira várias barras (uma por trecho entre apoios); pilar continua sendo uma barra
         var barrasPorElemento = new HashMap<String, List<Integer>>();
@@ -107,7 +108,7 @@ public final class MontadorModeloAnalitico {
             }
             double somaL = vigasContorno.stream().mapToDouble(ElementoEstrutural::comprimento).sum();
             for (var nat : NaturezaAcao.values()) {
-                double q = nat == NaturezaAcao.PERMANENTE ? l.h() * PESO_CONCRETO : 0;
+                double q = nat == NaturezaAcao.PERMANENTE ? l.h() * PESO_CONCRETO + (l.integrarPesoAcabamentos() ? br.com.civilconstructorai.acabamento.MedidorAcabamentos.pesoCamadasPorArea(l) : 0) : 0;
                 for (var c : in.cargas()) {
                     if (c.getNatureza() == nat && c.getTipo() == TipoCarga.AREA && c.getPavimentoId().equals(l.pavimentoId())
                             && (c.getElementoAlvoId() == null || c.getElementoAlvoId().equals(l.id()))) {
@@ -134,6 +135,16 @@ public final class MontadorModeloAnalitico {
                     }
                 }
             }
+        }
+
+        // Peso de parede explicitamente vinculado à viga de mesma extensão.
+        for (var parede : m.doTipo(TipoElementoEstrutural.PAREDE)) {
+            if (parede.rascunhoIa() || !parede.integrarPesoAcabamentos()) continue;
+            double pesoNucleo = pesoNucleoPorArea(parede);
+            double peso = br.com.civilconstructorai.acabamento.MedidorAcabamentos.areaLiquida(m,parede) * (pesoNucleo + br.com.civilconstructorai.acabamento.MedidorAcabamentos.pesoCamadasPorArea(parede));
+            var ids = barrasPorElemento.get(parede.apoioEstruturalId());
+            if (ids == null || ids.isEmpty()) throw new IllegalArgumentException("Viga de apoio da parede não possui barras analíticas.");
+            for (int id : ids) ma.caso(NaturezaAcao.PERMANENTE).distribuidas().add(new ModeloAnalitico.CargaDistribuida(id,0,0,-peso/parede.comprimento()));
         }
 
         // cargas lineares e pontuais por elemento alvo
@@ -174,6 +185,36 @@ public final class MontadorModeloAnalitico {
             }
         }
         return ma;
+    }
+
+    private static double pesoNucleoPorArea(ElementoEstrutural parede) {
+        if (parede.massaNucleo_kg_m2() != null) {
+            double massa=parede.massaNucleo_kg_m2();
+            if (!Double.isFinite(massa) || massa<=0) throw new IllegalArgumentException("Massa do núcleo inválida.");
+            return massa*0.00980665;
+        }
+        double gamma=br.com.civilconstructorai.notacao.TabelaA.material(parede.materialId()).orElseThrow(()->new IllegalArgumentException("Material do núcleo da parede desconhecido.")).physicalProperties().densidade_kN_m3();
+        if (!Double.isFinite(gamma) || gamma<=0) throw new IllegalArgumentException("Informe massaNucleo_kg_m2 para núcleo sem peso específico cadastrado.");
+        return parede.b()*gamma;
+    }
+
+    private static void validarPesosAcabamentos(Entrada in) {
+        var m=in.modelo();
+        for (var e:m.elementos()) {
+            if(e.rascunhoIa() || !e.integrarPesoAcabamentos()) continue;
+            if(e.tipo()!=TipoElementoEstrutural.PAREDE && e.tipo()!=TipoElementoEstrutural.LAJE) throw new IllegalArgumentException("Peso de acabamento apenas em parede/laje.");
+            br.com.civilconstructorai.acabamento.MedidorAcabamentos.pesoCamadasPorArea(e);
+            if(e.tipo()==TipoElementoEstrutural.LAJE) {
+                for(var c:in.cargas()) if(c.getNatureza()==NaturezaAcao.PERMANENTE && c.getTipo()==TipoCarga.AREA && c.getPavimentoId().equals(e.pavimentoId()) && (c.getElementoAlvoId()==null || c.getElementoAlvoId().equals(e.id()))) throw new IllegalArgumentException("Revise/remova cargas permanentes de área antes de integrar acabamentos: "+e.id());
+            } else {
+                pesoNucleoPorArea(e);
+                var v=m.elementos().stream().filter(x->x.id().equals(e.apoioEstruturalId()) && x.tipo()==TipoElementoEstrutural.VIGA && !x.rascunhoIa()).findFirst().orElseThrow(()->new IllegalArgumentException("Informe viga de apoio explícita para a parede "+e.id()));
+                boolean mesmos=(e.p1().distancia(v.p1())<1e-6 && e.p2().distancia(v.p2())<1e-6)||(e.p1().distancia(v.p2())<1e-6 && e.p2().distancia(v.p1())<1e-6);
+                if(!e.pavimentoId().equals(v.pavimentoId()) || !mesmos) throw new IllegalArgumentException("Parede e viga de apoio devem coincidir integralmente no mesmo pavimento.");
+                br.com.civilconstructorai.acabamento.MedidorAcabamentos.areaLiquida(m,e);
+                for(var c:in.cargas()) if(c.getNatureza()==NaturezaAcao.PERMANENTE && c.getTipo()==TipoCarga.LINEAR && v.id().equals(c.getElementoAlvoId())) throw new IllegalArgumentException("Revise/remova carga permanente linear da viga antes de integrar a parede: "+v.id());
+            }
+        }
     }
 
     private static double modulo(Entrada in, String materialId) {

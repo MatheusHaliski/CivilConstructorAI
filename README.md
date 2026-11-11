@@ -85,3 +85,5 @@ python3 scripts/check_rf_docs.py --render   # + renderiza todo Mermaid (precisa 
 O [memorial de ensaios](docs/validacao/MEMORIAL_ENSAIOS.md) contém desenho de treino, cinco casos de pórticos/vigas/pilares/faixa de laje, comparação independente e verificações resistentes parciais. A [matriz ABNT](docs/validacao/MATRIZ_NORMATIVA_ABNT.md) registra as revisões ainda necessárias. Esses ensaios não habilitam aprovação técnica do protótipo.
 
 O [catálogo de fontes de engenharia](docs/validacao/CATALOGO_FONTES_ENGENHARIA.md) organiza os documentos fornecidos sobre concreto, armaduras, esforços e aço estrutural, com edição, item/página e lacunas. O exemplar de NBR 6118 recebido é de 2014 corrigido; seus dados históricos permanecem separados das regras habilitadas de cálculo.
+
+O [fluxo de materiais e cimentos](docs/MATERIAIS_E_CIMENTOS.md) descreve camadas de acabamento em paredes/lajes, perspectiva com espessuras e modulação, quantitativos e integração explícita de peso. A seleção de cimento estrutural depende de dosagem documentada, confirmação profissional e correspondência ao fck do elemento; a IA consulta apenas as opções elegíveis.

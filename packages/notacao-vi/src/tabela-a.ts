@@ -15,6 +15,15 @@ export type Material = {
 
 export const TABELA_A: Material[] = [
   {
+    materialId: "MAT_DIVISORIA_SECA", name: "Núcleo de divisória seca — massa a informar",
+    ontology: { symbolDomain: "retangulo", borderType: "thin", category: "arquitetura" },
+    // Zero é sentinela de ausência de peso do núcleo; integração exige massaNucleo_kg_m2 explícita.
+    physicalProperties: { loadBearing: false, densidade_kN_m3: 0 },
+    style: { colorHex: "#aeb4bd", borderType: "thin", texture: "estrutura-leve" },
+    geometricConstraints: { shortCurveTolerance_m: .05, baseOffset: 0, espessuraMinima_m: .05 },
+    baseQuantities: { unit: "m2", unitCost: 0 },
+  },
+  {
     materialId: "MAT_CONC_FCK30", name: "Concreto Armado fck = 30 MPa",
     ontology: { symbolDomain: "losango", borderType: "professional", category: "estrutural" },
     physicalProperties: { fck_MPa: 30, thermalTransmittance: 1.75, fireRating: "F90", loadBearing: true, densidade_kN_m3: 25 },

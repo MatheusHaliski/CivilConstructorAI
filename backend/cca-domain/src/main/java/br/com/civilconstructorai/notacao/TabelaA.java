@@ -24,6 +24,7 @@ public final class TabelaA {
             m("MAT_ALV_BLOCO19", "Alvenaria estrutural de bloco de concreto 19 cm", "retangulo", "estrutural", null, null, null, "F90", true, 14, "#9A3412", "professional", "bloco", null, 0.14, "m2", 125.0, "103355"),
             m("MAT_ACO_PERFIL_W", "Perfil de aço laminado W (ASTM A572)", "hexagono", "estrutural", null, 345.0, null, "F30", true, 78.5, "#1E3A8A", "thin", null, null, null, "kg", 14.2, "100777"),
             m("MAT_VIDRO_TEMP8", "Vidro temperado 8 mm", "retangulo", "arquitetura", null, null, 5.7, null, false, 25, "#38BDF8", "thin", null, null, null, "m2", 420.0, "102180"),
+            m("MAT_DIVISORIA_SECA", "Núcleo de divisória seca (massa a cadastrar)", "retangulo", "arquitetura", null, null, null, null, false, 0, "#D1D5DB", "thin", null, null, 0.05, "m2", 0, null),
             m("MAT_MADEIRA_PORTA", "Porta de madeira semi-oca 80x210", "retangulo", "arquitetura", null, null, null, null, false, 6, "#A16207", "thin", null, null, null, "un", 650.0, "90843"));
 
     public static Optional<Material> material(String id) {

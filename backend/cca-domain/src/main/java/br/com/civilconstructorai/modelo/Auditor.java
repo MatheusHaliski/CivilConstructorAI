@@ -45,6 +45,18 @@ public class Auditor {
             if (e.getMaterialId() != null && mat == null) {
                 v1.add(Violacao.de("VI-003", "Tabela A", "Material " + e.getMaterialId() + " não existe na Tabela A.", e));
             }
+            try {
+                boolean parede = e.getTipo() == Enums.TipoElemento.PAREDE;
+                if (e.getProps().containsKey("acabamentos") && !parede && e.getTipo() != Enums.TipoElemento.LAJE) throw new IllegalArgumentException("Acabamentos apenas em paredes e lajes.");
+                if (e.getProps().containsKey("massaNucleo_kg_m2")) {
+                    Object massa=e.getProps().get("massaNucleo_kg_m2");
+                    if (massa != null && (!(massa instanceof Number n) || !Double.isFinite(n.doubleValue()) || n.doubleValue()<=0)) throw new IllegalArgumentException("Massa do núcleo deve ser positiva e finita.");
+                }
+                br.com.civilconstructorai.acabamento.Acabamento.ler(e.getProps().get("acabamentos"), parede);
+                if (e.getProps().containsKey("integrarPesoAcabamentos") && !(e.getProps().get("integrarPesoAcabamentos") instanceof Boolean)) throw new IllegalArgumentException("Integração de peso deve ser booleana.");
+            } catch (IllegalArgumentException ex) {
+                v1.add(Violacao.de("C-ACABAMENTO", "Composição de materiais", ex.getMessage(), e));
+            }
             if (e.temSegmento()) {
                 double l = e.ponto("p1").distancia(e.ponto("p2"));
                 if (l < 1e-9) {

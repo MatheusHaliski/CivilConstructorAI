@@ -1,5 +1,6 @@
 "use client";
 import { use } from "react";
+import { MATERIAIS_CONSTRUTIVOS } from "@cca/notacao-vi";
 import { Download } from "lucide-react";
 import { post } from "@/lib/api";
 import { useAcao, useDados } from "@/lib/dados";
@@ -10,8 +11,9 @@ import { CabecalhoObra, usePavimentos } from "@/components/obra/comuns";
 
 type Totais = { concretoM3: number; formaM2: number; acoKg: number; alvenariaM2: number };
 type Linha = { pavimentoId: string; elementoId: string; tipo: string; rotulo?: string; materialId?: string; concretoM3: number; formaM2: number; acoKg: number; alvenariaM2: number; origemAco?: string };
+type Acabamento = { pavimentoId: string; elementoId: string; id: string; materialId: string; face: string; espessura_m: number; areaBrutaM2: number; descontoVaosM2: number; areaLiquidaM2: number; volumeM3: number; pesoInstaladoKN: number | null; quantidadeCompraM2: number; pecasCompra: number | null; especificacao?: string; larguraPeca_m?: number; alturaPeca_m?: number; junta_m: number; perda_percentual: number };
 /** espelha QuantitativoService.Visao */
-type Visao = { id: string; versaoModelo: number; hash: string; estado: string; liberadoCliente: boolean; linhas: Linha[]; totaisPorPavimento: Record<string, Totais>; totalGeral: Totais };
+type Visao = { id: string; versaoModelo: number; hash: string; estado: string; liberadoCliente: boolean; linhas: Linha[]; totaisPorPavimento: Record<string, Totais>; totalGeral: Totais; acabamentos?: Acabamento[] };
 
 /** RF11 · Quantitativos determinísticos (sem IA) por pavimento/elemento/material, exportáveis em CSV/XLSX. */
 export default function PaginaQuantitativos({ params }: { params: Promise<{ obraId: string }> }) {
@@ -36,6 +38,19 @@ export default function PaginaQuantitativos({ params }: { params: Promise<{ obra
               { titulo: "Concreto (m³)", celula: (l) => numero(l.concretoM3, 3), numerica: true }, { titulo: "Fôrma (m²)", celula: (l) => numero(l.formaM2, 2), numerica: true }, { titulo: "Aço (kg)", celula: (l) => numero(l.acoKg, 1), numerica: true }, { titulo: "Alvenaria (m²)", celula: (l) => numero(l.alvenariaM2, 2), numerica: true },
             ]} />
           </Cartao>
+          {!!d.acabamentos?.length && <Cartao titulo="Materiais e acabamentos por camada" className="sm:col-span-2 lg:col-span-4">
+            <p className="mb-3 text-xs text-text-3">Área líquida desconta a união dos vãos. Compra inclui perdas; peso considera apenas a instalação. Peças são estimadas pelo módulo com junta, sem plano de corte.</p>
+            <Tabela linhas={d.acabamentos} chave={l => `${l.elementoId}-${l.id}`} colunas={[
+              { titulo: "Elemento / face", celula: l => <span className="text-xs">{nomePav(l.pavimentoId)} · {l.elementoId} · {l.face}</span> },
+              { titulo: "Material / especificação", celula: l => <span>{MATERIAIS_CONSTRUTIVOS.find(m => m.id === l.materialId)?.nome ?? l.materialId}<span className="block text-xs text-text-3">{l.especificacao || "Especificação não informada"}</span></span> },
+              { titulo: "Espessura / formato (mm)", celula: l => `${numero(l.espessura_m * 1000, 1)}${l.larguraPeca_m && l.alturaPeca_m ? ` · ${numero(l.larguraPeca_m * 1000, 0)} × ${numero(l.alturaPeca_m * 1000, 0)}` : ""} · junta ${numero(l.junta_m * 1000, 1)}` },
+              { titulo: "Bruta / vãos / líquida (m²)", celula: l => `${numero(l.areaBrutaM2, 2)} / ${numero(l.descontoVaosM2, 2)} / ${numero(l.areaLiquidaM2, 2)}`, numerica: true },
+              { titulo: "Volume (m³)", celula: l => numero(l.volumeM3, 3), numerica: true },
+              { titulo: "Compra (m²) / perda", celula: l => `${numero(l.quantidadeCompraM2, 2)} · ${numero(l.perda_percentual, 1)}%`, numerica: true },
+              { titulo: "Peças estimadas", celula: l => l.pecasCompra === null ? "—" : numero(l.pecasCompra, 0), numerica: true },
+              { titulo: "Peso instalado (kN)", celula: l => l.pesoInstaladoKN === null ? "Pendente" : numero(l.pesoInstaladoKN, 3), numerica: true },
+            ]} />
+          </Cartao>}
           {eng && id && <Cartao titulo="Cliente vê (DN-02)"><Alternar rotulo="Totais liberados ao cliente" ligado={!!d.liberadoCliente} onChange={(v) => liberar.mutate({ id, liberar: v })} /></Cartao>}
         </div>
       )}

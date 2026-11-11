@@ -37,7 +37,7 @@ public class QuantitativoService {
     }
 
     public record Visao(UUID id, long versaoModelo, String hash, String estado, boolean liberadoCliente,
-                        List<Quantificador.Linha> linhas, Map<String, Quantificador.Totais> totaisPorPavimento, Quantificador.Totais totalGeral) {
+                        List<Quantificador.Linha> linhas, Map<String, Quantificador.Totais> totaisPorPavimento, Quantificador.Totais totalGeral, List<br.com.civilconstructorai.acabamento.MedidorAcabamentos.Linha> acabamentos) {
     }
 
     private final Levantamentos levantamentos;
@@ -72,16 +72,16 @@ public class QuantitativoService {
             }
         }
         if (lev == null) {
-            lev = levantamentos.save(new LevantamentoQuantitativo(u.empresaAtivaId(), obraId, m.versao(), r.hash(), json.escrever(r.linhas()), json.escrever(r.totaisPorPavimento())));
+            lev = levantamentos.save(new LevantamentoQuantitativo(u.empresaAtivaId(), obraId, m.versao(), r.hash(), json.escrever(r.linhas()), json.escrever(Map.of("totaisPorPavimento", r.totaisPorPavimento(), "acabamentos", r.acabamentos()))));
         }
         boolean cliente = u.papeisNaObra(obraId).stream().allMatch(p -> p == PapelObra.CLIENTE) && !u.papeisNaObra(obraId).isEmpty();
         if (cliente) {
             if (!lev.isLiberadoCliente()) {
                 throw new ExcecaoDominio.RecursoNaoEncontrado("Quantitativo");
             }
-            return new Visao(lev.getId(), lev.getVersaoModelo(), lev.getHash(), lev.getEstado().name(), true, List.of(), r.totaisPorPavimento(), r.totalGeral());
+            return new Visao(lev.getId(), lev.getVersaoModelo(), lev.getHash(), lev.getEstado().name(), true, List.of(), r.totaisPorPavimento(), r.totalGeral(), List.of());
         }
-        return new Visao(lev.getId(), lev.getVersaoModelo(), lev.getHash(), lev.getEstado().name(), lev.isLiberadoCliente(), r.linhas(), r.totaisPorPavimento(), r.totalGeral());
+        return new Visao(lev.getId(), lev.getVersaoModelo(), lev.getHash(), lev.getEstado().name(), lev.isLiberadoCliente(), r.linhas(), r.totaisPorPavimento(), r.totalGeral(), r.acabamentos());
     }
 
     public void liberarParaCliente(UUID obraId, UUID levantamentoId, boolean liberar) {
@@ -98,6 +98,10 @@ public class QuantitativoService {
         for (var l : v.linhas()) {
             sb.append(String.format(Locale.ROOT, "%s;%s;%s;%s;%s;%.3f;%.3f;%.3f;%.3f;%s%n", l.pavimentoId(), l.elementoId(), l.tipo(), l.rotulo(),
                     l.materialId() == null ? "" : l.materialId(), l.concretoM3(), l.formaM2(), l.acoKg(), l.alvenariaM2(), l.origemAco()));
+        }
+        if (!v.acabamentos().isEmpty()) {
+            sb.append("\npavimento;elemento;camada;material;face;espessura_m;area_bruta_m2;desconto_vaos_m2;area_liquida_m2;volume_m3;peso_instalado_kN;compra_m2;pecas_compra;especificacao;largura_peca_m;altura_peca_m;junta_m;perda_percentual\n");
+            for(var a:v.acabamentos()) sb.append(String.format(Locale.ROOT,"%s;%s;%s;%s;%s;%.6f;%.6f;%.6f;%.6f;%.6f;%s;%.6f;%s;%s;%s;%s;%.6f;%.6f%n",csv(a.pavimentoId()),csv(a.elementoId()),csv(a.id()),csv(a.materialId()),a.face(),a.espessura_m(),a.areaBrutaM2(),a.descontoVaosM2(),a.areaLiquidaM2(),a.volumeM3(),a.pesoInstaladoKN()==null?"":a.pesoInstaladoKN(),a.quantidadeCompraM2(),a.pecasCompra()==null?"":a.pecasCompra(),csv(a.especificacao()),a.larguraPeca_m()==null?"":a.larguraPeca_m(),a.alturaPeca_m()==null?"":a.alturaPeca_m(),a.junta_m(),a.perda_percentual()));
         }
         return sb.toString().getBytes(StandardCharsets.UTF_8);
     }
@@ -124,6 +128,20 @@ public class QuantitativoService {
             }
             sheet.append("<c t=\"inlineStr\"><is><t>").append(esc(l.origemAco())).append("</t></is></c></row>");
         }
+        if (!v.acabamentos().isEmpty()) {
+            sheet.append("<row/>");
+            sheet.append("<row>");
+            for(String h:List.of("Pavimento","Elemento","Camada","Material","Face","Espessura (m)","Área bruta (m²)","Vãos (m²)","Área líquida (m²)","Volume (m³)","Peso instalado (kN)","Compra (m²)","Peças para compra","Especificação","Largura peça (m)","Altura peça (m)","Junta (m)","Perda (%)")) celulaTexto(sheet,h);
+            sheet.append("</row>");
+            for(var a:v.acabamentos()) {
+                sheet.append("<row>");
+                for(String t:List.of(a.pavimentoId(),a.elementoId(),a.id(),a.materialId(),a.face())) celulaTexto(sheet,t);
+                for(Double n:new Double[]{a.espessura_m(),a.areaBrutaM2(),a.descontoVaosM2(),a.areaLiquidaM2(),a.volumeM3(),a.pesoInstaladoKN(),a.quantidadeCompraM2(),a.pecasCompra()}) { if(n==null) sheet.append("<c/>"); else sheet.append("<c><v>").append(n).append("</v></c>"); }
+                celulaTexto(sheet,a.especificacao());
+                for(Double n:new Double[]{a.larguraPeca_m(),a.alturaPeca_m(),a.junta_m(),a.perda_percentual()}) { if(n==null) sheet.append("<c/>"); else sheet.append("<c><v>").append(n).append("</v></c>"); }
+                sheet.append("</row>");
+            }
+        }
         sheet.append("</sheetData></worksheet>");
         var out = new ByteArrayOutputStream();
         try (var zip = new ZipOutputStream(out)) {
@@ -144,6 +162,8 @@ public class QuantitativoService {
         zip.closeEntry();
     }
 
+    private static void celulaTexto(StringBuilder s,String t) { s.append("<c t=\"inlineStr\"><is><t>").append(esc(t)).append("</t></is></c>"); }
+    private static String csv(String s) { if(s==null)return ""; return "\"" + s.replace("\"","\"\"") + "\""; }
     private static String esc(String s) {
         return s == null ? "" : s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }

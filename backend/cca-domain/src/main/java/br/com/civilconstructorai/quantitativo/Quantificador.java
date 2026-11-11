@@ -34,7 +34,7 @@ public final class Quantificador {
         }
     }
 
-    public record Resultado(long versaoModelo, List<Linha> linhas, Map<String, Totais> totaisPorPavimento, Totais totalGeral, String hash) {
+    public record Resultado(long versaoModelo, List<Linha> linhas, Map<String, Totais> totaisPorPavimento, Totais totalGeral, String hash, List<br.com.civilconstructorai.acabamento.MedidorAcabamentos.Linha> acabamentos) {
     }
 
     /** @param acoAprovadoKg aço por elemento vindo do dimensionamento aprovado (RF07); vazio → taxa indicativa */
@@ -77,9 +77,8 @@ public final class Quantificador {
                     forma = areaLiq + ElementoEstrutural.perimetroPoligono(e.contorno()) * e.h();
                 }
                 case PAREDE -> {
-                    double l = e.comprimento();
-                    double aberturas = m.elementos().stream().filter(x -> (x.tipo() == TipoElementoEstrutural.PORTA || x.tipo() == TipoElementoEstrutural.JANELA) && e.id().equals(x.paredeId())).mapToDouble(x -> x.b() * x.h()).sum();
-                    alvenaria = Math.max(0, l * e.h() - aberturas);
+                    alvenaria = "MAT_DIVISORIA_SECA".equals(e.materialId()) ? 0 :
+                            br.com.civilconstructorai.acabamento.MedidorAcabamentos.areaLiquida(m,e);
                 }
                 case SAPATA, BLOCO, RADIER -> {
                     concreto = e.bx() * e.by() * e.h();
@@ -109,7 +108,10 @@ public final class Quantificador {
         for (var l : linhas) {
             sb.append(l.elementoId()).append('|').append(l.tipo()).append('|').append(l.concretoM3).append('|').append(l.formaM2).append('|').append(l.acoKg).append('|').append(l.alvenariaM2).append(';');
         }
-        return new Resultado(m.versao(), List.copyOf(linhas), totais, geral, fnv1a(sb.toString()));
+        var acabamentos = br.com.civilconstructorai.acabamento.MedidorAcabamentos.medir(m);
+        for (var l : linhas) sb.append(l.materialId()).append('|');
+        for (var a : acabamentos) sb.append(a.toString()).append(';');
+        return new Resultado(m.versao(), List.copyOf(linhas), totais, geral, fnv1a(sb.toString()), acabamentos);
     }
 
     private static String rotuloAutomatico(ElementoEstrutural e, Map<String, Integer> contadores) {

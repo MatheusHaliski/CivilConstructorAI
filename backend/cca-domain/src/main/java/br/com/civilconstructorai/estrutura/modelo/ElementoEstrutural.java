@@ -25,7 +25,28 @@ public record ElementoEstrutural(
         String paredeId,
         double bx,
         double by,
-        boolean rascunhoIa) {
+        boolean rascunhoIa,
+        List<br.com.civilconstructorai.acabamento.Acabamento> acabamentos,
+        boolean integrarPesoAcabamentos, String apoioEstruturalId, double posicao, double peitoril, Double massaNucleo_kg_m2) {
+
+    public ElementoEstrutural { acabamentos = acabamentos == null ? List.of() : List.copyOf(acabamentos); }
+
+    public ElementoEstrutural(String id, TipoElementoEstrutural tipo, String pavimentoId, String materialId, String rotulo,
+            Ponto p1, Ponto p2, Ponto centro, double b, double h, List<Ponto> contorno, String nivelBaseId,
+            String nivelTopoId, String paredeId, double bx, double by, boolean rascunhoIa) {
+        this(id, tipo, pavimentoId, materialId, rotulo, p1, p2, centro, b, h, contorno, nivelBaseId, nivelTopoId, paredeId, bx, by, rascunhoIa, List.of(), false, null, 0, 0, null);
+    }
+
+    public ElementoEstrutural comAcabamentos(List<br.com.civilconstructorai.acabamento.Acabamento> a, boolean integrar, String apoio) {
+        return new ElementoEstrutural(id,tipo,pavimentoId,materialId,rotulo,p1,p2,centro,b,h,contorno,nivelBaseId,nivelTopoId,paredeId,bx,by,rascunhoIa,a,integrar,apoio,posicao,peitoril,massaNucleo_kg_m2);
+    }
+    public ElementoEstrutural comMassaNucleo(Double massa) {
+        if (massa != null && (!Double.isFinite(massa) || massa <= 0)) throw new IllegalArgumentException("Massa do núcleo deve ser positiva e finita.");
+        return new ElementoEstrutural(id,tipo,pavimentoId,materialId,rotulo,p1,p2,centro,b,h,contorno,nivelBaseId,nivelTopoId,paredeId,bx,by,rascunhoIa,acabamentos,integrarPesoAcabamentos,apoioEstruturalId,posicao,peitoril,massa);
+    }
+    public ElementoEstrutural comPosicaoAbertura(double pos, double peit) {
+        return new ElementoEstrutural(id,tipo,pavimentoId,materialId,rotulo,p1,p2,centro,b,h,contorno,nivelBaseId,nivelTopoId,paredeId,bx,by,rascunhoIa,acabamentos,integrarPesoAcabamentos,apoioEstruturalId,pos,peit,massaNucleo_kg_m2);
+    }
 
     public static ElementoEstrutural pilar(String id, String pav, Ponto centro, double b, double h, String nivelBase, String nivelTopo, String material) {
         return new ElementoEstrutural(id, TipoElementoEstrutural.PILAR, pav, material, null, null, null, centro, b, h, List.of(), nivelBase, nivelTopo, null, 0, 0, false);
@@ -44,7 +65,7 @@ public record ElementoEstrutural(
     }
 
     public static ElementoEstrutural abertura(String id, TipoElementoEstrutural tipo, String pav, String paredeId, double largura, double altura) {
-        return new ElementoEstrutural(id, tipo, pav, null, null, null, null, null, largura, altura, List.of(), null, null, paredeId, 0, 0, false);
+        return new ElementoEstrutural(id, tipo, pav, null, null, null, null, null, largura, altura, List.of(), null, null, paredeId, 0, 0, false).comPosicaoAbertura(0.5,0);
     }
 
     public static ElementoEstrutural fundacao(String id, TipoElementoEstrutural tipo, String pav, Ponto centro, double bx, double by, double h, String material) {
@@ -52,11 +73,11 @@ public record ElementoEstrutural(
     }
 
     public ElementoEstrutural comRotulo(String novoRotulo) {
-        return new ElementoEstrutural(id, tipo, pavimentoId, materialId, novoRotulo, p1, p2, centro, b, h, contorno, nivelBaseId, nivelTopoId, paredeId, bx, by, rascunhoIa);
+        return new ElementoEstrutural(id, tipo, pavimentoId, materialId, novoRotulo, p1, p2, centro, b, h, contorno, nivelBaseId, nivelTopoId, paredeId, bx, by, rascunhoIa, acabamentos, integrarPesoAcabamentos, apoioEstruturalId, posicao, peitoril, massaNucleo_kg_m2);
     }
 
     public ElementoEstrutural comoRascunhoIa() {
-        return new ElementoEstrutural(id, tipo, pavimentoId, materialId, rotulo, p1, p2, centro, b, h, contorno, nivelBaseId, nivelTopoId, paredeId, bx, by, true);
+        return new ElementoEstrutural(id, tipo, pavimentoId, materialId, rotulo, p1, p2, centro, b, h, contorno, nivelBaseId, nivelTopoId, paredeId, bx, by, true, acabamentos, integrarPesoAcabamentos, apoioEstruturalId, posicao, peitoril, massaNucleo_kg_m2);
     }
 
     public double comprimento() {

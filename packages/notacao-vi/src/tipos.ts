@@ -37,6 +37,9 @@ export type ElementoBase = {
   pavimentoId: string;
   camada: Camada;
   materialId?: string;
+  /** Identifica o cimento; a correspondência com fck depende de dosagem documentada. */
+  cimentoId?: string;
+  dosagemCimentoId?: string;
   /** origem do comando que criou/alterou por último */
   origem: OrigemComando;
   /** rascunho de IA ainda não aprovado (RF27) */
@@ -44,13 +47,26 @@ export type ElementoBase = {
   rotulo?: string;
 };
 
-export type Parede = ElementoBase & { tipo: "PAREDE"; p1: Ponto2D; p2: Ponto2D; espessura: number; altura: number; externa: boolean };
+export type FaceAcabamento = "LADO_A" | "LADO_B" | "SUPERIOR" | "INFERIOR";
+export type CamadaAcabamento = {
+  id: string; materialId: string; face: FaceAcabamento; espessura_m: number;
+  larguraPeca_m?: number; alturaPeca_m?: number; junta_m: number; perda_percentual: number;
+  massaSuperficial_kg_m2?: number; pesoEspecifico_kN_m3?: number;
+  especificacao?: string; cimentoId?: string;
+};
+export type Parede = ElementoBase & {
+  tipo: "PAREDE"; p1: Ponto2D; p2: Ponto2D; espessura: number; altura: number; externa: boolean;
+  /** A: normal esquerda (-dy,dx) do segmento p1→p2 no plano XY; B: direita. */
+  acabamentos?: CamadaAcabamento[]; integrarPesoAcabamentos?: boolean; apoioEstruturalId?: string;
+  /** Massa apenas do núcleo/perfis/isolantes, sem as chapas cadastradas nas faces. */
+  massaNucleo_kg_m2?: number;
+};
 export type Pilar = ElementoBase & {
   tipo: "PILAR"; centro: Ponto2D; b: number; h: number; secao: "RETANGULAR" | "CIRCULAR";
   nivelBaseId: string; nivelTopoId: string; baseOffset: number; topoOffset: number; continuo: boolean; rotacao: number;
 };
 export type Viga = ElementoBase & { tipo: "VIGA"; p1: Ponto2D; p2: Ponto2D; b: number; h: number };
-export type Laje = ElementoBase & { tipo: "LAJE"; contorno: Ponto2D[]; h: number };
+export type Laje = ElementoBase & { tipo: "LAJE"; contorno: Ponto2D[]; h: number; acabamentos?: CamadaAcabamento[]; integrarPesoAcabamentos?: boolean };
 export type Abertura = ElementoBase & { tipo: "PORTA" | "JANELA"; paredeId: string; posicao: number; largura: number; altura: number; peitoril: number };
 export type Ambiente = ElementoBase & { tipo: "AMBIENTE"; ponto: Ponto2D; nome: string; area?: number };
 export type Linha = ElementoBase & { tipo: "LINHA" | "PLANO_REF"; p1: Ponto2D; p2: Ponto2D };

@@ -83,13 +83,16 @@ public class ModeloEstruturalJdbc implements ModeloEstruturalFonte {
                 yield ElementoEstrutural.laje(id, pav, pts, g.path("h").asDouble(), material);
             }
             case "PAREDE" -> ElementoEstrutural.parede(id, pav, ponto(g.path("p1")), ponto(g.path("p2")), g.path("espessura").asDouble(), g.path("altura").asDouble(), material);
-            case "PORTA", "JANELA" -> ElementoEstrutural.abertura(id, TipoElementoEstrutural.valueOf(tipo), pav, texto(g, "paredeId"), g.path("largura").asDouble(), g.path("altura").asDouble());
+            case "PORTA", "JANELA" -> ElementoEstrutural.abertura(id, TipoElementoEstrutural.valueOf(tipo), pav, texto(g, "paredeId"), g.path("largura").asDouble(), g.path("altura").asDouble()).comPosicaoAbertura(g.path("posicao").asDouble(), g.path("peitoril").asDouble());
             case "SAPATA", "BLOCO", "RADIER" -> ElementoEstrutural.fundacao(id, TipoElementoEstrutural.valueOf(tipo), pav, ponto(g.path("centro")), g.path("bx").asDouble(), g.path("by").asDouble(), g.path("h").asDouble(), material);
             default -> null;
         };
         if (e == null) {
             return null;
         }
+        var dados = mapper.convertValue(g, new tools.jackson.core.type.TypeReference<java.util.Map<String,Object>>() {});
+        var acabamentos = br.com.civilconstructorai.acabamento.Acabamento.ler(dados.get("acabamentos"), e.tipo() == TipoElementoEstrutural.PAREDE);
+        e = e.comAcabamentos(acabamentos, g.path("integrarPesoAcabamentos").asBoolean(false), texto(g,"apoioEstruturalId")).comMassaNucleo(g.hasNonNull("massaNucleo_kg_m2") ? g.path("massaNucleo_kg_m2").asDouble() : null);
         if (rotulo != null) {
             e = e.comRotulo(rotulo);
         }

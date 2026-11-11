@@ -16,6 +16,7 @@ public class FakeModeloLinguagem implements ModeloLinguagem {
     @Override
     public Resposta gerarEstruturado(RotaIa rota, String systemPromptFixo, String entradaVariavel, String jsonSchema, Map<String, String> contexto) {
         var json = switch (rota) {
+            case SELECAO_CIMENTO -> "{\"cimentoIds\":[]}";
             case COMANDO_VI -> "{\"comandos\":[{\"codigo\":\"PAREDE\",\"args\":{\"p1\":[0,0],\"p2\":[5,0],\"esp\":0.15,\"h\":2.8,\"mat\":\"MAT_ALV_BLOCO14\"}}]}";
             case LANCAMENTO_ESTRUTURAL -> "{\"pilares\":[],\"vigas\":[],\"lajes\":[]}";
             case EXTRACAO_BOLETIM_SPT -> "{\"furos\":[]}";
