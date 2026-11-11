@@ -14,7 +14,7 @@ type ResultadoCombinacao = { combinacao: { nome: string; estadoLimite: string; f
 /** espelha SolverMef.ResultadoAnalise */
 type ResultadoAnalise = { nos: number; barras: number; porCombinacao: Record<string, ResultadoCombinacao> };
 /** espelha DimensionamentoService.ResultadoElemento */
-type ResultadoElemento = { elementoId: string; rotulo?: string; tipo: string; verifica: boolean; motivo?: string; mdKnm: number; vdKn: number; ndKn: number; armaduraLongitudinal?: string; estribos?: string; asCm2: number; acoKg: number; memoria: string[] };
+type ResultadoElemento = { elementoId: string; rotulo?: string; tipo: string; verifica: boolean; motivo?: string; mdKnm: number; vdKn: number; ndKn: number; armaduraLongitudinal?: string; estribos?: string; asCm2: number; acoKg: number; memoria: string[]; estadoVerificacao?: "ATENDE" | "NAO_ATENDE" | "NAO_VERIFICADO" | "NAO_SUPORTADO" };
 
 function Diagramas({ r }: { r: ResultadoAnalise }) {
   const nomes = Object.keys(r.porCombinacao ?? {});
@@ -59,7 +59,8 @@ export default function PaginaAnalises({ params }: { params: Promise<{ obraId: s
   const concluidas = (analises.data ?? []).filter((a) => a.estado === "CONCLUIDO");
   return (
     <>
-      <CabecalhoObra obraId={obraId} secao="Análise e dimensionamento" descricao="Pórtico espacial (6 GDL por nó) pelo MEF; armaduras pela NBR 6118 / perfis NBR 8800. Resultado é rascunho até aprovação com ART." acoes={eng && <Botao icone={<Play className="size-4" aria-hidden />} carregando={solicitar.isPending} onClick={() => solicitar.mutate()}>Nova análise</Botao>} />
+      <CabecalhoObra obraId={obraId} secao="Análise e dimensionamento" descricao="Análise linear de pórticos e pré-dimensionamento de concreto. Perfis metálicos ainda não são suportados." acoes={eng && <Botao icone={<Play className="size-4" aria-hidden />} carregando={solicitar.isPending} onClick={() => solicitar.mutate()}>Nova análise</Botao>} />
+      <Aviso titulo="Pré-dimensionamento sem aprovação técnica">Os cálculos atuais têm verificações estruturais e detalhamento incompletos. As estimativas não constituem projeto executivo e não podem ser aprovadas com ART/RRT.</Aviso>
       <div className="grid gap-4 lg:grid-cols-2">
         <Cartao titulo="Análises (RF05)">
           {analises.isLoading ? <Carregando /> : <Tabela linhas={analises.data ?? []} chave={(a) => a.id} vazio={<Vazio titulo="Nenhuma análise" descricao="Marque o lançamento como pronto em Estrutura e solicite a análise." />} colunas={[
@@ -71,12 +72,12 @@ export default function PaginaAnalises({ params }: { params: Promise<{ obraId: s
         <Cartao titulo="Dimensionamentos (RF07)">
           {dims.isLoading ? <Carregando /> : <Tabela linhas={dims.data ?? []} chave={(d) => d.id} vazio={<Vazio titulo="Nenhum dimensionamento" descricao={concluidas.length ? "Escolha uma análise concluída e clique em Dimensionar." : "Conclua uma análise primeiro."} />} colunas={[
             { titulo: "Quando", celula: (d) => data(d.criadoEm) }, { titulo: "Estado", celula: (d) => <EstadoEtiqueta estado={d.estado} /> },
-            { titulo: "Aço (kg)", celula: (d) => numero(d["acoTotalKg"] as number, 1), numerica: true }, { titulo: "Não verifica", celula: (d) => <span className={(d["elementosNaoVerificam"] as number) ? "text-danger font-medium" : ""}>{String(d["elementosNaoVerificam"] ?? 0)}</span>, numerica: true },
-            { titulo: "", celula: (d) => <div className="flex gap-1"><Botao pequeno variante="secundario" onClick={() => setDimSel(d.id)}>Memória</Botao>{eng && d.estado === "CALCULADO" && <><Botao pequeno onClick={() => aprovar.mutate({ id: d.id, artRrt: art })} disabled={!art || !sessao?.seloVerificado} title={!sessao?.seloVerificado ? "Exige selo profissional verificado" : undefined}>Aprovar</Botao><Botao pequeno variante="fantasma" onClick={() => rejeitar.mutate(d.id)}>Rejeitar</Botao></>}</div> },
+            { titulo: "Aço (kg)", celula: (d) => numero(d["acoTotalKg"] as number, 1), numerica: true }, { titulo: "Pendências", celula: (d) => <span className={(d["elementosNaoVerificam"] as number) ? "text-danger font-medium" : ""}>{String(d["elementosNaoVerificam"] ?? 0)}</span>, numerica: true },
+            { titulo: "", celula: (d) => <div className="flex gap-1"><Botao pequeno variante="secundario" onClick={() => setDimSel(d.id)}>Memória</Botao>{d.estado === "FALHOU" && <span className="text-xs text-danger">{String(d["mensagemErro"] ?? "Falha no cálculo")}</span>}{eng && d.estado === "CALCULADO" && <><Botao pequeno onClick={() => aprovar.mutate({ id: d.id, artRrt: art })} disabled={!art || !sessao?.seloVerificado || Number(d["elementosNaoVerificam"]) !== 0} title={!sessao?.seloVerificado ? "Exige selo profissional verificado" : undefined}>Aprovar</Botao><Botao pequeno variante="fantasma" onClick={() => rejeitar.mutate(d.id)}>Rejeitar</Botao></>}</div> },
           ]} />}
           {eng && <Entrada rotulo="ART/RRT para aprovação" value={art} onChange={(e) => setArt(e.target.value)} className="mono" ajuda={sessao?.seloVerificado ? "Aprovação exige 2FA + selo verificado." : "Seu selo profissional ainda não está verificado (Conta › Selo)."} />}
           {dimSel && (res.isLoading ? <Carregando /> : <Tabela linhas={res.data ?? []} chave={(r) => r.elementoId} colunas={[
-            { titulo: "Elemento", celula: (r) => <span>{r.rotulo ?? r.elementoId} <span className="text-xs text-text-3">{r.tipo.toLowerCase()}</span></span> }, { titulo: "Verifica", celula: (r) => r.verifica ? <Etiqueta tom="sucesso">verifica</Etiqueta> : <span className="flex flex-col gap-0.5"><Etiqueta tom="perigo">NÃO VERIFICA</Etiqueta><span className="text-xs text-danger">{r.motivo}</span></span> },
+            { titulo: "Elemento", celula: (r) => <span>{r.rotulo ?? r.elementoId} <span className="text-xs text-text-3">{r.tipo.toLowerCase()}</span></span> }, { titulo: "Verificação", celula: (r) => <span className="flex flex-col gap-0.5"><Etiqueta tom={r.estadoVerificacao === "ATENDE" && r.verifica ? "sucesso" : "perigo"}>{r.estadoVerificacao === "ATENDE" && r.verifica ? "ATENDE" : r.estadoVerificacao === "NAO_ATENDE" ? "NÃO ATENDE" : r.estadoVerificacao === "NAO_SUPORTADO" ? "NÃO SUPORTADO" : "NÃO VERIFICADO"}</Etiqueta><span className="text-xs">{r.motivo}</span></span> },
             { titulo: "Md / Vd / Nd", celula: (r) => <span className="mono text-xs">{numero(r.mdKnm, 1)} kN·m · {numero(r.vdKn, 1)} kN · {numero(r.ndKn, 1)} kN</span> },
             { titulo: "Armadura", celula: (r) => <span className="mono text-xs">{r.armaduraLongitudinal ?? "—"}<br />{r.estribos ?? ""}</span> }, { titulo: "As (cm²)", celula: (r) => numero(r.asCm2), numerica: true }, { titulo: "Aço (kg)", celula: (r) => numero(r.acoKg, 1), numerica: true },
             { titulo: "Memória", celula: (r) => <details className="text-xs"><summary className="cursor-pointer">NBR 6118</summary><ul className="mono">{r.memoria.map((m, i) => <li key={i}>{m}</li>)}</ul></details> },

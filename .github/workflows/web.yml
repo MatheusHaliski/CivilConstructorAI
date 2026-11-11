@@ -17,6 +17,8 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
+      - name: Tokens (tipos dos temas)
+        run: npm --workspace @cca/tokens run typecheck
       - name: Notação VI (tipos + testes)
         run: npm --workspace @cca/notacao-vi run typecheck && npm --workspace @cca/notacao-vi test
       - name: Web (tipos + testes)

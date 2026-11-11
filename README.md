@@ -5,8 +5,9 @@ a **Notação VI**, um **auditor paramétrico em Python** corrige a geometria e 
 estrutural, dimensionamento, fundações, quantitativos e orçamento SINAPI. Todo resultado de IA é **rascunho**
 até a aprovação de um profissional habilitado (ART/RRT).
 
-> **Fase atual: projeto.** O repositório contém a especificação (RFs, diagramas e ADRs). O código entra na ordem
-> definida em [`docs/TRELLO_BACKLOG.md`](docs/TRELLO_BACKLOG.md).
+> **Fase atual: implementação.** O backend e o app web dos RF01–RF28 foram integrados no PR #5.
+> A integração não comprova a conclusão de todos os requisitos: mobile e validações de compatibilidade
+> continuam pendentes. A ordem de evolução está em [`docs/TRELLO_BACKLOG.md`](docs/TRELLO_BACKLOG.md).
 
 ## Onde está cada coisa
 
@@ -78,3 +79,9 @@ e `packages/tokens`.
 python3 scripts/check_rf_docs.py            # estrutura de todos os RFs
 python3 scripts/check_rf_docs.py --render   # + renderiza todo Mermaid (precisa de mmdc no PATH)
 ```
+
+## Ensaios estruturais reproduzíveis
+
+O [memorial de ensaios](docs/validacao/MEMORIAL_ENSAIOS.md) contém desenho de treino, cinco casos de pórticos/vigas/pilares/faixa de laje, comparação independente e verificações resistentes parciais. A [matriz ABNT](docs/validacao/MATRIZ_NORMATIVA_ABNT.md) registra as revisões ainda necessárias. Esses ensaios não habilitam aprovação técnica do protótipo.
+
+O [catálogo de fontes de engenharia](docs/validacao/CATALOGO_FONTES_ENGENHARIA.md) organiza os documentos fornecidos sobre concreto, armaduras, esforços e aço estrutural, com edição, item/página e lacunas. O exemplar de NBR 6118 recebido é de 2014 corrigido; seus dados históricos permanecem separados das regras habilitadas de cálculo.

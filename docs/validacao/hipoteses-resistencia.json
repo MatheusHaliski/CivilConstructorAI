@@ -1,0 +1,18 @@
+{
+  "escopo": "Hipóteses explícitas de ensaio; coeficientes aguardam auditoria normativa integral",
+  "combinacao": "ELU_TESTE",
+  "material": {
+    "fck_MPa": 30,
+    "fyk_MPa": 500,
+    "gamma_c": 1.4,
+    "gamma_s": 1.15,
+    "alpha_bloco": 0.85,
+    "lambda_bloco": 0.8,
+    "limite_x_d": 0.45
+  },
+  "armaduras": [
+    {"caso": "B1", "barra": "V1", "cobrimento_mm": 30, "phi_mm": 16, "quantidade": 3, "face": "inferior", "estribo": {"phi_mm": 6.3, "ramos": 2, "espacamento_mm": 200}},
+    {"caso": "B2", "barra": "V1", "cobrimento_mm": 30, "phi_mm": 16, "quantidade": 3, "face": "superior", "estribo": {"phi_mm": 6.3, "ramos": 2, "espacamento_mm": 200}},
+    {"caso": "L1", "barra": "L1-faixa", "cobrimento_mm": 25, "phi_mm": 10, "espacamento_mm": 150, "face": "inferior"}
+  ]
+}

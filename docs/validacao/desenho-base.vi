@@ -1,0 +1,6 @@
+VI(MALHA, nx=2, ny=2, dx=6, dy=4)
+VI(PAVIMENTO, nome="Cobertura", z=3)
+VI(PILAR, centro=[0,0], b=0.25, h=0.25, mat=MAT_CONC_FCK30)
+VI(PILAR, centro=[6,0], b=0.25, h=0.25, mat=MAT_CONC_FCK30)
+VI(PILAR, centro=[6,4], b=0.25, h=0.25, mat=MAT_CONC_FCK30)
+VI(PILAR, centro=[0,4], b=0.25, h=0.25, mat=MAT_CONC_FCK30)

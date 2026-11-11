@@ -9,6 +9,7 @@ import br.com.civilconstructorai.comum.Relogio;
 import br.com.civilconstructorai.estrutura.EstadoRascunho;
 import br.com.civilconstructorai.estrutura.carga.Combinacao;
 import br.com.civilconstructorai.estrutura.dimensionamento.Bitolas;
+import br.com.civilconstructorai.estrutura.dimensionamento.ConcretoSuportado;
 import br.com.civilconstructorai.estrutura.dimensionamento.Dimensionamento;
 import br.com.civilconstructorai.estrutura.dimensionamento.Nbr6118;
 import br.com.civilconstructorai.estrutura.mef.MontadorModeloAnalitico;
@@ -32,11 +33,28 @@ import java.util.UUID;
 public class DimensionamentoService {
 
     private static final double COBRIMENTO = 0.03;
-    private static final double FCK_PADRAO = 30;
+    public enum EstadoVerificacao { ATENDE, NAO_ATENDE, NAO_VERIFICADO, NAO_SUPORTADO }
 
     public record ResultadoElemento(String elementoId, String rotulo, String tipo, boolean verifica, String motivo,
                                     double mdKnm, double vdKn, double ndKn, String armaduraLongitudinal, String estribos,
-                                    double asCm2, double acoKg, List<String> memoria) {
+                                    double asCm2, double acoKg, List<String> memoria, EstadoVerificacao estadoVerificacao) {
+        public ResultadoElemento {
+            // JSON legado não comprova cobertura: ausência do estado nunca equivale a ATENDE.
+            if (estadoVerificacao == null) {
+                estadoVerificacao = EstadoVerificacao.NAO_VERIFICADO;
+                motivo = "Resultado legado sem cobertura comprovada. Refaça o pré-dimensionamento.";
+            }
+            verifica = verifica && estadoVerificacao == EstadoVerificacao.ATENDE;
+        }
+
+        public ResultadoElemento(String elementoId, String rotulo, String tipo, boolean verifica, String motivo,
+                                 double mdKnm, double vdKn, double ndKn, String armaduraLongitudinal, String estribos,
+                                 double asCm2, double acoKg, List<String> memoria) {
+            this(elementoId, rotulo, tipo, false,
+                    verifica ? "Pré-dimensionamento: verificações estruturais e detalhamento incompletos; sem aprovação técnica." : motivo,
+                    mdKnm, vdKn, ndKn, armaduraLongitudinal, estribos, asCm2, acoKg, memoria,
+                    verifica ? EstadoVerificacao.NAO_VERIFICADO : EstadoVerificacao.NAO_ATENDE);
+        }
     }
 
     private final Repositorios.Dimensionamentos dimensionamentos;
@@ -95,6 +113,9 @@ public class DimensionamentoService {
         var elu = analise.porCombinacao().values().stream().filter(c -> c.combinacao().estadoLimite() == Combinacao.EstadoLimite.ELU_NORMAL).toList();
         var qp = analise.porCombinacao().values().stream().filter(c -> c.combinacao().estadoLimite() == Combinacao.EstadoLimite.ELS_QUASE_PERMANENTE).findFirst();
         var freq = analise.porCombinacao().values().stream().filter(c -> c.combinacao().estadoLimite() == Combinacao.EstadoLimite.ELS_FREQUENTE).findFirst();
+        if (elu.isEmpty() || qp.isEmpty() || freq.isEmpty()) {
+            throw new IllegalArgumentException("Análise incompleta: exigidas combinações ELU, ELS quase-permanente e ELS frequente.");
+        }
         var out = new ArrayList<ResultadoElemento>();
         // envoltória de esforços por elemento (máximos entre combinações ELU)
         var envoltoria = new LinkedHashMap<String, double[]>(); // [Mk+, |Mk-|, Vk, Nk]
@@ -108,10 +129,29 @@ public class DimensionamentoService {
             }
         }
         for (var e : m.elementos()) {
+            if (e.tipo() != TipoElementoEstrutural.VIGA && e.tipo() != TipoElementoEstrutural.PILAR
+                    && e.tipo() != TipoElementoEstrutural.LAJE) continue;
             if (e.rascunhoIa()) {
+                out.add(bloqueado(e, "Elemento gerado por IA ainda não validado.", EstadoVerificacao.NAO_VERIFICADO));
+                continue;
+            }
+            try {
+                ConcretoSuportado.fck(e.materialId());
+            } catch (IllegalArgumentException ex) {
+                out.add(bloqueado(e, ex.getMessage(), EstadoVerificacao.NAO_SUPORTADO));
                 continue;
             }
             var env = envoltoria.get(e.id());
+            if (e.tipo() != TipoElementoEstrutural.LAJE && analise.porCombinacao().values().stream()
+                    .filter(c -> c.combinacao().estadoLimite() != Combinacao.EstadoLimite.ELS_RARA)
+                    .anyMatch(c -> c.barras().stream().noneMatch(b -> b.elementoId().equals(e.id())))) {
+                out.add(bloqueado(e, "Esforços ausentes em uma ou mais combinações obrigatórias.", EstadoVerificacao.NAO_VERIFICADO));
+                continue;
+            }
+            if (env != null && java.util.Arrays.stream(env).anyMatch(v -> !Double.isFinite(v))) {
+                out.add(bloqueado(e, "Esforços não finitos na análise.", EstadoVerificacao.NAO_VERIFICADO));
+                continue;
+            }
             switch (e.tipo()) {
                 case VIGA -> out.add(viga(m, e, env, qp.orElse(null), freq.orElse(null)));
                 case PILAR -> out.add(pilar(m, e, env));
@@ -119,7 +159,13 @@ public class DimensionamentoService {
                 default -> { }
             }
         }
+        if (out.isEmpty()) throw new IllegalArgumentException("Nenhum elemento estrutural dimensionável no modelo.");
         return out;
+    }
+
+    private static ResultadoElemento bloqueado(ElementoEstrutural e, String motivo, EstadoVerificacao estado) {
+        return new ResultadoElemento(e.id(), e.rotulo(), e.tipo().name(), false, motivo,
+                0, 0, 0, "Não calculada", "Não calculado", 0, 0, List.of(motivo), estado);
     }
 
     private ResultadoElemento viga(ModeloEstrutural m, ElementoEstrutural v, double[] env, SolverMef.ResultadoCombinacao qp, SolverMef.ResultadoCombinacao freq) {
@@ -199,11 +245,7 @@ public class DimensionamentoService {
     }
 
     private static double fckDe(String materialId) {
-        if (materialId == null) {
-            return FCK_PADRAO;
-        }
-        var m = java.util.regex.Pattern.compile("FCK(\\d+)").matcher(materialId);
-        return m.find() ? Double.parseDouble(m.group(1)) : FCK_PADRAO;
+        return ConcretoSuportado.fck(materialId);
     }
 
     private static double kgPorMetro(double mm) {
@@ -221,6 +263,10 @@ public class DimensionamentoService {
             if (!u.podeAprovar(obraId)) {
                 throw new ExcecaoDominio.AcessoNegado("Aprovar um dimensionamento exige papel de engenheiro(a), selo CREA verificado e 2FA ativo.");
             }
+            if (modelo.carregar(obraId).versao() != d.getVersaoModelo()) {
+                throw new ExcecaoDominio.Conflito("O modelo mudou após o dimensionamento. Refaça a análise e o cálculo.");
+            }
+            exigirResultadosVerificados(resultados(obraId, dimId));
             d.aprovar(u.contaId(), artRrt, relogio.agora());
         } else {
             acesso.exigirPapel(obraId, PapelObra.ENGENHEIRO, PapelObra.DONO, PapelObra.ADMIN);
@@ -228,6 +274,14 @@ public class DimensionamentoService {
         }
         registro.registrar(new RegistroOperacoes.Operacao(aprovar ? "DIMENSIONAMENTO_APROVADO" : "DIMENSIONAMENTO_REJEITADO", u.contaId(), u.empresaAtivaId(), obraId, "Dimensionamento", d.getId(), aprovar ? Map.of("art", artRrt == null ? "" : artRrt) : Map.of()));
         return d;
+    }
+
+    static void exigirResultadosVerificados(List<ResultadoElemento> resultados) {
+        if (resultados.isEmpty() || resultados.stream().anyMatch(r -> !r.verifica()
+                || r.estadoVerificacao() != EstadoVerificacao.ATENDE)) {
+            throw new ExcecaoDominio.RegraDeNegocio("elementos_nao_verificam",
+                    "Aprovação bloqueada: há verificações incompletas, não suportadas ou reprovadas. O pré-dimensionamento não é projeto executivo.");
+        }
     }
 
     @Transactional(readOnly = true)
@@ -257,7 +311,9 @@ public class DimensionamentoService {
         for (var d : dimensionamentos.findByObraIdOrderByCriadoEmDesc(obraId)) {
             if (d.getEstado() == EstadoRascunho.APROVADO && d.getVersaoModelo() == versaoModelo && d.getResultadosJson() != null) {
                 var out = new LinkedHashMap<String, Double>();
-                for (var r : json.ler(d.getResultadosJson(), new tools.jackson.core.type.TypeReference<List<ResultadoElemento>>() { })) {
+                var resultados = json.ler(d.getResultadosJson(), new tools.jackson.core.type.TypeReference<List<ResultadoElemento>>() { });
+                if (resultados.isEmpty() || resultados.stream().anyMatch(r -> !r.verifica())) continue;
+                for (var r : resultados) {
                     out.put(r.elementoId(), r.acoKg());
                 }
                 return out;

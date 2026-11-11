@@ -9,6 +9,7 @@ import { Grid, OrbitControls, Text } from "@react-three/drei";
 import * as THREE from "three";
 import type { Elemento, Pavimento } from "@cca/notacao-vi";
 import { elementosVisiveis, useMotor } from "@/lib/motor/estado";
+import { centroVerticalViga, baseVerticalLaje, formaLaje } from "@/lib/motor/geometria-cena";
 
 const COR: Record<string, string> = { arquitetura: "#C8C2B6", estrutura: "#1D4ED8", fundacao: "#7C4A1E", desenho: "#9CA3AF", anotacao: "#166534", "ia-rascunho": "#A855F7" };
 const SEL = "#F06000";
@@ -23,7 +24,7 @@ function Elemento3D({ e, z, h, pav, sel, onClick }: { e: Elemento; z: number; h:
     case "PAREDE": case "VIGA": {
       const esp = e.tipo === "PAREDE" ? e.espessura : e.b, alt = e.tipo === "PAREDE" ? e.altura : e.h;
       const dx = e.p2.x - e.p1.x, dy = e.p2.y - e.p1.y, l = Math.hypot(dx, dy) || 0.01, ang = Math.atan2(dy, dx);
-      const zc = e.tipo === "PAREDE" ? z + alt / 2 : z + h - alt / 2;
+      const zc = e.tipo === "PAREDE" ? z + alt / 2 : centroVerticalViga(z, alt);
       return <mesh position={[(e.p1.x + e.p2.x) / 2, zc, -(e.p1.y + e.p2.y) / 2]} rotation={[0, ang, 0]} onClick={click}><boxGeometry args={[l, alt, esp]} />{mat}</mesh>;
     }
     case "PILAR": {
@@ -33,8 +34,8 @@ function Elemento3D({ e, z, h, pav, sel, onClick }: { e: Elemento; z: number; h:
       return <mesh position={[e.centro.x, z0 + alt / 2, -e.centro.y]} rotation={[0, (e.rotacao * Math.PI) / 180, 0]} onClick={click}>{e.secao === "CIRCULAR" ? <cylinderGeometry args={[e.b / 2, e.b / 2, alt, 24]} /> : <boxGeometry args={[e.b, alt, e.h]} />}{mat}</mesh>;
     }
     case "LAJE": {
-      const shape = new THREE.Shape(e.contorno.map((p) => new THREE.Vector2(p.x, -p.y)));
-      return <mesh position={[0, z + h - e.h, 0]} rotation={[-Math.PI / 2, 0, 0]} onClick={click}><extrudeGeometry args={[shape, { depth: e.h, bevelEnabled: false }]} />{mat}</mesh>;
+      const shape = formaLaje(e.contorno);
+      return <mesh position={[0, baseVerticalLaje(z, e.h), 0]} rotation={[-Math.PI / 2, 0, 0]} onClick={click}><extrudeGeometry args={[shape, { depth: e.h, bevelEnabled: false }]} />{mat}</mesh>;
     }
     case "SAPATA": case "BLOCO": case "RADIER": case "ESTACA":
       return <mesh position={[e.centro.x, z - e.h / 2 - 0.05, -e.centro.y]} onClick={click}><boxGeometry args={[e.bx, e.h, e.by]} />{mat}</mesh>;
@@ -50,7 +51,7 @@ function Elemento3D({ e, z, h, pav, sel, onClick }: { e: Elemento; z: number; h:
       return <primitive object={new THREE.Line(geo, new THREE.LineBasicMaterial({ color: cor }))} onClick={click} />;
     }
     case "CIRCULO": return <mesh position={[e.centro.x, z + 0.01, -e.centro.y]} rotation={[-Math.PI / 2, 0, 0]} onClick={click}><ringGeometry args={[Math.max(0.01, e.raio - 0.02), e.raio, 48]} /><meshBasicMaterial color={cor} side={THREE.DoubleSide} /></mesh>;
-    case "AMBIENTE": case "TEXTO": case "ETIQUETA": { const p = e.tipo === "AMBIENTE" ? e.ponto : e.p; return <Text position={[p.x, z + 0.05, -p.y]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.35} color="#111827" anchorX="center">{e.tipo === "AMBIENTE" ? e.nome : e.texto}</Text>; }
+    case "AMBIENTE": case "TEXTO": case "ETIQUETA": { const p = e.tipo === "AMBIENTE" ? e.ponto : e.p; return <Suspense fallback={null}><Text position={[p.x, z + 0.05, -p.y]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.35} color="#111827" anchorX="center">{e.tipo === "AMBIENTE" ? e.nome : e.texto}</Text></Suspense>; }
     default: return null;
   }
 }
@@ -76,7 +77,7 @@ export function Cena3D() {
         <ambientLight intensity={0.8} /><directionalLight position={[20, 30, 10]} intensity={1.2} castShadow />
         <Suspense fallback={null}>
           <Grid args={[80, 80]} cellSize={1} sectionSize={5} cellColor="#D1D5DB" sectionColor="#9CA3AF" fadeDistance={80} position={[0, -0.01, 0]} />
-          {eixos.map((ex) => { const a = ex.direcao === "X" ? [ex.posicao, 0.02, -ex.inicio] : [ex.inicio, 0.02, -ex.posicao]; const b = ex.direcao === "X" ? [ex.posicao, 0.02, -ex.fim] : [ex.fim, 0.02, -ex.posicao]; const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...(a as [number, number, number])), new THREE.Vector3(...(b as [number, number, number]))]); return <group key={ex.id}><primitive object={new THREE.Line(geo, new THREE.LineDashedMaterial({ color: "#6B7280", dashSize: 0.5, gapSize: 0.25 }))} /><Text position={[b[0]! + (ex.direcao === "Y" ? 0.6 : 0), 0.05, b[2]! - (ex.direcao === "X" ? 0.6 : 0)]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.4} color="#374151">{ex.nome}</Text></group>; })}
+          {eixos.map((ex) => { const a = ex.direcao === "X" ? [ex.posicao, 0.02, -ex.inicio] : [ex.inicio, 0.02, -ex.posicao]; const b = ex.direcao === "X" ? [ex.posicao, 0.02, -ex.fim] : [ex.fim, 0.02, -ex.posicao]; const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...(a as [number, number, number])), new THREE.Vector3(...(b as [number, number, number]))]); return <group key={ex.id}><primitive object={new THREE.Line(geo, new THREE.LineDashedMaterial({ color: "#6B7280", dashSize: 0.5, gapSize: 0.25 }))} /><Suspense fallback={null}><Text position={[b[0]! + (ex.direcao === "Y" ? 0.6 : 0), 0.05, b[2]! - (ex.direcao === "X" ? 0.6 : 0)]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.4} color="#374151">{ex.nome}</Text></Suspense></group>; })}
           {itens.map(({ e, z, h }) => <Elemento3D key={e.id} e={e} z={z} h={h} pav={pav} sel={s.selecao.has(e.id)} onClick={onClick} />)}
         </Suspense>
         <OrbitControls makeDefault enableDamping={!reduzido} target={[s.viewport.cx, 1.4, -s.viewport.cy]} />

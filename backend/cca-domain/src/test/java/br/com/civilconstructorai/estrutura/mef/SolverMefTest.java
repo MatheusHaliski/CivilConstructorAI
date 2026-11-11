@@ -83,4 +83,20 @@ class SolverMefTest {
         m.caso(NaturezaAcao.PERMANENTE).distribuidas().add(new ModeloAnalitico.CargaDistribuida(0, 0, 0, -5));
         assertThatThrownBy(() -> new SolverMef(m).resolver(List.of(G))).isInstanceOf(SolverMef.EstruturaHipostaticaException.class);
     }
+
+    @Test
+    void incluiExtremoDeMzForaDosOnzePontosSemArredondarPosicao() {
+        var m = new ModeloAnalitico();
+        int a = m.adicionarNo(0,0,0), b = m.adicionarNo(6,0,0);
+        int barra = m.adicionarBarra("V1","V1",a,b,ModeloAnalitico.Secao.retangular(.2,.5,30e6));
+        m.adicionarApoio(new ModeloAnalitico.Apoio(a,true,true,true,true,true,false));
+        m.adicionarApoio(new ModeloAnalitico.Apoio(b,false,true,true,true,true,false));
+        m.caso(NaturezaAcao.PERMANENTE).distribuidas().add(new ModeloAnalitico.CargaDistribuida(barra,0,-10,0));
+        m.caso(NaturezaAcao.PERMANENTE).nodais().add(new ModeloAnalitico.CargaNodal(a,0,0,0,0,0,10));
+        var r = new SolverMef(m).resolver(List.of(G)).porCombinacao().get("G").barras().getFirst();
+        // M(s)=-10+(95/3)s-5s²: dM/ds=0 em s=19/6 m, fora da grade de 0,6 m.
+        var extremo = r.pontos().stream().filter(p -> Math.abs(p.vy()) < 1e-9).findFirst().orElseThrow();
+        assertThat(extremo.s()).isCloseTo(19.0/6,within(1e-12));
+        assertThat(extremo.mz()).isCloseTo(1445.0/36,within(1e-10));
+    }
 }

@@ -1,0 +1,2201 @@
+{
+  "schema_version": "1.0.0",
+  "catalogo_version": "2026-11-11.1",
+  "natureza": "referencia_historica",
+  "habilitado_para_calculo": false,
+  "vigencia_atual_verificada": false,
+  "aviso": "Transcrição técnica da edição 2014 fornecida. Não comprova vigência em 2026, não autoriza projeto e não alimenta o motor. Valores condicionais devem ser lidos com seus domínios e normas complementares.",
+  "fonte": {
+    "nome": "Copy of NBR 6118 – Projeto de estruturas de concreto..pdf",
+    "caminho_remoto": "docs/normas/Copy of NBR 6118 – Projeto de estruturas de concreto..pdf",
+    "blob_sha": "39a3fa0c067a94be77670afee6cd693e444ae7cf",
+    "sha256": "220bf88c73edee537ab60a4314844e24aba7b50cf55c807b8e941eec0c158a29",
+    "bytes": 1924005,
+    "local": "/workspace/referencias/normas/Copy of NBR 6118 – Projeto de estruturas de concreto..pdf",
+    "url": "https://github.com/MatheusHaliski/CivilConstructorAI/blob/main/docs/normas/Copy%20of%20NBR%206118%20%E2%80%93%20Projeto%20de%20estruturas%20de%20concreto..pdf",
+    "id": "nbr6118_2014_corrigida",
+    "norma": "ABNT NBR 6118:2014",
+    "edicao": "Terceira edição, 29.04.2014; versão corrigida 07.08.2014",
+    "paginas_pdf": 256,
+    "paginas_impressas": 238,
+    "regra_paginacao_corpo": "página PDF (base 1) = página impressa + 18"
+  },
+  "leitura": {
+    "metodo": "Leitura sequencial integral do texto extraído por pdftotext -layout nos intervalos indicados; fórmulas/tabelas com símbolos perdidos não foram completadas por suposição; Tabela 17.3 conferida na página renderizada. Tabela A.2 conferida visualmente na página PDF 232. Tabela A.1 e expressão beta_s conferidas visualmente no PDF 230.",
+    "intervalos": [
+      {
+        "capitulos": "6–9",
+        "pdf": [
+          33,
+          72
+        ],
+        "impressas": [
+          15,
+          54
+        ]
+      },
+      {
+        "capitulos": "17–25",
+        "pdf": [
+          135,
+          224
+        ],
+        "impressas": [
+          117,
+          206
+        ]
+      },
+      {
+        "capitulos": "Anexo A (informativo), A.1–A.3",
+        "pdf": [
+          225,
+          234
+        ],
+        "impressas": [
+          207,
+          216
+        ]
+      }
+    ],
+    "limite": "Não equivale à leitura integral das 256 páginas nem valida as referências normativas externas. Anexo B identificado como índice remissivo, sem conteúdo de dimensionamento novo."
+  },
+  "registros": [
+    {
+      "id": "classes",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.2.1",
+      "pagina_pdf": [
+        40
+      ],
+      "pagina_impressa": [
+        22
+      ],
+      "titulo": "Classes e aplicação",
+      "valores": {
+        "grupos": [
+          "I",
+          "II"
+        ],
+        "classe_maxima": "C90",
+        "minima_passiva": "C20",
+        "minima_ativa": "C25",
+        "C15": "Somente obras provisórias ou concreto sem fins estruturais segundo este item"
+      },
+      "unidades": "classe C e MPa",
+      "dominio": "Concretos abrangidos pela edição 2014 e classificação NBR 8953",
+      "observacoes": "24.3 trata especificamente concreto simples estrutural e cita C15 a C40; manter a diferença de escopo em relação à regra geral de 8.2.1, sem declarar erro normativo ou liberar automaticamente C15 em concreto armado.",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "densidade",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "1.2; 8.2.2",
+      "pagina_pdf": [
+        19,
+        40
+      ],
+      "pagina_impressa": [
+        1,
+        22
+      ],
+      "titulo": "Massa específica",
+      "valores": {
+        "normal_seco_estufa": [
+          2000,
+          2800
+        ],
+        "simples_sem_dado": 2400,
+        "armado_sem_dado": 2500,
+        "incremento_armado_com_dado_simples": [
+          100,
+          150
+        ],
+        "normal_seco_estufa_intervalo": {
+          "min": 2000,
+          "min_inclusivo": false,
+          "max": 2800,
+          "max_inclusivo": true
+        }
+      },
+      "unidades": "kg/m³",
+      "dominio": "Concreto normal seco: rho > 2000 kg/m³ e rho <= 2800 kg/m³, conforme escopo 1.2; valores 2400/2500 somente quando massa real desconhecida.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "dilatacao_concreto",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.2.3",
+      "pagina_pdf": [
+        41
+      ],
+      "pagina_impressa": [
+        23
+      ],
+      "titulo": "Dilatação térmica",
+      "valores": {
+        "alpha": 1e-05
+      },
+      "unidades": "1/°C",
+      "dominio": "Admissão para análise estrutural.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "compressao_ensaio",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.2.4",
+      "pagina_pdf": [
+        41
+      ],
+      "pagina_impressa": [
+        23
+      ],
+      "titulo": "Resistência à compressão",
+      "valores": {
+        "idade_padrao": 28,
+        "corpo_prova": "cilíndrico",
+        "moldagem": "NBR 5738",
+        "ruptura": "NBR 5739",
+        "fcmj": "conforme NBR 12655",
+        "evolucao_idade": "ensaios específicos; orientação remissiva 12.3.3"
+      },
+      "unidades": "dias; MPa",
+      "dominio": "Idade de 28 dias quando não indicada outra; não confundir fcm, fck e fcd.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "tracao",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.2.5",
+      "pagina_pdf": [
+        41
+      ],
+      "pagina_impressa": [
+        23
+      ],
+      "titulo": "Tração direta, indireta e flexão",
+      "valores": {
+        "fct_por_ensaio": [
+          "0.9*fct,sp",
+          "0.7*fct,f"
+        ],
+        "fctk_inf": "0.7*fct,m",
+        "fctk_sup": "1.3*fct,m",
+        "fctm_ate_C50": "0.3*fck^(2/3)",
+        "fctm_C55_C90": "2.12*ln(1+0.11*fck)",
+        "ensaios": [
+          "NBR 7222",
+          "NBR 12142"
+        ],
+        "fckj_min_outras_idades": 7
+      },
+      "unidades": "MPa",
+      "dominio": "Equações estimativas na falta de ensaios; fck e fct,m em MPa; outras idades somente fckj >= 7 MPa.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "multiaxial",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.2.6",
+      "pagina_pdf": [
+        41,
+        42
+      ],
+      "pagina_impressa": [
+        23,
+        24
+      ],
+      "titulo": "Resistência multiaxial",
+      "valores": {
+        "ordem": "sigma3 >= sigma2 >= sigma1",
+        "limites": [
+          "sigma1 >= -fctk",
+          "sigma3 <= fck+4*sigma1"
+        ]
+      },
+      "unidades": "MPa",
+      "dominio": "Compressão positiva; tração negativa; consultar Figura 8.1.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "elasticidade",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.2.8",
+      "pagina_pdf": [
+        42,
+        43
+      ],
+      "pagina_impressa": [
+        24,
+        25
+      ],
+      "titulo": "Módulos inicial e secante",
+      "valores": {
+        "Eci_20_50": "alphaE*5600*sqrt(fck)",
+        "Eci_55_90": "21500*alphaE*(fck/10+1.25)^(1/3)",
+        "alphaE": {
+          "basalto_diabasio": 1.2,
+          "granito_gnaisse": 1.0,
+          "calcario": 0.9,
+          "arenito": 0.7
+        },
+        "Ecs": "alphai*Eci",
+        "alphai": "min(0.8+0.2*fck/80,1.0)",
+        "ensaio": "NBR 8522"
+      },
+      "unidades": "MPa; fatores adimensionais",
+      "dominio": "Eci tangente inicial/cordal aos 28 dias; ensaio prioritário; estimativas dependem do agregado.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "tabela81",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.2.8 / Tabela 8.1",
+      "pagina_pdf": [
+        43
+      ],
+      "pagina_impressa": [
+        25
+      ],
+      "titulo": "Estimativas arredondadas para granito",
+      "valores": {
+        "classes": [
+          "C20",
+          "C25",
+          "C30",
+          "C35",
+          "C40",
+          "C45",
+          "C50",
+          "C60",
+          "C70",
+          "C80",
+          "C90"
+        ],
+        "Eci": [
+          25,
+          28,
+          31,
+          33,
+          35,
+          38,
+          40,
+          42,
+          43,
+          45,
+          47
+        ],
+        "Ecs": [
+          21,
+          24,
+          27,
+          29,
+          32,
+          34,
+          37,
+          40,
+          42,
+          45,
+          47
+        ],
+        "alphai": [
+          0.85,
+          0.86,
+          0.88,
+          0.89,
+          0.9,
+          0.91,
+          0.93,
+          0.95,
+          0.98,
+          1,
+          1
+        ]
+      },
+      "unidades": "Eci/Ecs: GPa; alphai: adimensional",
+      "dominio": "Granito; valores publicados arredondados. Tabela não contém C55/C65/C75/C85; não preencher por interpolação silenciosa.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "elasticidade_idade",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.2.8",
+      "pagina_pdf": [
+        43
+      ],
+      "pagina_impressa": [
+        25
+      ],
+      "titulo": "Módulo antes de 28 dias",
+      "valores": {
+        "Eci_t_C20_C45": "(fckj/fck)^0.5*Eci",
+        "Eci_t_C50_C90": "(fckj/fck)^0.3*Eci",
+        "idades": [
+          7,
+          28
+        ]
+      },
+      "unidades": "dias; MPa",
+      "dominio": "Intervalo 7 a 28 dias; Eci aos 28 dias; fckj da idade em avaliação.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "poisson",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.2.9",
+      "pagina_pdf": [
+        43
+      ],
+      "pagina_impressa": [
+        25
+      ],
+      "titulo": "Poisson e cisalhamento elástico",
+      "valores": {
+        "nu": 0.2,
+        "Gc": "Ecs/2.4"
+      },
+      "unidades": "nu: adimensional; Gc/Ecs: mesma unidade de tensão",
+      "dominio": "sigma_compressao < 0.5*fc e sigma_tracao < fct.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "diagrama_compressao",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.2.10.1",
+      "pagina_pdf": [
+        44
+      ],
+      "pagina_impressa": [
+        26
+      ],
+      "titulo": "Parábola-retângulo",
+      "valores": {
+        "sigma_c": "0.85*fcd*[1-(1-epsilon_c/epsilon_c2)^n]",
+        "ate_C50": {
+          "n": 2,
+          "epsilon_c2": 2,
+          "epsilon_cu": 3.5
+        },
+        "C55_C90": {
+          "n": "1.4+23.4*((90-fck)/100)^4",
+          "epsilon_c2": "2+0.085*(fck-50)^0.53",
+          "epsilon_cu": "2.6+35*((90-fck)/100)^4"
+        }
+      },
+      "unidades": "fck/fcd: MPa; epsilon_c2/epsilon_cu tabuladas em ‰; n adimensional",
+      "dominio": "ELU; deformações no quociente na mesma unidade; patamar após epsilon_c2; ramo linear de serviço apenas abaixo de 0.5*fc com Ecs. fcd remete a 12.3.3.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "diagrama_tracao",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.2.10.2",
+      "pagina_pdf": [
+        45
+      ],
+      "pagina_impressa": [
+        27
+      ],
+      "titulo": "Diagrama bilinear de tração",
+      "valores": {
+        "figura": "8.3",
+        "marcos": [
+          "0.9*fctk",
+          "fctk",
+          "0.15 ‰"
+        ],
+        "modulo": "Eci"
+      },
+      "unidades": "MPa; ‰",
+      "dominio": "Concreto não fissurado; geometria completa do gráfico deve ser consultada na fonte.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "fluencia_dominio",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.2.11",
+      "pagina_pdf": [
+        45,
+        46
+      ],
+      "pagina_impressa": [
+        27,
+        28
+      ],
+      "titulo": "Fluência/retração simplificadas",
+      "valores": {
+        "espessura_ficticia": "2*Ac/u",
+        "UR": [
+          40,
+          55,
+          75,
+          90
+        ],
+        "espessuras": [
+          20,
+          60
+        ],
+        "idades_t0": [
+          5,
+          30,
+          60
+        ],
+        "temperatura_base": [
+          10,
+          20
+        ],
+        "temperatura_admissivel": [
+          0,
+          40
+        ]
+      },
+      "unidades": "UR: %; espessura: cm; idade: dias; temperatura: °C",
+      "dominio": "Concreto plástico e cimento Portland comum; tensão no primeiro carregamento < 0.5*fc; baixa exigência de precisão; interpolação linear; valores finais característicos superiores. Anexo A para maior precisão.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "tabela82",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.2.11 / Tabela 8.2",
+      "pagina_pdf": [
+        46
+      ],
+      "pagina_impressa": [
+        28
+      ],
+      "titulo": "Matrizes de fluência e retração",
+      "valores": {
+        "colunas_UR_espessura": [
+          [
+            40,
+            20
+          ],
+          [
+            40,
+            60
+          ],
+          [
+            55,
+            20
+          ],
+          [
+            55,
+            60
+          ],
+          [
+            75,
+            20
+          ],
+          [
+            75,
+            60
+          ],
+          [
+            90,
+            20
+          ],
+          [
+            90,
+            60
+          ]
+        ],
+        "linhas_t0_dias": [
+          5,
+          30,
+          60
+        ],
+        "phi_C20_C45": [
+          [
+            4.6,
+            3.8,
+            3.9,
+            3.3,
+            2.8,
+            2.4,
+            2,
+            1.9
+          ],
+          [
+            3.4,
+            3,
+            2.9,
+            2.6,
+            2.2,
+            2,
+            1.6,
+            1.5
+          ],
+          [
+            2.9,
+            2.7,
+            2.5,
+            2.3,
+            1.9,
+            1.8,
+            1.4,
+            1.4
+          ]
+        ],
+        "phi_C50_C90": [
+          [
+            2.7,
+            2.4,
+            2.4,
+            2.1,
+            1.9,
+            1.8,
+            1.6,
+            1.5
+          ],
+          [
+            2,
+            1.8,
+            1.7,
+            1.6,
+            1.4,
+            1.3,
+            1.1,
+            1.1
+          ],
+          [
+            1.7,
+            1.6,
+            1.5,
+            1.4,
+            1.2,
+            1.2,
+            1,
+            1
+          ]
+        ],
+        "epsilon_cs": [
+          [
+            -0.53,
+            -0.47,
+            -0.48,
+            -0.43,
+            -0.36,
+            -0.32,
+            -0.18,
+            -0.15
+          ],
+          [
+            -0.44,
+            -0.45,
+            -0.41,
+            -0.41,
+            -0.33,
+            -0.31,
+            -0.17,
+            -0.15
+          ],
+          [
+            -0.39,
+            -0.43,
+            -0.36,
+            -0.4,
+            -0.3,
+            -0.31,
+            -0.17,
+            -0.15
+          ]
+        ]
+      },
+      "unidades": "phi adimensional; epsilon_cs em ‰; colunas [% UR, cm]",
+      "dominio": "Mesmas condições do registro fluencia_dominio; valores negativos de retração preservados.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "CAA",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "6.4 / Tabela 6.1",
+      "pagina_pdf": [
+        35
+      ],
+      "pagina_impressa": [
+        17
+      ],
+      "titulo": "Agressividade ambiental",
+      "valores": {
+        "I": [
+          "fraca",
+          "rural/submersa",
+          "risco insignificante"
+        ],
+        "II": [
+          "moderada",
+          "urbana",
+          "risco pequeno"
+        ],
+        "III": [
+          "forte",
+          "marinha/industrial",
+          "risco grande"
+        ],
+        "IV": [
+          "muito forte",
+          "industrial agressiva/respingos de maré",
+          "risco elevado"
+        ],
+        "UR_clima_seco_max": 65
+      },
+      "unidades": "classes adimensionais; UR: %",
+      "dominio": "Classificação depende de exposição/microclima e responsabilidade do projetista. Notas a/b admitem classe mais branda sob condições específicas; c indica ataque químico; 6.4.3 admite maior agressividade.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "qualidade_durabilidade",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "7.4.2 / Tabela 7.1",
+      "pagina_pdf": [
+        36
+      ],
+      "pagina_impressa": [
+        18
+      ],
+      "titulo": "Água/cimento e classe mínima",
+      "valores": {
+        "ordem_CAA": [
+          "I",
+          "II",
+          "III",
+          "IV"
+        ],
+        "CA": {
+          "agua_cimento_max": [
+            0.65,
+            0.6,
+            0.55,
+            0.45
+          ],
+          "classes_min": [
+            "C20",
+            "C25",
+            "C30",
+            "C40"
+          ]
+        },
+        "CP": {
+          "agua_cimento_max": [
+            0.6,
+            0.55,
+            0.5,
+            0.45
+          ],
+          "classes_min": [
+            "C25",
+            "C30",
+            "C35",
+            "C40"
+          ]
+        }
+      },
+      "unidades": "a/c em massa: adimensional; classe C: MPa",
+      "dominio": "Na falta de ensaios comprobatórios de durabilidade; CA=armado, CP=protendido; NBR 12655 e condições de 7.4.3; não define tipo de cimento comercial.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "cobrimento",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "7.4.7 / Tabela 7.2",
+      "pagina_pdf": [
+        37,
+        38
+      ],
+      "pagina_impressa": [
+        19,
+        20
+      ],
+      "titulo": "Cobrimentos nominais",
+      "valores": {
+        "ordem_CAA": [
+          "I",
+          "II",
+          "III",
+          "IV"
+        ],
+        "CA_laje": [
+          20,
+          25,
+          35,
+          45
+        ],
+        "CA_viga_pilar": [
+          25,
+          30,
+          40,
+          50
+        ],
+        "CA_contato_solo": [
+          30,
+          30,
+          40,
+          50
+        ],
+        "CP_laje": [
+          25,
+          30,
+          40,
+          50
+        ],
+        "CP_viga_pilar": [
+          30,
+          35,
+          45,
+          55
+        ],
+        "delta_c_corrente_min": 10,
+        "delta_c_controle_rigoroso": 5,
+        "nominal": "cmin+delta_c",
+        "limites": [
+          "cnom>=diametro_barra",
+          "cnom>=diametro_equivalente_feixe",
+          "cnom>=0.5*diametro_bainha",
+          "dmax_agregado<=1.2*cnom"
+        ]
+      },
+      "unidades": "mm",
+      "dominio": "Tabela para delta_c=10 mm; notas: face superior revestida pode ter regra alternativa >=15 mm; superfícies muito agressivas CAA IV; pilar junto à fundação em contato com solo >=45 mm; classe superior ao mínimo pode reduzir até 5 mm; pré-fabricado remete NBR 9062; controle rigoroso deve estar explícito em projeto. Não somar reduções automaticamente.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "passiva",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.3.1–8.3.9",
+      "pagina_pdf": [
+        46,
+        47,
+        48
+      ],
+      "pagina_impressa": [
+        28,
+        29,
+        30
+      ],
+      "titulo": "Aço passivo",
+      "valores": {
+        "categorias": [
+          "CA-25",
+          "CA-50",
+          "CA-60"
+        ],
+        "norma_produto": "NBR 7480",
+        "superficies": [
+          "lisa",
+          "entalhada",
+          "nervurada"
+        ],
+        "rho": 7850,
+        "alpha": 1e-05,
+        "Es_sem_dado": 210,
+        "temperatura_dilatacao_diagrama": [
+          -20,
+          150
+        ],
+        "sem_patamar": "fyk na deformação permanente de 0.2%",
+        "ensaio_tracao": "NBR ISO 6892-1",
+        "dutilidade": {
+          "CA-25/CA-50": "alta, se satisfizer fst/fy e epsilon_uk da NBR 7480",
+          "CA-60": "normal, se satisfizer a norma"
+        },
+        "soldabilidade": "NBR 8965; ensaio NBR 8548; requisitos NBR 7480",
+        "alongamento_total_plastico_emenda_soldada_min": 2
+      },
+      "unidades": "rho: kg/m³; alpha: 1/°C; Es: GPa; temperatura: °C; alongamento: %",
+      "dominio": "fyk, fstk, epsilon_uk por ensaio; diâmetros e áreas nominais pela NBR 7480. Nomes CA não foram convertidos em fyk numérico por inferência.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "aderencia_passiva",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.3.2 / Tabela 8.3; 9.3.1–9.3.2.1",
+      "pagina_pdf": [
+        47,
+        52,
+        53
+      ],
+      "pagina_impressa": [
+        29,
+        34,
+        35
+      ],
+      "titulo": "Aderência passiva",
+      "valores": {
+        "eta1": {
+          "lisa": 1,
+          "entalhada": 1.4,
+          "nervurada": 2.25
+        },
+        "fbd": "eta1*eta2*eta3*fctd",
+        "fctd": "fctk,inf/gamma_c",
+        "eta2": {
+          "boa": 1,
+          "ma": 0.7
+        },
+        "eta3": "1 se phi<32; (132-phi)/100 se phi>=32"
+      },
+      "unidades": "fbd/fctd: MPa; phi: mm; fatores adimensionais",
+      "dominio": "Boa aderência depende da inclinação e da posição de concretagem de 9.3.1; não confundir categoria CA com superfície. Barras >45°; horizontais/inclinadas <45° têm critérios de altura 60 cm e afastamentos 30 cm. Demais posições/formas deslizantes: má aderência.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "ativa",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.4.1–8.4.7",
+      "pagina_pdf": [
+        48,
+        49
+      ],
+      "pagina_impressa": [
+        30,
+        31
+      ],
+      "titulo": "Aço ativo",
+      "valores": {
+        "produtos": {
+          "fios": "NBR 7482",
+          "cordoalhas": "NBR 7483"
+        },
+        "rho": 7850,
+        "alpha": 1e-05,
+        "Ep_sem_dado": 200,
+        "temperatura_dilatacao": [
+          -20,
+          100
+        ],
+        "temperatura_diagrama": [
+          -20,
+          150
+        ],
+        "ensaio_diagrama": "NBR 6349",
+        "dobramentos": "NBR 6004/NBR 7482",
+        "dutilidade": "normal se epsilon_uk superar mínimo NBR 7482/7483"
+      },
+      "unidades": "kg/m³; 1/°C; GPa; °C",
+      "dominio": "Resistências fpyk/fptk, diâmetros, áreas e relaxação nominais remetidos a normas de produto; fabricante/ensaios prioritários. Não foram inventadas classes CP comerciais.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "relaxacao",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "8.4.8 / Tabela 8.4",
+      "pagina_pdf": [
+        49,
+        50
+      ],
+      "pagina_impressa": [
+        31,
+        32
+      ],
+      "titulo": "Relaxação após 1000 h a 20°C",
+      "valores": {
+        "sigma_po_sobre_fptk": [
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "cordoalha_RN": [
+          0,
+          3.5,
+          7,
+          12
+        ],
+        "cordoalha_RB": [
+          0,
+          1.3,
+          2.5,
+          3.5
+        ],
+        "fio_RN": [
+          0,
+          2.5,
+          5,
+          8.5
+        ],
+        "fio_RB": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "barra": [
+          0,
+          1.5,
+          4,
+          7
+        ]
+      },
+      "unidades": "% de relaxação; tensão relativa adimensional",
+      "dominio": "Ensaio NBR 7484 e limites de produto NBR 7482/7483; tabela são valores de projeto históricos; RN normal/RB baixa.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "relaxacao_tempo",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "9.6.3.4.5",
+      "pagina_pdf": [
+        71,
+        72
+      ],
+      "pagina_impressa": [
+        53,
+        54
+      ],
+      "titulo": "Relaxação em outros tempos",
+      "valores": {
+        "psi": "psi1000*((t-t0)/41.67)^0.15",
+        "psi_infinito": "aproximadamente 2.5*psi1000",
+        "abaixo_0_5_fptk": "sem perda admitida",
+        "intermediarios": "interpolação linear"
+      },
+      "unidades": "t em dias; psi em mesma escala de psi1000",
+      "dominio": "20°C; relaxação pura não equivale à perda progressiva total. Texto remete à Tabela 8.3 para interpolação, mas a tabela de relaxação é 8.4; erro remissivo preservado como ressalva.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "aderencia_ativa",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "9.3.2.2–9.3.2.3",
+      "pagina_pdf": [
+        53
+      ],
+      "pagina_impressa": [
+        35
+      ],
+      "titulo": "Aderência ativa pré-tracionada",
+      "valores": {
+        "fbpd": "eta_p1*eta_p2*fctd",
+        "eta_p1": {
+          "fio_liso": 1,
+          "cordoalha_3_7_fios": 1.2,
+          "fio_dentado": 1.4
+        },
+        "eta_p2": {
+          "boa": 1,
+          "ma": 0.7
+        },
+        "fator_escorregamento_fletidos": 1.75
+      },
+      "unidades": "MPa; coeficientes adimensionais",
+      "dominio": "fctd na idade da protensão para transferência e aos 28 dias para ancoragem. Fator 1.75 de 9.3.2.3 aplica ao escorregamento em elementos fletidos, também à passiva.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "ancoragem_passiva",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "9.4.2.3–9.4.2.6",
+      "pagina_pdf": [
+        54,
+        55,
+        56
+      ],
+      "pagina_impressa": [
+        36,
+        37,
+        38
+      ],
+      "titulo": "Ancoragem e dobramento",
+      "valores": {
+        "lb": "max(phi*fyd/(4*fbd),25*phi)",
+        "lb_nec": "alpha*lb*As_calc/As_ef >= lb_min",
+        "lb_min": "max(0.3*lb,10*phi,100 mm)",
+        "alpha_casos": [
+          1,
+          0.7,
+          0.5
+        ],
+        "pino_gancho_phi_menor20": {
+          "CA-25": 4,
+          "CA-50": 5,
+          "CA-60": 6
+        },
+        "pino_gancho_phi_maiorigual20": {
+          "CA-25": 5,
+          "CA-50": 8,
+          "CA-60": null
+        }
+      },
+      "unidades": "comprimentos: mm; pinos: múltiplos de phi; tensões: MPa",
+      "dominio": "Barras comprimidas sem gancho; lisas tracionadas obrigam gancho; condições de cobrimento, solda, confinamento e armadura transversal são inseparáveis. Null indica ausência de valor na tabela, não zero.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "emendas",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "9.5",
+      "pagina_pdf": [
+        60,
+        61,
+        62,
+        63,
+        64
+      ],
+      "pagina_impressa": [
+        42,
+        43,
+        44,
+        45,
+        46
+      ],
+      "titulo": "Emendas passivas",
+      "valores": {
+        "tipos": [
+          "traspasse",
+          "luvas",
+          "solda",
+          "dispositivos justificados"
+        ],
+        "traspasse_phi_max": 32,
+        "feixe_diametro_equivalente_max": 45,
+        "alpha0t_por_percentual": {
+          "<=20": 1.2,
+          "25": 1.4,
+          "33": 1.6,
+          "50": 1.8,
+          ">50": 2
+        },
+        "lot": "alpha0t*lb_nec >= max(0.3*alpha0t*lb,15*phi,200 mm)",
+        "loc": "lb_nec >= max(0.6*lb,15*phi,200 mm)",
+        "luva_solda_sem_norma_especifica": "resistência >= 1.15 vezes escoamento ensaiado"
+      },
+      "unidades": "mm; coeficientes adimensionais",
+      "dominio": "Traspasse com distância livre até 4phi; acima acrescentar afastamento livre; proporção emendada e costura dependem da Tabela 9.3/9.5.2.4. Não constitui especificação executiva completa.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "protensao_limites",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "9.6.1.2",
+      "pagina_pdf": [
+        65
+      ],
+      "pagina_impressa": [
+        47
+      ],
+      "titulo": "Limites no aparelho de tração",
+      "valores": {
+        "pre_RN": [
+          0.77,
+          0.9
+        ],
+        "pre_RB": [
+          0.77,
+          0.85
+        ],
+        "pos_RN": [
+          0.74,
+          0.87
+        ],
+        "pos_RB": [
+          0.74,
+          0.82
+        ],
+        "cordoalha_engraxada_RB": [
+          0.8,
+          0.88
+        ],
+        "CP85_105_barra": [
+          0.72,
+          0.88
+        ]
+      },
+      "unidades": "pares: [fator fptk, fator fpyk], ambos limites simultâneos",
+      "dominio": "Tensão na saída do aparelho durante operação; no término aplicar 9.6.1.2.2. Exceção executiva 9.6.1.2.3 exige análise própria; não liberar operação por esta tabela.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "perdas_protensao",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "9.6.3",
+      "pagina_pdf": [
+        67,
+        68,
+        69,
+        70,
+        71,
+        72
+      ],
+      "pagina_impressa": [
+        49,
+        50,
+        51,
+        52,
+        53,
+        54
+      ],
+      "titulo": "Famílias de perdas",
+      "valores": {
+        "iniciais": [
+          "atrito em desvios",
+          "escorregamento ancoragem",
+          "relaxação inicial",
+          "retração inicial"
+        ],
+        "imediatas": [
+          "encurtamento concreto",
+          "atrito",
+          "deslizamento/acomodação"
+        ],
+        "progressivas": [
+          "retração",
+          "fluência",
+          "relaxação"
+        ],
+        "atrito": "DeltaP=Pi*(1-exp(-(mu*soma_alpha+k*x)))",
+        "mu_estimado": [
+          0.5,
+          0.3,
+          0.2,
+          0.1,
+          0.05
+        ],
+        "k_sem_dado": "0.01*mu"
+      },
+      "unidades": "mu: 1/rad; k: 1/m; x: m; ângulo: rad",
+      "dominio": "Sequência mu: cabo/concreto; barra ou fio rugoso/bainha metálica; liso ou cordoalha/metálica; liso ou cordoalha/metálica lubrificada; cordoalha/polipropileno lubrificado. Métodos progressivos exigem interação de causas, aderência/estádio I e condições de fase; coeficientes isolados não bastam.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "bloco_retangular_ELU",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "17.2.2",
+      "pagina_pdf": [
+        138,
+        139,
+        140
+      ],
+      "pagina_impressa": [
+        120,
+        121,
+        122
+      ],
+      "titulo": "Hipóteses e domínios ELU",
+      "valores": {
+        "lambda_ate50": 0.8,
+        "lambda_acima50": "0.8-(fck-50)/400",
+        "alpha_c_ate50": 0.85,
+        "alpha_c_acima50": "0.85*(1-(fck-50)/200)",
+        "tensao_bloco": "alpha_c*fcd ou 0.9*alpha_c*fcd segundo geometria",
+        "tracao_concreto": "desprezada na seção normal no ELU",
+        "dominios": [
+          "reta a tração uniforme",
+          "1 tração sem compressão",
+          "2 flexão sem atingir epsilon_cu",
+          "3 concreto no limite e aço escoado",
+          "4 concreto no limite e aço sem escoar",
+          "4a armaduras comprimidas",
+          "5 compressão sem tração",
+          "reta b compressão uniforme"
+        ]
+      },
+      "unidades": "fck/fcd: MPa; deformações: ‰; fatores adimensionais",
+      "dominio": "Seções planas e compatibilidade para barras aderentes; cabos não aderentes têm regra própria de acréscimo; domínios não são classes de concreto.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "ELS_rigidez",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "17.3.1–17.3.3",
+      "pagina_pdf": [
+        142,
+        143,
+        144,
+        145,
+        146,
+        147
+      ],
+      "pagina_impressa": [
+        124,
+        125,
+        126,
+        127,
+        128,
+        129
+      ],
+      "titulo": "Fissuração e deformações",
+      "valores": {
+        "Mr": "alpha*fct*Ic/yt",
+        "alpha_forma": {
+          "T_duploT": 1.2,
+          "I_Tinvertido": 1.3,
+          "retangular": 1.5
+        },
+        "fct_ELS_F": "fctk,inf",
+        "fct_ELS_deformacao": "fct,m",
+        "modulo": "Ecs",
+        "fluencia": "obrigatória na flecha",
+        "barras_lisas": "Mr reduzido à metade na rigidez equivalente",
+        "envolvimento_fissuras": "até 7.5phi do eixo da barra",
+        "relacao_modulos_estadioII_simplificado": 15
+      },
+      "unidades": "MPa; comprimentos coerentes; fatores adimensionais",
+      "dominio": "Rigidez efetiva depende de fissuração, armadura, processo construtivo e tempo; ELS não usa rigidez bruta indiscriminadamente. Cabos dentro de bainha não entram no grupo local de controle de fissuras.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "armadura_min_viga",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "17.3.5.2.1 / Tabela 17.3",
+      "pagina_pdf": [
+        148
+      ],
+      "pagina_impressa": [
+        130
+      ],
+      "titulo": "Armadura mínima à flexão",
+      "valores": {
+        "Md_min": "0.8*W0*fctk,sup",
+        "taxa_min_absoluta": 0.15,
+        "fck": [
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "rho_min_retangular": [
+          0.15,
+          0.15,
+          0.15,
+          0.164,
+          0.179,
+          0.194,
+          0.208,
+          0.211,
+          0.219,
+          0.226,
+          0.233,
+          0.239,
+          0.245,
+          0.251,
+          0.256
+        ]
+      },
+      "unidades": "fck: MPa; rho: %",
+      "dominio": "Tabela pressupõe aço CA-50, d/h=0.8, gamma_c=1.4, gamma_s=1.15; outros fatores exigem recálculo. Conferida visualmente na página PDF 148; não universalizar 0.15%. Exceções de 17.3.5.2.1 e 17.3.5.2.2 requerem análise específica.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "armadura_pele_max_pilar",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "17.3.5.2.3–17.3.5.3",
+      "pagina_pdf": [
+        150
+      ],
+      "pagina_impressa": [
+        132
+      ],
+      "titulo": "Pele, limites de vigas e pilares",
+      "valores": {
+        "pele_cada_face": 0.1,
+        "pele_espacamento_max": 20,
+        "pele_limite_exigido": 5,
+        "dispensa_pele_altura_ate": 60,
+        "viga_As_mais_Aslinha_max": 4,
+        "pilar_As_min": "max(0.15*Nd/fyd,0.004*Ac)",
+        "pilar_As_max": 8
+      },
+      "unidades": "pele e máximos: % Ac ou Ac_alma; espaçamento/altura: cm; limite pele: cm²/m",
+      "dominio": "Pele CA-50/CA-60, em cada face e sem contar armadura principal. Máximo viga fora das emendas; máximo pilar inclui sobreposição; considerar 18.4.2.2.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "cisalhamento_acos",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "17.4.1–17.4.2; 17.5.1",
+      "pagina_pdf": [
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159
+      ],
+      "pagina_impressa": [
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141
+      ],
+      "titulo": "Armaduras de esforço tangencial",
+      "valores": {
+        "rho_sw_min": "0.2*fct,m/fywk",
+        "alpha_armadura": [
+          45,
+          90
+        ],
+        "theta_modelo_I": 45,
+        "theta_modelo_II": [
+          30,
+          45
+        ],
+        "fywd_estribos_teto": 435,
+        "barra_dobrada_limite": "0.7*fyd; teto 435 MPa",
+        "barra_dobrada_parcela_max": 60,
+        "torcao_fywk_teto": 500,
+        "torcao_fywd_teto": 435,
+        "alpha_v2": "1-fck/250"
+      },
+      "unidades": "ângulos: graus; tensões: MPa; parcela: %",
+      "dominio": "Teto fywd é de dimensionamento, não nova classe do produto. Exceções à mínima em 17.4.1.1.2; torção exige armadura periférica longitudinal/transversal e verificações simultâneas de concreto/aço.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "detalhamento_vigas",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "18.2–18.3",
+      "pagina_pdf": [
+        163,
+        164,
+        165,
+        166,
+        167,
+        168
+      ],
+      "pagina_impressa": [
+        145,
+        146,
+        147,
+        148,
+        149,
+        150
+      ],
+      "titulo": "Disposição de barras em vigas",
+      "valores": {
+        "curvatura_barra_dobrada_phi": {
+          "CA-25": 10,
+          "CA-50": 15,
+          "CA-60": 18
+        },
+        "livre_horizontal": "max(20 mm,phi_barra_feixe_luva,1.2*dmax)",
+        "livre_vertical": "max(20 mm,phi_barra_feixe_luva,0.5*dmax)",
+        "estribo_phi_min": 5,
+        "estribo_phi_max": "bw/10; lisa <=12 mm",
+        "tela_estribo_phi_min_condicional": 4.2,
+        "estribo_s_Vd_ate_067VRd2": "min(0.6*d,300 mm)",
+        "estribo_s_Vd_acima_067VRd2": "min(0.3*d,200 mm)",
+        "pele_s": "min(d/3,20 cm)"
+      },
+      "unidades": "comprimentos: mm salvo explícito; curvaturas em múltiplos de phi",
+      "dominio": "Garantir vibrador/adensamento; dobramento especial não é gancho; tela 4.2 mm exige proteção contra corrosão; geometria e ancoragem têm regras complementares.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "detalhamento_pilares",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "18.4–18.5",
+      "pagina_pdf": [
+        168,
+        169,
+        170
+      ],
+      "pagina_impressa": [
+        150,
+        151,
+        152
+      ],
+      "titulo": "Disposição de barras em pilares",
+      "valores": {
+        "barra_long_phi_min": 10,
+        "barra_long_phi_max": "menor_dimensao/8",
+        "barras_circulo_min": 6,
+        "estribo_phi_min": "max(5 mm,phi_long/4)",
+        "s_estribo_max": "min(200 mm,menor_dimensao,24phi para CA-25 ou 12phi para CA-50)",
+        "s_longitudinal_eixos_max": "min(2*menor_dimensao,400 mm)",
+        "C55_C90": "recomenda reduzir s_estribo máximo em 50% e ganchos >=135°",
+        "pilar_parede": "maior dimensão >5 vezes menor dimensão"
+      },
+      "unidades": "mm; graus; %",
+      "dominio": "Exceção a phi_t>=phi/4 condicionada por fórmula específica e mesmo aço; pilares-parede exigem efeitos localizados e regras adicionais.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "cabos_disposicao",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "18.6",
+      "pagina_pdf": [
+        170,
+        171,
+        172,
+        173
+      ],
+      "pagina_impressa": [
+        152,
+        153,
+        154,
+        155
+      ],
+      "titulo": "Tipos de protensão e disposição",
+      "valores": {
+        "sistemas": [
+          "pré-tração",
+          "pós-tração aderente",
+          "pós-tração não aderente",
+          "protensão externa"
+        ],
+        "raios_sem_justificativa": {
+          "fio": 4,
+          "barra": 8,
+          "cordoalha": 12
+        },
+        "extremidade_reta_min": 100,
+        "monocordoalha_engraxada_reta_min": 50,
+        "bainha_aderente": "metálica, estanque e resistente a concreto fresco/montagem",
+        "bainha_nao_aderente": "plástica com proteção adequada",
+        "bainha_externa": "plástica resistente a intempéries"
+      },
+      "unidades": "raio: m; extremidade reta: cm",
+      "dominio": "Raios devem ser superiores aos valores citados; alternativas dependem de ensaios. Espaçamentos de Tabelas 18.1/18.2 dependem do arranjo gráfico; não transcritos como regra escalar única.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "lajes",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "19.2–19.5; 20.1",
+      "pagina_pdf": [
+        174,
+        175,
+        176,
+        177,
+        178,
+        183,
+        184,
+        185,
+        186,
+        187
+      ],
+      "pagina_impressa": [
+        156,
+        157,
+        158,
+        159,
+        160,
+        165,
+        166,
+        167,
+        168,
+        169
+      ],
+      "titulo": "Lajes, corte e punção",
+      "valores": {
+        "flexao": "mesmos princípios 17.2.1–17.2.3",
+        "desvio_armadura_tensao_principal_relevante": 15,
+        "fywd_laje_ate15cm": 250,
+        "fywd_laje_acima35cm": 435,
+        "fywd_puncao_conector_base": 300,
+        "fywd_puncao_estribo_base": 250,
+        "contornos": [
+          "C face do pilar",
+          "C' afastado 2d",
+          "C'' afastado 2d da última armadura"
+        ],
+        "rho_min_neg_sem_ativa": "rho_min de 17.3.5.2.1",
+        "rho_min_positiva_duas_direcoes_sem_ativa": "0.67*rho_min",
+        "secundaria_uma_direcao": [
+          ">=20% principal",
+          ">=0.9 cm²/m",
+          ">=0.5*rho_min"
+        ],
+        "barra_phi_max": "h/8",
+        "s_principal": "min(2h,20 cm)",
+        "s_secundaria_max": 33
+      },
+      "unidades": "tensão: MPa; graus; espaçamento: cm",
+      "dominio": "Interpolação linear de fywd entre espessuras 15/35 cm; punção estribo CA-50/CA-60, espessuras >15 cm remetem 19.4.2. Armadura ativa aderente/não aderente tem mínimos distintos na Tabela 19.1, não generalizados aqui.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "lajes_protendidas",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "20.3–20.5",
+      "pagina_pdf": [
+        188,
+        189,
+        190,
+        191
+      ],
+      "pagina_impressa": [
+        170,
+        171,
+        172,
+        173
+      ],
+      "titulo": "Disposição em lajes protendidas e telas",
+      "valores": {
+        "s_cabos_max": "min(6h,120 cm)",
+        "compressao_media_min_apos_perdas": 1,
+        "s_livre_min_cabos": 5,
+        "cobrimento_abertura_min": 7.5,
+        "feixe_monocordoalhas_max": 4,
+        "estribo_puncao_phi_max": "h/20",
+        "tela_nervurada_ancoragem": "max(10phi,10 cm)",
+        "emenda_tela_principal": "2 malhas ou 3 fios",
+        "emenda_tela_secundaria": "1 malha ou 2 fios"
+      },
+      "unidades": "cm; MPa; contagens adimensionais",
+      "dominio": "Telas produzidas conforme NBR 7481; detalhes contra colapso progressivo e de apoio são complementares.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "regioes_especiais",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "21",
+      "pagina_pdf": [
+        191,
+        192,
+        193,
+        194,
+        195,
+        196
+      ],
+      "pagina_impressa": [
+        173,
+        174,
+        175,
+        176,
+        177,
+        178
+      ],
+      "titulo": "Regiões descontínuas e interfaces",
+      "valores": {
+        "tipos": [
+          "introdução cargas",
+          "ancoragens protensão",
+          "chumbadores",
+          "furos/aberturas",
+          "nós",
+          "juntas concretagem"
+        ],
+        "pressao_local": "FRd=Ac0*fcd*sqrt(Ac1/Ac0) <=3.3*fcd*Ac0",
+        "pre_moldados": "NBR 9062"
+      },
+      "unidades": "áreas e forças coerentes; tensão: MPa",
+      "dominio": "Equação de pressão local não vale para ancoragens de protensão, que exigem certificação. Tirantes/armaduras de costura, fendilhamento e continuidade exigem modelos específicos.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "bielas",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "22.2–22.3",
+      "pagina_pdf": [
+        197,
+        198,
+        199
+      ],
+      "pagina_impressa": [
+        179,
+        180,
+        181
+      ],
+      "titulo": "Regiões D, bielas e nós",
+      "valores": {
+        "fronteira_B_D": "aproximadamente h da descontinuidade",
+        "tangente_angulo_biela": [
+          0.57,
+          2
+        ],
+        "fcd1": "0.85*alpha_v2*fcd",
+        "fcd2": "0.60*alpha_v2*fcd",
+        "fcd3": "0.72*alpha_v2*fcd",
+        "tirante_As": "FSd/fyd"
+      },
+      "unidades": "tensões: MPa; tangentes: adimensionais",
+      "dominio": "fcd1: prismática/nó CCC; fcd2: mais de um tirante/nó CTT ou TTT; fcd3: tirante único/nó CCT; coeficiente adicional gamma_n remete NBR 8681.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "elementos_especiais",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "22.4–22.7",
+      "pagina_pdf": [
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210
+      ],
+      "pagina_impressa": [
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192
+      ],
+      "titulo": "Armaduras de elementos especiais",
+      "valores": {
+        "viga_parede": "l/h<2 biapoiada; l/h<3 contínua",
+        "armadura_horizontal_vertical_viga_parede_min": "0.075% b por face por metro",
+        "consolo_curto": "0.5d<=a<=d",
+        "consolo_muito_curto": "a<0.5d",
+        "costura_consolo_curto_min": "40% tirante em 2d/3",
+        "sapata_rigida": "h>=(a-ap)/3 nas duas direções",
+        "bloco_flexao_faixas": "mais de 85% nas faixas das estacas",
+        "bloco_distribuicao": "20% dos esforços totais"
+      },
+      "unidades": "razões adimensionais; armadura %; dimensões coerentes",
+      "dominio": "Consolos e Gerber não equivalem a vigas usuais; sapatas/blocos exigem modelo tridimensional, ancoragem, fendilhamento e avaliação de interação solo-estrutura.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "fadiga_concreto",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "23.5.1–23.5.4",
+      "pagina_pdf": [
+        211,
+        212,
+        213,
+        214
+      ],
+      "pagina_impressa": [
+        193,
+        194,
+        195,
+        196
+      ],
+      "titulo": "Fadiga do concreto",
+      "valores": {
+        "fora_escopo": "alta intensidade com <20000 repetições",
+        "faixa_citada": "média/baixa intensidade até 2000000 ciclos",
+        "fcd_fad": "0.45*fcd",
+        "fctd_fad": "0.3*fctd,inf",
+        "contribuicao_Vc_fadiga": "0.5 do estático",
+        "relacao_modulos_simplificada": 10
+      },
+      "unidades": "MPa; ciclos; fatores adimensionais",
+      "dominio": "Não é resistência estática de material; depende de combinação frequente, gradiente e espectro acumulado/Palmgren-Miner.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "fadiga_acos",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "23.5.5 / Tabelas 23.2–23.3",
+      "pagina_pdf": [
+        215,
+        216,
+        217
+      ],
+      "pagina_impressa": [
+        197,
+        198,
+        199
+      ],
+      "titulo": "Variações de tensão de fadiga",
+      "valores": {
+        "diametros_passiva": [
+          10,
+          12.5,
+          16,
+          20,
+          22,
+          25,
+          32,
+          40
+        ],
+        "CA50_D_maiorigual25phi": [
+          190,
+          190,
+          190,
+          185,
+          180,
+          175,
+          165,
+          150
+        ],
+        "CA50_D_menor25phi": [
+          105,
+          105,
+          105,
+          105,
+          100,
+          95,
+          90,
+          85
+        ],
+        "CA50_marinho_IV": [
+          65,
+          65,
+          65,
+          65,
+          65,
+          65,
+          65,
+          65
+        ],
+        "CA50_solda_conector": [
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85
+        ],
+        "ativa_pre_reta": 150,
+        "ativa_pos_curva": 110,
+        "ativa_cabo_reto": 150,
+        "ativa_conector_ancoragem_engraxada": 70,
+        "curvas": {
+          "T1": [
+            1000000,
+            5,
+            9
+          ],
+          "T2": [
+            1000000,
+            3,
+            7
+          ],
+          "T3": [
+            1000000,
+            3,
+            5
+          ],
+          "T4": [
+            10000000,
+            3,
+            5
+          ]
+        }
+      },
+      "unidades": "diâmetro: mm; variação: MPa; curvas [N*,k1,k2]",
+      "dominio": "Valores para 2e6 ciclos, passiva CA-50; forma de dobramento, relevo/identificação, solda e ambiente importam. Configurações sem comprovação podem exigir redução 30%; não extrapolar para todos aços CA.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "simples",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "24.2–24.6",
+      "pagina_pdf": [
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224
+      ],
+      "pagina_impressa": [
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206
+      ],
+      "titulo": "Concreto simples estrutural",
+      "valores": {
+        "classes_citadas": [
+          "C15",
+          "C40"
+        ],
+        "gamma_c": 1.68,
+        "sigma_compressao_max": "0.85*fcd",
+        "sigma_tracao_max": "0.85*fctd",
+        "epsilon_c_lim": 0.0035,
+        "epsilon_ct_lim": 0.00035,
+        "proibicoes": [
+          "sismos",
+          "explosões",
+          "situações que dependem de dutilidade",
+          "blocos sobre estacas",
+          "peças curvas ou torção de equilíbrio (24.5.2.5)"
+        ],
+        "armadura_inferior_minima": "dimensionar como simples; exceção para armadura de transferência"
+      },
+      "unidades": "MPa; deformações adimensionais",
+      "dominio": "Confinamento, compressão de seção ou apoio contínuo condicionam uso. Classes C15 a C40 são citadas especificamente em 24.3; considerar esse escopo especial, sem estender C15 ao concreto armado/protendido.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "aceitacao",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "25.1–25.3",
+      "pagina_pdf": [
+        224
+      ],
+      "pagina_impressa": [
+        206
+      ],
+      "titulo": "Recebimento, utilização e manutenção",
+      "valores": {
+        "recebimento": [
+          "NBR 12655",
+          "NBR 7480",
+          "NBR 7481",
+          "NBR 7482",
+          "NBR 7483"
+        ],
+        "manual": "profissional habilitado; NBR 5674",
+        "projeto": "aceitação provisória com pendências; definitiva após saneamento"
+      },
+      "unidades": "requisitos documentais",
+      "dominio": "Rastreabilidade de materiais e execução integra a segurança; catálogo não substitui recebimento ou laudos.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "anexoA_fluencia",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "Anexo A.1–A.2.2",
+      "pagina_pdf": [
+        225,
+        226,
+        227,
+        228,
+        229
+      ],
+      "pagina_impressa": [
+        207,
+        208,
+        209,
+        210,
+        211
+      ],
+      "titulo": "Modelo informativo de fluência",
+      "valores": {
+        "epsilon_total": "epsilon_imediata+epsilon_cc+epsilon_cs",
+        "epsilon_cc": "sigma_c/Ec28*phi(t,t0)",
+        "phi": "phi_a+phi_f_infinito*(beta_f(t)-beta_f(t0))+phi_d_infinito*beta_d",
+        "phi_a_C20_C45": "0.8*(1-fc(t0)/fc(infinito))",
+        "phi_a_C50_C90": "1.4*(1-fc(t0)/fc(infinito))",
+        "phi_f_infinito_C20_C45": "phi1c*phi2c",
+        "phi_f_infinito_C50_C90": "0.45*phi1c*phi2c",
+        "phi2c": "(42+hfic)/(20+hfic)",
+        "phi_d_infinito": 0.4,
+        "beta_d": "(t-t0+20)/(t-t0+70)",
+        "beta_f": "(t^2+A*t+B)/(t^2+C*t+D)",
+        "coeficientes_beta_f": {
+          "A": "42*h^3-350*h^2+588*h+113",
+          "B": "768*h^3-3060*h^2+3234*h-23",
+          "C": "-200*h^3+13*h^2+1090*h+183",
+          "D": "7579*h^3-31916*h^2+35343*h+1931"
+        }
+      },
+      "unidades": "hfic de phi2c: cm; h nos polinômios: m, limitado [0.05,1.6]; t: dias >=3; phi: adimensional",
+      "dominio": "Informativo, grupos I/II; tensões de serviço, fluência linear com tensão, superposição incremental. Ec28 por ensaio NBR 8522 ou Tabela 8.1. Idades fictícias; mesma formulação pode ser usada em tração.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "anexoA_tabelaA1",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "Anexo A.2.3 / Tabela A.1",
+      "pagina_pdf": [
+        230
+      ],
+      "pagina_impressa": [
+        212
+      ],
+      "titulo": "Consistência, ambiente e deformações diferidas",
+      "valores": {
+        "abatimentos_cm": [
+          [
+            0,
+            4
+          ],
+          [
+            5,
+            9
+          ],
+          [
+            10,
+            15
+          ]
+        ],
+        "linhas": [
+          {
+            "ambiente": "água",
+            "UR": null,
+            "phi1c": [
+              0.6,
+              0.8,
+              1
+            ],
+            "epsilon1s_vezes_1e4": [
+              1,
+              1,
+              1
+            ],
+            "gamma": 30
+          },
+          {
+            "ambiente": "muito úmido acima da água",
+            "UR": 90,
+            "phi1c": [
+              1,
+              1.3,
+              1.6
+            ],
+            "epsilon1s_vezes_1e4": [
+              -1.9,
+              -2.5,
+              -3.1
+            ],
+            "gamma": 5
+          },
+          {
+            "ambiente": "ar livre em geral",
+            "UR": 70,
+            "phi1c": [
+              1.5,
+              2,
+              2.5
+            ],
+            "epsilon1s_vezes_1e4": [
+              -3.8,
+              -5,
+              -6.2
+            ],
+            "gamma": 1.5
+          },
+          {
+            "ambiente": "seco",
+            "UR": 40,
+            "phi1c": [
+              2.3,
+              3,
+              3.8
+            ],
+            "epsilon1s_vezes_1e4": [
+              -4.7,
+              -6.3,
+              -7.9
+            ],
+            "gamma": 1
+          }
+        ],
+        "phi1c_5a9": "4.45-0.035*U",
+        "epsilon1s_vezes_1e4_5a9": "-8.09+U/15-U^2/2284-U^3/133765+U^4/7608150",
+        "ajustes_abatimento": "-25% para 0–4 cm; +25% para 10–15 cm; U<=90%"
+      },
+      "unidades": "UR: %; abatimento: cm; phi1c/gamma: adimensionais; valor de epsilon1s = número tabulado *1e-4",
+      "dominio": "Consistência do mesmo traço SEM superplastificantes/superfluidificantes; expressão epsilon1s somente 40%<=U<=90%, phi1c U<=90%; tabela admite expansão positiva na água. Norma de abatimento citada NBR NM 67, situação atual não verificada.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "anexoA_retracao",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "Anexo A.2.3",
+      "pagina_pdf": [
+        229,
+        230,
+        231
+      ],
+      "pagina_impressa": [
+        211,
+        212,
+        213
+      ],
+      "titulo": "Modelo informativo de retração",
+      "valores": {
+        "epsilon_cs": "epsilon_cs_infinito*(beta_s(t)-beta_s(t0))",
+        "epsilon_cs_infinito": "epsilon1s*epsilon2s",
+        "epsilon2s": "(33+2*hfic)/(20.8+3*hfic)",
+        "beta_s": "((t/100)^3+A*(t/100)^2+B*(t/100))/((t/100)^3+C*(t/100)^2+D*(t/100)+E)",
+        "coeficientes": {
+          "A": 40,
+          "B": "116*h^3-282*h^2+220*h-4.8",
+          "C": "2.5*h^3-8.8*h+40.7",
+          "D": "-75*h^3+585*h^2+496*h-6.8",
+          "E": "-169*h^4+88*h^3+584*h^2-39*h+0.8"
+        }
+      },
+      "unidades": "hfic de epsilon2s: cm; h dos polinômios: m, limitado [0.05,1.6]; t: dias >=3; epsilon: adimensional",
+      "dominio": "Dependência de umidade, consistência e espessura fictícia; beta_s e Tabela A.1 conferidos visualmente no PDF 230. Registro permanece histórico e bloqueado.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "anexoA_idade_cimento",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "Anexo A.2.4 / Tabela A.2",
+      "pagina_pdf": [
+        231,
+        232
+      ],
+      "pagina_impressa": [
+        213,
+        214
+      ],
+      "titulo": "Cimentos, idade e espessura fictícias",
+      "valores": {
+        "idade_ficticia": "alpha*sum((Ti+10)/30*Delta_tef_i)",
+        "alpha_fluencia": {
+          "CP_III_IV_lento": 1,
+          "CP_I_II_normal": 2,
+          "CP_V_ARI_rapido": 3
+        },
+        "alpha_retracao_todos": 1,
+        "hfic": "gamma*2*Ac/uar",
+        "gamma": "1+exp(-7.8+0.1*U)",
+        "legenda": {
+          "CP_I_I_S": "comum",
+          "CP_II_E_F_Z": "composto",
+          "CP_III": "alto-forno",
+          "CP_IV": "pozolânico",
+          "CP_V_ARI": "alta resistência inicial",
+          "RS": "propriedade de resistência a sulfatos de alguns tipos"
+        }
+      },
+      "unidades": "idade: dias; Ti: °C; U: %; hfic: unidade linear de Ac/uar; alpha/gamma adimensionais",
+      "dominio": "Fórmula de idade não vale para cura a vapor; Tabela A.2 visualmente conferida. hfic do Anexo tem fator gamma; não igualar silenciosamente ao 2Ac/u da Tabela 8.2. Tipos históricos de cimento não são lista comercial atual.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    },
+    {
+      "id": "anexoA_interacao",
+      "fonte_id": "nbr6118_2014_corrigida",
+      "item": "Anexo A.2.5–A.3",
+      "pagina_pdf": [
+        233,
+        234
+      ],
+      "pagina_impressa": [
+        215,
+        216
+      ],
+      "titulo": "Deformação com variação de tensão e armadura",
+      "valores": {
+        "modelo": "superposição/integral para história de tensões; aproximação com coeficiente alpha",
+        "alpha_perdas_protensao_fase_unica": 0.5,
+        "alpha_outros_usuais": 0.8,
+        "armadura_livre": "epsilon_s=sigma_s(t0)/Es*(1+chi(t,t0))",
+        "armadura_impedida": "epsilon_s=sigma_s(t0)/Es*(1+chi)+Delta_sigma_s/Es*(1+chi)",
+        "consideracao_fluencia_armadura": "sigma_s(t0)>0.5*fptk"
+      },
+      "unidades": "tensão/Es em mesma unidade; epsilon/chi/alpha adimensionais",
+      "dominio": "Aproximação depende do caso; alpha de A.2.5 não é alpha de idade do cimento. Ec(t0) pode diferir de Ec28; fundações deformáveis e tirantes metálicos exigem atenção. Integral e forma aproximada não transcritas por fragmentação de símbolos no texto.",
+      "observacoes": "",
+      "habilitado_para_calculo": false
+    }
+  ],
+  "lacunas_atuais": [
+    {
+      "norma": "NBR 6118",
+      "situacao": "texto vigente e emendas não verificados neste catálogo",
+      "necessidade": "Obter edição vigente, emendas/correções, confrontar cada regra e aprovar escopo."
+    },
+    {
+      "norma": "NBR 7480",
+      "situacao": "texto vigente e emendas não verificados neste catálogo",
+      "necessidade": "Certificar categorias, fyk/fstk, ductilidade, diâmetros, áreas e soldabilidade vigentes."
+    },
+    {
+      "norma": "NBR 7481",
+      "situacao": "texto vigente e emendas não verificados neste catálogo",
+      "necessidade": "Telas, fabricação, áreas, malhas e recebimento."
+    },
+    {
+      "norma": "NBR 7482 / NBR 7483 / NBR 7484",
+      "situacao": "texto vigente e emendas não verificados neste catálogo",
+      "necessidade": "Produtos de protensão, propriedades nominais, relaxação e ensaios."
+    },
+    {
+      "norma": "NBR 12655",
+      "situacao": "texto vigente e emendas não verificados neste catálogo",
+      "necessidade": "Dosagem, fcm/fck, controle, produção, aceitação e durabilidade."
+    },
+    {
+      "norma": "NBR 14931",
+      "situacao": "texto vigente e emendas não verificados neste catálogo",
+      "necessidade": "Execução, cura, tolerâncias, montagem, concretagem e controle."
+    },
+    {
+      "norma": "NBR 8953",
+      "situacao": "texto vigente e emendas não verificados neste catálogo",
+      "necessidade": "Classificação vigente por resistência, massa específica e consistência."
+    },
+    {
+      "norma": "NBR 8522 / NBR 5738 / NBR 5739 / NBR 7222 / NBR 12142",
+      "situacao": "texto vigente e emendas não verificados neste catálogo",
+      "necessidade": "Versões vigentes dos ensaios e eventuais divisões/substituições."
+    },
+    {
+      "norma": "NBR 9062 / NBR 15200 / NBR 15577 / NBR 5674",
+      "situacao": "texto vigente e emendas não verificados neste catálogo",
+      "necessidade": "Pré-moldados, incêndio, reação álcali-agregado e manutenção fora de implementação."
+    },
+    {
+      "norma": "Normas de cimento citadas em 7.4.3",
+      "situacao": "texto vigente e emendas não verificados neste catálogo",
+      "necessidade": "Lista de 2014 pode conter documentos substituídos; identificar equivalências vigentes antes de catalogar cimentos comerciais."
+    }
+  ]
+}

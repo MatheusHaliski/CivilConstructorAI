@@ -21,6 +21,9 @@ paths:
 
 # RF04 · Lançamento de pilares, vigas, lajes e cargas (permanentes/vento)
 
+> **Revisão normativa de 10/11/2026:** a base alvo de ações/combinações deve considerar NBR 8681:2025 e demais normas aplicáveis, com auditoria do texto integral. Os fatores legados do protótipo não estão integralmente auditados nessa edição. Ver `docs/validacao/MATRIZ_NORMATIVA_ABNT.md`; a aprovação técnica permanece bloqueada.
+
+
 > Monta o modelo estrutural sobre a malha de eixos (RF03): pilares nas interseções, vigas entre apoios, lajes por
 > contorno fechado, e as ações — permanentes, acidentais e vento — com as combinações de cálculo. É a entrada do
 > MEF (RF05).

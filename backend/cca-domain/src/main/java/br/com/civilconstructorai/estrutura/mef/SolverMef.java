@@ -156,9 +156,9 @@ public final class SolverMef {
             var reacoes = new ArrayList<Reacao>();
             for (var ap : modelo.apoios()) {
                 int b = ap.no() * 6;
-                reacoes.add(new Reacao(ap.no(), arr(reacoesVetor[b] - cargasNodais[b]), arr(reacoesVetor[b + 1] - cargasNodais[b + 1]),
-                        arr(reacoesVetor[b + 2] - cargasNodais[b + 2]), arr(reacoesVetor[b + 3] - cargasNodais[b + 3]),
-                        arr(reacoesVetor[b + 4] - cargasNodais[b + 4]), arr(reacoesVetor[b + 5] - cargasNodais[b + 5])));
+                reacoes.add(new Reacao(ap.no(), valorFinito(reacoesVetor[b] - cargasNodais[b]), valorFinito(reacoesVetor[b + 1] - cargasNodais[b + 1]),
+                        valorFinito(reacoesVetor[b + 2] - cargasNodais[b + 2]), valorFinito(reacoesVetor[b + 3] - cargasNodais[b + 3]),
+                        valorFinito(reacoesVetor[b + 4] - cargasNodais[b + 4]), valorFinito(reacoesVetor[b + 5] - cargasNodais[b + 5])));
             }
             double dmax = 0;
             for (int n = 0; n < modelo.nos().size(); n++) {
@@ -195,8 +195,13 @@ public final class SolverMef {
         var sec = barra.secao();
         var pontos = new ArrayList<Esforco>(PONTOS);
         double nMax = 0, vMax = 0, mMax = -Double.MAX_VALUE, mMin = Double.MAX_VALUE, flechaMax = 0;
-        for (int p = 0; p < PONTOS; p++) {
-            double s = l * p / (PONTOS - 1);
+        var secoes = new java.util.TreeSet<Double>();
+        for (int p = 0; p < PONTOS; p++) secoes.add(l * p / (PONTOS - 1));
+        // dMy/ds = Vz e dMz/ds = Vy: inclua os extremos exatos da carga uniforme.
+        adicionarExtremo(secoes, f[2], w[2], l);
+        adicionarExtremo(secoes, f[1], w[1], l);
+        adicionarExtremosFlecha(secoes,uLocal,w,l,sec);
+        for (double s : secoes) {
             double n = -(f[0] + w[0] * s);
             double vy = f[1] + w[1] * s;
             double vz = f[2] + w[2] * s;
@@ -204,14 +209,55 @@ public final class SolverMef {
             double my = momentoFletor(f, s, w[2]);
             double mz = -f[5] + f[1] * s + w[1] * s * s / 2;
             double flecha = flecha(uLocal, w, s, l, sec);
-            pontos.add(new Esforco(arr(s), arr(n), arr(vy), arr(vz), arr(t), arr(my), arr(mz), flecha));
+            pontos.add(new Esforco(valorFinito(s), valorFinito(n), valorFinito(vy), valorFinito(vz), valorFinito(t), valorFinito(my), valorFinito(mz), flecha));
             nMax = Math.max(nMax, Math.abs(n));
             vMax = Math.max(vMax, Math.max(Math.abs(vy), Math.abs(vz)));
             mMax = Math.max(mMax, my);
             mMin = Math.min(mMin, my);
             flechaMax = Math.max(flechaMax, flecha);
         }
-        return new ResultadoBarra(barra.id(), barra.elementoId(), barra.rotulo(), arr(l), pontos, arr(nMax), arr(vMax), arr(mMax), arr(mMin), flechaMax);
+        return new ResultadoBarra(barra.id(), barra.elementoId(), barra.rotulo(), valorFinito(l), pontos, valorFinito(nMax), valorFinito(vMax), valorFinito(mMax), valorFinito(mMin), flechaMax);
+    }
+
+    private static void adicionarExtremo(java.util.Set<Double> secoes, double cortanteInicial, double carga, double l) {
+        if (carga == 0) return;
+        double s = -cortanteInicial / carga;
+        if (Double.isFinite(s) && s > 0 && s < l) secoes.add(s);
+    }
+
+    /**
+     * Cada deslocamento transversal é um polinômio de grau até quatro em t=s/L.
+     * O extremo da resultante satisfaz vy·dvy/dt + vz·dvz/dt = 0 (grau até sete),
+     * não necessariamente dvy/dt=0 ou dvz/dt=0. Inclui as raízes além dos extremos de esforço.
+     */
+    private static void adicionarExtremosFlecha(java.util.Set<Double> secoes, double[] u, double[] w,
+                                               double l, ModeloAnalitico.Secao sec) {
+        double[] vy = polinomioTransversal(u[1],l*u[5],u[7],l*u[11],w[1]*Math.pow(l,4)/(24*sec.e()*sec.iz()));
+        double[] vz = polinomioTransversal(u[2],-l*u[4],u[8],-l*u[10],w[2]*Math.pow(l,4)/(24*sec.e()*sec.iy()));
+        double escala = 0;
+        for (int i=0; i<vy.length; i++) {
+            escala = Math.max(escala,Math.max(Math.abs(valorFinito(vy[i])),Math.abs(valorFinito(vz[i]))));
+        }
+        if (escala == 0) return;
+        // Escala comum mantém as raízes e evita quadrados de deslocamentos muito grandes/pequenos.
+        for (int i=0; i<vy.length; i++) { vy[i] /= escala; vz[i] /= escala; }
+        double[] derivadaNorma = new double[8];
+        for (int i=0; i<vy.length; i++) {
+            for (int j=1; j<vy.length; j++) {
+                derivadaNorma[i+j-1] += j*(vy[i]*vy[j]+vz[i]*vz[j]);
+            }
+        }
+        for (double t : RaizesPolinomiais.noIntervaloUnitario(derivadaNorma)) {
+            if (t > 0 && t < 1) {
+                double s = t*l;
+                if (secoes.stream().noneMatch(x -> Math.abs(x-s) <= l*RaizesPolinomiais.TOL_POSICAO)) secoes.add(s);
+            }
+        }
+    }
+
+    private static double[] polinomioTransversal(double ui, double inclinacaoI, double uj, double inclinacaoJ, double particular) {
+        return new double[]{ui,inclinacaoI,-3*ui-2*inclinacaoI+3*uj-inclinacaoJ+particular,
+                2*ui+inclinacaoI-2*uj+inclinacaoJ-2*particular,particular};
     }
 
     /**
@@ -237,7 +283,7 @@ public final class SolverMef {
         double vy = n1 * u[1] + n2 * u[5] + n3 * u[7] + n4 * u[11] + w[1] * particular / (sec.e() * sec.iz());
         // plano x-z: θy = −dw/dx → sinais de N2 e N4 trocados
         double vz = n1 * u[2] - n2 * u[4] + n3 * u[8] - n4 * u[10] + w[2] * particular / (sec.e() * sec.iy());
-        return Math.sqrt(vy * vy + vz * vz);
+        return Math.hypot(vy,vz);
     }
 
     // ------------------------------------------------------------------ álgebra
@@ -477,7 +523,9 @@ public final class SolverMef {
         return out;
     }
 
-    private static double arr(double v) {
-        return Math.round(v * 1e4) / 1e4;
+    private static double valorFinito(double v) {
+        if (!Double.isFinite(v)) throw new IllegalArgumentException("Resultado estrutural não finito.");
+        // Arredondamento é responsabilidade da apresentação, nunca do resultado de cálculo.
+        return v;
     }
 }

@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Dimensionamento em concreto armado pela NBR 6118:2023 (seções retangulares, CA-50). Unidades de entrada em
- * kN, m e MPa; áreas de aço em cm². Cada método devolve também a memória de cálculo em pt-BR.
+ * Pré-dimensionamento legado referenciado à NBR 6118:2023 (seções retangulares, CA-50).
+ * A revisão integral pela NBR 6118:2026 está pendente: estes métodos isolados não comprovam
+ * segurança global nem autorizam aprovação. Ver docs/validacao/MATRIZ_NORMATIVA_ABNT.md.
+ * Entradas em kN, m e MPa; áreas de aço em cm²; memória em pt-BR.
  */
 public final class Nbr6118 {
 
@@ -79,21 +81,23 @@ public final class Nbr6118 {
      * Diagrama retangular 0,8x · 0,85 fcd; limite x/d ≤ 0,45 (fck ≤ 50) para ductilidade (14.6.4.3).
      */
     public static Flexao flexaoSimples(double mk, double b, double h, double d, double fck) {
+        concretoSimplificado(fck);
+        magnitude("Mk", mk); positivo("b", b); positivo("h", h); alturaUtil(d,h);
         var mem = Memoria.nova();
         double md = GAMA_F * mk;
         double fcdKpa = fcd(fck) * 1000, fydKpa = fyd() * 1000;
         mem.add("Md = γf·Mk = %.2f·%.2f = %.2f kN·m", GAMA_F, mk, md);
         mem.add("fcd = %.1f/%.2f = %.2f MPa; fyd = %.0f/%.2f = %.1f MPa", fck, GAMA_C, fcd(fck), FYK, GAMA_S, fyd());
-        double disc = d * d - 2.353 * md / (fcdKpa * b);
+        double disc = d * d - (2 / 0.85) * md / (fcdKpa * b);
         double asMin = rhoMin(fck) / 100 * b * h * 1e4;
         if (disc < 0) {
-            mem.add("d² − 2,353·Md/(fcd·b) < 0: a seção não resiste ao momento com armadura simples.");
+            mem.add("d² − (2/0,85)·Md/(fcd·b) < 0: a seção não resiste ao momento com armadura simples.");
             return new Flexao(false, "Seção insuficiente para Md: aumente h ou use armadura dupla.", Double.NaN, asMin, Double.NaN, 4, mem);
         }
         double x = (d - Math.sqrt(disc)) / 0.8;
         double xd = x / d;
         double dominio = xd <= 0.259 ? 2 : 3;
-        mem.add("x = (d − √(d² − 2,353·Md/(fcd·b)))/0,8 = %.4f m; x/d = %.3f (domínio %.0f)", x, xd, dominio);
+        mem.add("x = (d − √(d² − (2/0,85)·Md/(fcd·b)))/0,8 = %.4f m; x/d = %.3f (domínio %.0f)", x, xd, dominio);
         boolean ductil = xd <= 0.45;
         double as = md / (fydKpa * (d - 0.4 * x)) * 1e4;
         mem.add("As = Md/(fyd·(d − 0,4x)) = %.2f cm²", as);
@@ -108,11 +112,13 @@ public final class Nbr6118 {
             mem.add("As = %.2f cm² > As,máx = 4%%·Ac = %.2f cm².", asFinal, asMax);
             return new Flexao(false, "Armadura acima de 4 % da seção.", asFinal, asMin, xd, dominio, mem);
         }
-        return new Flexao(true, "Verifica", Math.round(asFinal * 100) / 100.0, Math.round(asMin * 100) / 100.0, Math.round(xd * 1000) / 1000.0, dominio, mem);
+        return new Flexao(true, "Verifica", asFinal, asMin, xd, dominio, mem);
     }
 
     /** cisalhamento, modelo de cálculo I (θ = 45°), 17.4.2.2; Vk em kN, bw e d em m */
     public static Cisalhamento cisalhamento(double vk, double bw, double d, double fck) {
+        concretoSimplificado(fck);
+        magnitude("Vk", vk); positivo("bw", bw); positivo("d", d);
         var mem = Memoria.nova();
         double vsd = GAMA_F * vk;
         double alphaV2 = 1 - fck / 250;
@@ -129,7 +135,7 @@ public final class Nbr6118 {
         double aswMin = 0.2 * fctm(fck) / FYK * bw * 1e4; // cm²/m (ρsw,min = 0,2·fctm/fywk)
         double sMax = vsd <= 0.67 * vrd2 ? Math.min(0.6 * d, 0.30) : Math.min(0.3 * d, 0.20);
         mem.add("Vsw = Vsd − Vc = %.2f kN; Asw/s = Vsw/(0,9·d·fywd) = %.2f cm²/m; Asw/s,min = %.2f cm²/m; s,máx = %.0f cm", vsw, aswS, aswMin, sMax * 100);
-        return new Cisalhamento(true, "Verifica", Math.round(Math.max(aswS, aswMin) * 100) / 100.0, Math.round(aswMin * 100) / 100.0, Math.round(vrd2 * 10) / 10.0, Math.round(vc * 10) / 10.0, sMax * 100, mem);
+        return new Cisalhamento(true, "Verifica", Math.max(aswS, aswMin), aswMin, vrd2, vc, sMax * 100, mem);
     }
 
     /**
@@ -138,6 +144,8 @@ public final class Nbr6118 {
      * com curvatura aproximada quando λ > 35, e flexo-compressão pela aproximação Nd ≤ 0,85·fcd·Ac·(1 − 2e/h) + As·fyd.
      */
     public static Pilar pilar(double nk, double b, double h, double l, double fck) {
+        concretoSimplificado(fck);
+        magnitude("Nk", nk); positivo("b", b); positivo("h", h); positivo("l", l);
         var mem = Memoria.nova();
         double nd = GAMA_F * nk;
         double ac = b * h;
@@ -169,7 +177,7 @@ public final class Nbr6118 {
         if (Math.min(b, h) < 0.19 || ac < 0.036) {
             return new Pilar(false, "Seção abaixo do mínimo (19 cm / 360 cm²).", asFinal, asMin, asMax, lambda, mem);
         }
-        return new Pilar(true, "Verifica", Math.round(asFinal * 100) / 100.0, Math.round(asMin * 100) / 100.0, Math.round(asMax * 100) / 100.0, Math.round(lambda * 10) / 10.0, mem);
+        return new Pilar(true, "Verifica", asFinal, asMin, asMax, lambda, mem);
     }
 
     /**
@@ -177,6 +185,9 @@ public final class Nbr6118 {
      * carga quase-permanente q (kN/m), vão L (m), limite L/250.
      */
     public static Flecha flecha(double qQuasePermanente, double l, double b, double h, double d, double asCm2, double fck, double ecsKpa) {
+        concretoSimplificado(fck);
+        magnitude("q", qQuasePermanente); positivo("l", l); positivo("b", b); positivo("h", h);
+        alturaUtil(d,h); positivo("As", asCm2); positivo("Ecs", ecsKpa);
         var mem = Memoria.nova();
         double ic = b * h * h * h / 12;
         double yt = h / 2;
@@ -196,17 +207,39 @@ public final class Nbr6118 {
         double limite = l / 250;
         mem.add("Ic = %.3e m⁴; Mr = %.2f kN·m; Ma = %.2f kN·m; III = %.3e m⁴; Ieq = %.3e m⁴ (%.2f·Ic)", ic, mr, ma, iii, ieq, ieq / ic);
         mem.add("f0 = 5qL⁴/(384·Ecs·Ieq) = %.2f mm; f∞ = f0·(1 + αf) = %.2f mm; limite L/250 = %.2f mm", fImediata * 1000, fTotal * 1000, limite * 1000);
-        return new Flecha(fTotal <= limite, Math.round(fTotal * 1e4) / 10.0, Math.round(limite * 1e4) / 10.0, Math.round(ieq / ic * 1000) / 1000.0, mem);
+        return new Flecha(fTotal <= limite, fTotal * 1000, limite * 1000, ieq / ic, mem);
     }
 
     /** abertura de fissura (17.3.3.2), estimativa pela tensão no aço em serviço; CAA II → wk ≤ 0,3 mm */
     public static Fissuracao fissuracao(double mFrequente, double d, double asCm2, double bitolaMm, double fck, double wkLimiteMm) {
+        concretoSimplificado(fck);
+        magnitude("M frequente", mFrequente); positivo("d", d); positivo("As", asCm2);
+        positivo("bitola", bitolaMm); positivo("limite de fissura", wkLimiteMm);
         var mem = Memoria.nova();
         double z = 0.9 * d;
         double sigmaS = mFrequente / (z * asCm2 / 1e4) / 1000; // MPa
         double eta1 = 2.25;
         double wk = (bitolaMm / (12.5 * eta1)) * (sigmaS / ES) * (3 * sigmaS / fctm(fck));
         mem.add("σs = M/(0,9d·As) = %.1f MPa; wk = (φ/(12,5·η1))·(σs/Es)·(3σs/fctm) = %.3f mm ≤ %.1f mm", sigmaS, wk, wkLimiteMm);
-        return new Fissuracao(wk <= wkLimiteMm, Math.round(wk * 1000) / 1000.0, wkLimiteMm, mem);
+        return new Fissuracao(wk <= wkLimiteMm, wk, wkLimiteMm, mem);
+    }
+    /** Faixa implementada neste protótipo, não limite geral da norma. */
+    private static void concretoSimplificado(double fck) {
+        if (!Double.isFinite(fck) || fck < 20 || fck > 50) {
+            throw new IllegalArgumentException("Rotina simplificada suporta apenas fck finito entre 20 e 50 MPa.");
+        }
+    }
+
+    private static void magnitude(String nome, double valor) {
+        if (!Double.isFinite(valor) || valor < 0) throw new IllegalArgumentException(nome + " deve ser finito e não negativo.");
+    }
+
+    private static void positivo(String nome, double valor) {
+        if (!Double.isFinite(valor) || valor <= 0) throw new IllegalArgumentException(nome + " deve ser finito e positivo.");
+    }
+
+    private static void alturaUtil(double d, double h) {
+        positivo("d", d);
+        if (d >= h) throw new IllegalArgumentException("Altura útil d deve ser menor que h.");
     }
 }
